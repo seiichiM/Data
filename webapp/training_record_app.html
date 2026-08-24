@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>環境教育・訓練記録(個人別) 管理システム</title>
+<style>
+  :root{
+    --border:#333;
+    --bg:#f4f5f7;
+    --panel:#fff;
+    --accent:#2b5797;
+    --accent-light:#e8f0fb;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:"Meiryo","Yu Gothic","MS PGothic",sans-serif;
+    background:var(--bg);
+    margin:0;
+    color:#222;
+  }
+  header{
+    background:var(--accent);
+    color:#fff;
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  header h1{font-size:16px;margin:0;}
+  .toolbar{display:flex;gap:6px;flex-wrap:wrap;}
+  button, .file-btn{
+    background:#fff;
+    color:var(--accent);
+    border:1px solid #ccc;
+    border-radius:4px;
+    padding:6px 10px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  button:hover, .file-btn:hover{background:var(--accent-light);}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  button.danger{background:#c0392b;color:#fff;border-color:#c0392b;}
+  .layout{
+    display:flex;
+    gap:12px;
+    padding:12px;
+    align-items:flex-start;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid #ddd;
+    border-radius:6px;
+    padding:10px;
+  }
+  #listPanel{
+    width:300px;
+    flex-shrink:0;
+  }
+  #listPanel h2{font-size:13px;margin:0 0 8px 0;}
+  #search{width:100%;padding:6px;margin-bottom:8px;border:1px solid #ccc;border-radius:4px;font-size:12px;}
+  #recordList{list-style:none;margin:0;padding:0;max-height:70vh;overflow-y:auto;}
+  #recordList li{
+    padding:8px;
+    border-bottom:1px solid #eee;
+    cursor:pointer;
+    font-size:12px;
+  }
+  #recordList li:hover{background:var(--accent-light);}
+  #recordList li.active{background:var(--accent);color:#fff;}
+  #recordList li .sub{color:#888;font-size:11px;}
+  #recordList li.active .sub{color:#dce8fb;}
+  #formPanel{flex:1;min-width:0;}
+  .status{font-size:11px;color:#666;margin-left:8px;}
+
+  /* ==== Form sheet (based on 様式-4) ==== */
+  #sheet{
+    border:2px solid var(--border);
+    max-width:900px;
+    margin:0 auto;
+    background:#fff;
+  }
+  #sheet .title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  #sheet .title-row .formno{font-size:11px;}
+  #sheet .title-row .keep{font-size:11px;}
+  #sheet h2.main-title{
+    text-align:center;
+    font-size:18px;
+    margin:4px 0;
+    padding:4px;
+    border-bottom:1px solid var(--border);
+  }
+  .header-fields{
+    display:grid;
+    grid-template-columns: 90px 1fr 70px 1fr 90px 1fr;
+    border-bottom:2px solid var(--border);
+  }
+  .header-fields .lbl{
+    background:#eef2f7;
+    border:1px solid var(--border);
+    padding:6px;
+    font-size:12px;
+    display:flex;
+    align-items:center;
+  }
+  .header-fields input{
+    border:1px solid var(--border);
+    padding:6px;
+    font-size:13px;
+    width:100%;
+  }
+  .header-fields .name-field{grid-column: span 1;}
+  table.entries{
+    width:100%;
+    border-collapse:collapse;
+  }
+  table.entries th{
+    background:#eef2f7;
+    border:1px solid var(--border);
+    font-size:12px;
+    padding:4px;
+  }
+  table.entries td{
+    border:1px solid var(--border);
+    padding:2px;
+    vertical-align:top;
+  }
+  table.entries td input, table.entries td select, table.entries td textarea{
+    width:100%;
+    border:none;
+    font-size:12px;
+    padding:4px;
+    font-family:inherit;
+    resize:none;
+  }
+  table.entries td textarea{height:40px;}
+  table.entries td input:focus, table.entries td select:focus, table.entries td textarea:focus{
+    background:#fffbe0;
+    outline:1px solid #f0c000;
+  }
+  .col-period{width:120px;}
+  .col-eval{width:70px;text-align:center;}
+  .footnote{
+    font-size:11px;
+    padding:6px 10px;
+    border-top:1px solid var(--border);
+  }
+  @media print{
+    header, #listPanel, .toolbar, .status{display:none !important;}
+    body{background:#fff;}
+    .layout{padding:0;display:block;}
+    #sheet{border:2px solid #000;max-width:100%;}
+    button{display:none;}
+  }
+  .hint{font-size:11px;color:#777;padding:4px 10px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>環境教育・訓練記録(個人別) 管理システム（様式-4）</h1>
+  <div class="toolbar">
+    <button id="btnNew">新規作成</button>
+    <button id="btnSave" class="primary">保存</button>
+    <button id="btnDelete" class="danger">削除</button>
+    <button id="btnDuplicate">複製</button>
+    <button id="btnPrint">印刷/PDF出力</button>
+    <button id="btnExportJson">JSON書出し</button>
+    <label class="file-btn">JSON読込<input type="file" id="importJson" accept=".json" style="display:none;"></label>
+    <button id="btnExportCsv">CSV書出し(全件)</button>
+    <label class="file-btn">CSV読込<input type="file" id="importCsv" accept=".csv" style="display:none;"></label>
+    <span class="status" id="statusMsg"></span>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="panel" id="listPanel">
+    <h2>登録済み記録一覧</h2>
+    <input type="text" id="search" placeholder="氏名・所属・従業員コードで検索">
+    <ul id="recordList"></ul>
+  </div>
+
+  <div class="panel" id="formPanel">
+    <div id="sheet">
+      <div class="title-row">
+        <span class="formno">様式-4</span>
+        <span class="keep">【記録保管期限：在籍年】</span>
+      </div>
+      <h2 class="main-title">環境教育･訓練記録(個人別)</h2>
+      <div class="header-fields">
+        <div class="lbl">所属</div>
+        <input type="text" id="f_department">
+        <div class="lbl">職名</div>
+        <input type="text" id="f_position">
+        <div class="lbl">従業員コ－ド</div>
+        <input type="text" id="f_empcode">
+      </div>
+      <div class="header-fields" style="grid-template-columns:90px 1fr;">
+        <div class="lbl">氏　名</div>
+        <input type="text" id="f_name">
+      </div>
+
+      <table class="entries">
+        <thead>
+          <tr>
+            <th rowspan="2" style="width:26px;">環境教育・訓練記録<br>含む自己啓発</th>
+            <th class="col-period">期　間</th>
+            <th>内　容</th>
+            <th class="col-eval">上級者評価</th>
+          </tr>
+        </thead>
+        <tbody id="entriesBody">
+        </tbody>
+      </table>
+      <div class="footnote">
+        評価基準　A：優良　B：可　C：不可<br>
+        部門長本人の評価は､自己評価とする。
+      </div>
+    </div>
+    <div class="hint">※ 上級者評価は A（優良）/ B（可）/ C（不可）から選択してください。</div>
+  </div>
+</div>
+
+<script>
+const ROW_COUNT = 27; // 原本のフォーム行数(9〜35行目)相当
+const DB_KEY = 'training_records_db_v1';
+
+let db = loadDb();
+let currentId = null;
+
+function loadDb(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    return raw ? JSON.parse(raw) : { records: [] };
+  }catch(e){
+    console.error(e);
+    return { records: [] };
+  }
+}
+function saveDb(){
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+function uid(){
+  return 'r_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+}
+function emptyRecord(){
+  return {
+    id: uid(),
+    department: '',
+    position: '',
+    empcode: '',
+    name: '',
+    entries: Array.from({length: ROW_COUNT}, () => ({period:'', content:'', evaluation:''})),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function buildEntryRows(){
+  const tbody = document.getElementById('entriesBody');
+  tbody.innerHTML = '';
+  for(let i=0;i<ROW_COUNT;i++){
+    const tr = document.createElement('tr');
+    if(i===0){
+      // first row includes the vertical merged label cell visually via rowspan
+      tr.innerHTML = `
+        <td rowspan="${ROW_COUNT}" style="writing-mode:vertical-rl;text-align:center;font-size:11px;background:#eef2f7;"></td>
+        <td class="col-period"><input type="text" data-idx="${i}" data-field="period" placeholder="例: R6.4〜R6.9"></td>
+        <td><textarea data-idx="${i}" data-field="content"></textarea></td>
+        <td class="col-eval">
+          <select data-idx="${i}" data-field="evaluation">
+            <option value=""></option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </td>`;
+    } else {
+      tr.innerHTML = `
+        <td class="col-period"><input type="text" data-idx="${i}" data-field="period"></td>
+        <td><textarea data-idx="${i}" data-field="content"></textarea></td>
+        <td class="col-eval">
+          <select data-idx="${i}" data-field="evaluation">
+            <option value=""></option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </td>`;
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+function renderList(filter){
+  const ul = document.getElementById('recordList');
+  ul.innerHTML = '';
+  const f = (filter||'').trim().toLowerCase();
+  const records = db.records
+    .filter(r => !f || [r.name, r.department, r.empcode].some(v => (v||'').toLowerCase().includes(f)))
+    .sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ja'));
+
+  records.forEach(r => {
+    const li = document.createElement('li');
+    li.className = (r.id === currentId) ? 'active' : '';
+    li.innerHTML = `<div>${escapeHtml(r.name || '(氏名未入力)')}</div>
+      <div class="sub">${escapeHtml(r.department||'')} / ${escapeHtml(r.empcode||'')}</div>`;
+    li.addEventListener('click', () => loadRecord(r.id));
+    ul.appendChild(li);
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function loadRecord(id){
+  const r = db.records.find(x => x.id === id);
+  if(!r) return;
+  currentId = id;
+  document.getElementById('f_department').value = r.department || '';
+  document.getElementById('f_position').value = r.position || '';
+  document.getElementById('f_empcode').value = r.empcode || '';
+  document.getElementById('f_name').value = r.name || '';
+  const inputs = document.querySelectorAll('#entriesBody [data-idx]');
+  inputs.forEach(el => {
+    const idx = Number(el.dataset.idx);
+    const field = el.dataset.field;
+    el.value = (r.entries[idx] && r.entries[idx][field]) || '';
+  });
+  renderList(document.getElementById('search').value);
+  setStatus('読み込みました: ' + (r.name || ''));
+}
+
+function collectForm(){
+  const rec = {
+    id: currentId || uid(),
+    department: document.getElementById('f_department').value,
+    position: document.getElementById('f_position').value,
+    empcode: document.getElementById('f_empcode').value,
+    name: document.getElementById('f_name').value,
+    entries: Array.from({length: ROW_COUNT}, () => ({period:'', content:'', evaluation:''})),
+    updatedAt: new Date().toISOString()
+  };
+  document.querySelectorAll('#entriesBody [data-idx]').forEach(el => {
+    const idx = Number(el.dataset.idx);
+    const field = el.dataset.field;
+    rec.entries[idx][field] = el.value;
+  });
+  return rec;
+}
+
+function setStatus(msg){
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  setTimeout(() => { if(el.textContent === msg) el.textContent = ''; }, 4000);
+}
+
+function newRecord(){
+  const rec = emptyRecord();
+  currentId = rec.id;
+  document.getElementById('f_department').value = '';
+  document.getElementById('f_position').value = '';
+  document.getElementById('f_empcode').value = '';
+  document.getElementById('f_name').value = '';
+  document.querySelectorAll('#entriesBody [data-idx]').forEach(el => el.value = '');
+  renderList(document.getElementById('search').value);
+  setStatus('新規作成モードです。入力後「保存」を押してください。');
+}
+
+document.getElementById('btnNew').addEventListener('click', newRecord);
+
+document.getElementById('btnSave').addEventListener('click', () => {
+  const rec = collectForm();
+  if(!rec.name.trim() && !rec.department.trim() && !rec.empcode.trim()){
+    if(!confirm('氏名・所属・従業員コードが未入力です。このまま保存しますか？')) return;
+  }
+  const idx = db.records.findIndex(r => r.id === rec.id);
+  if(idx >= 0){ db.records[idx] = rec; } else { db.records.push(rec); }
+  currentId = rec.id;
+  saveDb();
+  renderList(document.getElementById('search').value);
+  setStatus('保存しました。');
+});
+
+document.getElementById('btnDelete').addEventListener('click', () => {
+  if(!currentId){ setStatus('削除対象が選択されていません。'); return; }
+  if(!confirm('この記録を削除しますか？')) return;
+  db.records = db.records.filter(r => r.id !== currentId);
+  currentId = null;
+  saveDb();
+  newRecord();
+  renderList(document.getElementById('search').value);
+  setStatus('削除しました。');
+});
+
+document.getElementById('btnDuplicate').addEventListener('click', () => {
+  const rec = collectForm();
+  rec.id = uid();
+  rec.name = rec.name + '（コピー）';
+  db.records.push(rec);
+  currentId = rec.id;
+  saveDb();
+  loadRecord(rec.id);
+  setStatus('複製しました。');
+});
+
+document.getElementById('btnPrint').addEventListener('click', () => window.print());
+
+document.getElementById('search').addEventListener('input', (e) => renderList(e.target.value));
+
+// ---- JSON export / import ----
+document.getElementById('btnExportJson').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(db, null, 2)], {type:'application/json'});
+  downloadBlob(blob, 'training_records_backup.json');
+  setStatus('JSONを書き出しました。');
+});
+
+document.getElementById('importJson').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!data.records || !Array.isArray(data.records)) throw new Error('形式が不正です');
+      if(!confirm(`${data.records.length}件の記録を読み込みます。既存データは保持されマージされます。よろしいですか？`)) return;
+      const existingIds = new Set(db.records.map(r => r.id));
+      data.records.forEach(r => {
+        if(existingIds.has(r.id)){
+          const i = db.records.findIndex(x => x.id === r.id);
+          db.records[i] = r;
+        } else {
+          db.records.push(r);
+        }
+      });
+      saveDb();
+      renderList('');
+      setStatus('JSONを取り込みました。');
+    }catch(err){
+      alert('読み込みエラー: ' + err.message);
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+  e.target.value = '';
+});
+
+// ---- CSV export / import (flat: one row per training entry) ----
+function csvEscape(v){
+  if(v == null) v = '';
+  v = String(v);
+  if(/[",\n]/.test(v)) v = '"' + v.replace(/"/g,'""') + '"';
+  return v;
+}
+
+document.getElementById('btnExportCsv').addEventListener('click', () => {
+  const header = ['氏名','所属','職名','従業員コード','期間','内容','上級者評価'];
+  const lines = [header.map(csvEscape).join(',')];
+  db.records.forEach(r => {
+    r.entries.forEach(e => {
+      if(!e.period && !e.content && !e.evaluation) return;
+      lines.push([r.name, r.department, r.position, r.empcode, e.period, e.content, e.evaluation].map(csvEscape).join(','));
+    });
+    if(r.entries.every(e => !e.period && !e.content && !e.evaluation)){
+      lines.push([r.name, r.department, r.position, r.empcode, '', '', ''].map(csvEscape).join(','));
+    }
+  });
+  const blob = new Blob(['﻿' + lines.join('\r\n')], {type:'text/csv'});
+  downloadBlob(blob, 'training_records.csv');
+  setStatus('CSVを書き出しました。');
+});
+
+function parseCsv(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; } else { inQuotes = false; }
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ row.push(field); field=''; }
+      else if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(c === '\r'){ /* skip */ }
+      else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.length > 1 || r[0] !== '');
+}
+
+document.getElementById('importCsv').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try{
+      const rows = parseCsv(ev.target.result);
+      if(rows.length < 1) throw new Error('データがありません');
+      const header = rows[0];
+      const dataRows = rows.slice(1);
+      const grouped = {};
+      dataRows.forEach(cols => {
+        const [name, department, position, empcode, period, content, evaluation] = cols;
+        const key = [name, department, empcode].join('|');
+        if(!grouped[key]){
+          grouped[key] = emptyRecord();
+          grouped[key].name = name || '';
+          grouped[key].department = department || '';
+          grouped[key].position = position || '';
+          grouped[key].empcode = empcode || '';
+          grouped[key]._cursor = 0;
+        }
+        if(period || content || evaluation){
+          const g = grouped[key];
+          if(g._cursor < ROW_COUNT){
+            g.entries[g._cursor] = {period: period||'', content: content||'', evaluation: evaluation||''};
+            g._cursor++;
+          }
+        }
+      });
+      const newRecs = Object.values(grouped).map(r => { delete r._cursor; return r; });
+      if(!confirm(`${newRecs.length}件の記録をCSVから取り込みます。よろしいですか？`)) return;
+      newRecs.forEach(r => db.records.push(r));
+      saveDb();
+      renderList('');
+      setStatus('CSVを取り込みました。');
+    }catch(err){
+      alert('読み込みエラー: ' + err.message);
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+  e.target.value = '';
+});
+
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// init
+buildEntryRows();
+newRecord();
+renderList('');
+</script>
+
+</body>
+</html>
