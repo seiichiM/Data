@@ -1,0 +1,1540 @@
+<title>FP3級 合格トラッカー</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F6F3EC;
+    --surface:#FFFFFF;
+    --surface-2:#EFEADD;
+    --ink:#20232B;
+    --ink-soft:#5B5F6B;
+    --line:#DED6C4;
+    --primary:#173B5E;
+    --primary-ink:#0E2439;
+    --accent:#B8862E;
+    --accent-soft:#EADFC4;
+    --success:#3E7D57;
+    --success-soft:#DEEBE1;
+    --danger:#A2453A;
+    --danger-soft:#F1DEDB;
+    --shadow: 0 1px 2px rgba(23,59,94,0.06), 0 6px 18px rgba(23,59,94,0.07);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12161F;
+      --surface:#1A2029;
+      --surface-2:#212836;
+      --ink:#EDEEF2;
+      --ink-soft:#9CA3B4;
+      --line:#323B4C;
+      --primary:#6E9BC7;
+      --primary-ink:#D8E6F4;
+      --accent:#D9AD5F;
+      --accent-soft:#3A2F1C;
+      --success:#7BC49A;
+      --success-soft:#1D3226;
+      --danger:#E08A7D;
+      --danger-soft:#3A1F1C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12161F;
+    --surface:#1A2029;
+    --surface-2:#212836;
+    --ink:#EDEEF2;
+    --ink-soft:#9CA3B4;
+    --line:#323B4C;
+    --primary:#6E9BC7;
+    --primary-ink:#D8E6F4;
+    --accent:#D9AD5F;
+    --accent-soft:#3A2F1C;
+    --success:#7BC49A;
+    --success-soft:#1D3226;
+    --danger:#E08A7D;
+    --danger-soft:#3A1F1C;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:"Shippori Mincho", "Hiragino Mincho ProN", serif; text-wrap:balance; margin:0;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  .wrap{max-width:1040px; margin:0 auto; padding:28px 20px 80px;}
+
+  header.top{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:22px 26px; background:var(--primary); color:#fff; border-radius:16px;
+    box-shadow:var(--shadow); margin-bottom:22px; flex-wrap:wrap;
+  }
+  header.top .brand{display:flex; align-items:baseline; gap:10px;}
+  header.top h1{font-size:1.5rem; color:#fff; letter-spacing:.02em;}
+  header.top .tag{font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); opacity:.95;}
+  header.top .exam-input{display:flex; align-items:center; gap:8px; font-size:.85rem; color:#EAF0F7;}
+  header.top input[type="date"]{
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.35); color:#fff;
+    border-radius:8px; padding:6px 9px; font:inherit;
+  }
+  header.top input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);}
+
+  .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:16px;}
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow:var(--shadow);
+  }
+  .span-4{grid-column:span 4;} .span-5{grid-column:span 5;} .span-6{grid-column:span 6;}
+  .span-7{grid-column:span 7;} .span-8{grid-column:span 8;} .span-12{grid-column:span 12;}
+  @media (max-width:760px){ .span-4,.span-5,.span-6,.span-7,.span-8{grid-column:span 12;} }
+
+  .card h2{font-size:1.05rem; margin-bottom:14px; color:var(--primary-ink);}
+  .eyebrow{font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:4px; display:block;}
+
+  .stat-row{display:flex; gap:18px; flex-wrap:wrap;}
+  .stat{flex:1; min-width:110px;}
+  .stat .v{font-family:"Shippori Mincho",serif; font-size:2rem; color:var(--primary-ink); line-height:1;}
+  .stat .l{font-size:.78rem; color:var(--ink-soft); margin-top:4px;}
+
+  .pill{
+    display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px;
+    font-size:.74rem; font-weight:700;
+  }
+  .pill.ok{background:var(--success-soft); color:var(--success);}
+  .pill.warn{background:var(--accent-soft); color:var(--accent);}
+  .pill.bad{background:var(--danger-soft); color:var(--danger);}
+  .pill.dot::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  nav.chapters{display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 10px;}
+  nav.chapters button{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink);
+    padding:9px 14px; border-radius:10px; font:inherit; font-size:.85rem; cursor:pointer;
+    display:flex; align-items:center; gap:8px; transition:.15s ease;
+  }
+  nav.chapters button:hover{border-color:var(--primary);}
+  nav.chapters button.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+  nav.chapters button .chip{
+    width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+    font-size:.68rem; font-weight:700; background:var(--surface-2); color:var(--ink-soft);
+  }
+  nav.chapters button.active .chip{background:rgba(255,255,255,0.25); color:#fff;}
+
+  .bars{display:flex; flex-direction:column; gap:10px;}
+  .bar-row{display:grid; grid-template-columns:150px 1fr 42px; align-items:center; gap:10px; font-size:.82rem;}
+  .bar-track{height:9px; background:var(--surface-2); border-radius:999px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:999px; background:linear-gradient(90deg, var(--primary), var(--accent));}
+  .bar-row .pct{text-align:right; color:var(--ink-soft); font-variant-numeric:tabular-nums;}
+
+  .tabs{display:flex; gap:6px; margin-bottom:16px;}
+  .tabs button{
+    border:none; background:transparent; color:var(--ink-soft); font:inherit; font-size:.88rem;
+    padding:8px 4px; cursor:pointer; border-bottom:2px solid transparent;
+  }
+  .tabs button.active{color:var(--primary-ink); border-color:var(--accent); font-weight:700;}
+
+  .quiz-q{font-size:1.02rem; margin-bottom:14px; line-height:1.6;}
+  .quiz-opts{display:flex; flex-direction:column; gap:8px;}
+  .opt{
+    text-align:left; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+    padding:11px 14px; border-radius:10px; font:inherit; font-size:.92rem; cursor:pointer;
+  }
+  .opt:hover{border-color:var(--primary);}
+  .opt.correct{background:var(--success-soft); border-color:var(--success); color:var(--success);}
+  .opt.wrong{background:var(--danger-soft); border-color:var(--danger); color:var(--danger);}
+  .opt[disabled]{cursor:default;}
+  .quiz-foot{display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-size:.85rem; color:var(--ink-soft);}
+  .btn{
+    border:none; background:var(--primary); color:#fff; padding:9px 16px; border-radius:9px;
+    font:inherit; font-size:.86rem; font-weight:700; cursor:pointer;
+  }
+  .btn.ghost{background:transparent; color:var(--primary-ink); border:1px solid var(--line);}
+  .btn:disabled{opacity:.4; cursor:default;}
+  .explain{
+    margin-top:12px; padding:10px 13px; background:var(--surface-2); border-radius:10px; font-size:.85rem;
+    color:var(--ink-soft); border-left:3px solid var(--accent);
+  }
+
+  .flash-stage{perspective:1200px; height:210px; margin-bottom:16px;}
+  .flash-card{
+    position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d;
+    cursor:pointer;
+  }
+  .flash-card.flipped{transform:rotateY(180deg);}
+  .flash-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:14px;
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:24px;
+    border:1px solid var(--line); box-shadow:var(--shadow);
+  }
+  .flash-face.front{background:var(--surface); font-size:1.08rem; font-weight:700; color:var(--primary-ink);}
+  .flash-face.back{background:var(--primary); color:#fff; transform:rotateY(180deg); font-size:.95rem; line-height:1.6;}
+  .flash-nav{display:flex; justify-content:space-between; align-items:center; font-size:.82rem; color:var(--ink-soft);}
+  .flash-actions{display:flex; gap:8px;}
+  .flash-actions button{padding:8px 14px; border-radius:9px; font:inherit; font-size:.82rem; border:1px solid var(--line); background:var(--surface); cursor:pointer;}
+  .flash-actions .know{border-color:var(--success); color:var(--success);}
+  .flash-actions .dontknow{border-color:var(--danger); color:var(--danger);}
+
+  svg.chart{width:100%; height:180px; overflow:visible;}
+  .chart-empty{font-size:.85rem; color:var(--ink-soft); padding:30px 0; text-align:center;}
+
+  .streak-grid{display:grid; grid-template-columns:repeat(14,1fr); gap:5px;}
+  .streak-cell{aspect-ratio:1; border-radius:4px; background:var(--surface-2);}
+  .streak-cell.done{background:var(--success);}
+  .streak-cell.today{outline:2px solid var(--accent); outline-offset:1px;}
+
+  .pace-note{font-size:.86rem; color:var(--ink-soft); line-height:1.7; margin-top:10px;}
+  footer.credit{text-align:center; font-size:.75rem; color:var(--ink-soft); margin-top:30px;}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <h1>FP3級 合格トラッカー</h1>
+      <span class="tag">Study Dashboard</span>
+    </div>
+    <div class="exam-input">
+      <span>試験日</span>
+      <input type="date" id="examDate">
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card span-4">
+      <span class="eyebrow">総合理解度</span>
+      <div class="stat-row">
+        <div class="stat"><div class="v num" id="overallScore">—</div><div class="l">平均正答率</div></div>
+        <div class="stat"><div class="v num" id="daysLeft">—</div><div class="l">試験まで（日）</div></div>
+      </div>
+    </div>
+    <div class="card span-4">
+      <span class="eyebrow">学習ログ</span>
+      <div class="stat-row">
+        <div class="stat"><div class="v num" id="streakCount">0</div><div class="l">連続学習日数</div></div>
+        <div class="stat"><div class="v num" id="totalAttempts">0</div><div class="l">総クイズ回数</div></div>
+      </div>
+    </div>
+    <div class="card span-4">
+      <span class="eyebrow">合格予測</span>
+      <div id="paceHeadline" style="font-size:1.02rem; font-weight:700; color:var(--primary-ink); line-height:1.5;">
+        データを蓄積中…
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px;">
+    <div class="card span-7">
+      <h2>正答率の推移</h2>
+      <div id="chartWrap"><div class="chart-empty">クイズを1回受けるとグラフが表示されます</div></div>
+    </div>
+    <div class="card span-5">
+      <h2>分野別 理解度</h2>
+      <div class="bars" id="chapterBars"></div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px;">
+    <div class="card span-12">
+      <h2>学習ペース配分</h2>
+      <p class="pace-note" id="paceDetail">試験日を設定すると、1日あたりの推奨学習量を計算します。一般的にFP3級は合計30〜40時間・3〜5週間の学習で合格圏内に到達するケースが多いです（個人差があります）。</p>
+      <div class="streak-grid" id="streakGrid" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <h2 style="margin:30px 0 4px; font-size:1.3rem;">分野別トレーニング</h2>
+  <nav class="chapters" id="chapterNav"></nav>
+
+  <div class="card span-12" style="margin-top:6px;">
+    <div class="tabs">
+      <button class="tab-btn active" data-mode="quiz">一問一答クイズ</button>
+      <button class="tab-btn" data-mode="cards">暗記カード</button>
+    </div>
+    <div id="quizArea"></div>
+    <div id="cardArea" style="display:none;"></div>
+  </div>
+
+  <footer class="credit">学習データはこの端末のブラウザにのみ保存されます</footer>
+</div>
+
+<script>
+const DATA = [
+  {
+    "id": "lp",
+    "name": "①ライフプランニング",
+    "short": "生保/年金/係数",
+    "quiz": [
+      {
+        "q": "公的医療保険で、義務教育就学後70歳未満の自己負担割合は？",
+        "opts": [
+          "1割",
+          "2割",
+          "3割",
+          "4割"
+        ],
+        "a": 2,
+        "exp": "70歳未満（義務教育就学後）は原則3割負担です。70〜74歳は原則2割、75歳以上は原則1割。"
+      },
+      {
+        "q": "健康保険の傷病手当金が支給されるのは、休業何日目からか？",
+        "opts": [
+          "連続2日休業の3日目から",
+          "連続3日休業の4日目から",
+          "連続4日休業の5日目から",
+          "休業初日から"
+        ],
+        "a": 1,
+        "exp": "連続3日間の待期期間の後、4日目から支給されます。国民健康保険にはこの制度は原則ありません。"
+      },
+      {
+        "q": "国民年金の第3号被保険者に該当するのは誰か？",
+        "opts": [
+          "自営業者",
+          "会社員本人",
+          "第2号被保険者に扶養される配偶者",
+          "無職の学生"
+        ],
+        "a": 2,
+        "exp": "第3号被保険者は、第2号被保険者（会社員・公務員）に扶養される20歳以上60歳未満の配偶者です。"
+      },
+      {
+        "q": "老齢基礎年金の受給に必要な受給資格期間は？",
+        "opts": [
+          "5年以上",
+          "10年以上",
+          "20年以上",
+          "25年以上"
+        ],
+        "a": 1,
+        "exp": "保険料納付済期間と免除期間などを合算して10年以上あれば受給資格を得られます。"
+      },
+      {
+        "q": "「毎年一定額を積み立てた場合の将来の合計額」を求める係数は？",
+        "opts": [
+          "現価係数",
+          "減債基金係数",
+          "年金終価係数",
+          "資本回収係数"
+        ],
+        "a": 2,
+        "exp": "年金終価係数は、毎年の積立額から将来の元利合計額を求める際に使います。"
+      },
+      {
+        "q": "iDeCo（確定拠出年金）の掛金の税務上の扱いは？",
+        "opts": [
+          "全額が生命保険料控除の対象",
+          "全額が小規模企業共済等掛金控除として所得控除される",
+          "控除の対象にはならない",
+          "半額のみ控除される"
+        ],
+        "a": 1,
+        "exp": "iDeCoの掛金は全額が小規模企業共済等掛金控除として所得控除の対象になります。"
+      },
+      {
+        "q": "介護保険の第2号被保険者の年齢範囲は？",
+        "opts": [
+          "20歳以上40歳未満",
+          "40歳以上65歳未満",
+          "65歳以上75歳未満",
+          "75歳以上"
+        ],
+        "a": 1,
+        "exp": "第2号被保険者は40歳以上65歳未満の医療保険加入者で、特定疾病の場合のみ給付対象。"
+      },
+      {
+        "q": "老齢年金を60歳に繰上げ受給した場合の減額は、生涯続くか？",
+        "opts": [
+          "生涯続く",
+          "65歳になれば元に戻る",
+          "70歳で元に戻る",
+          "繰上げでも減額されない"
+        ],
+        "a": 0,
+        "exp": "繰上げ受給による減額率は一生涯変わりません。繰下げの増額も同様に一生涯続きます。"
+      },
+      {
+        "q": "教育訓練給付金の対象となるのは誰か？",
+        "opts": [
+          "失業者のみ",
+          "雇用保険の被保険者等が指定講座を受講・修了した場合",
+          "65歳以上の年金受給者",
+          "学生全般"
+        ],
+        "a": 1,
+        "exp": "雇用保険の一般被保険者等が厚生労働大臣指定の教育訓練を受講・修了した場合に受講費用の一部が支給されます。"
+      },
+      {
+        "q": "キャッシュフロー表で使う「変動率」の考え方として正しいのは？",
+        "opts": [
+          "前年の金額に(1+変動率)を掛けて将来の金額を求める",
+          "変動率は一律0%として計算する",
+          "変動率は税率のことである",
+          "変動率は元本を減らす際に使う"
+        ],
+        "a": 0,
+        "exp": "物価上昇率や昇給率などの変動率を(1+変動率)^経過年数の形で将来の金額に反映させます。"
+      },
+      {
+        "q": "資本回収係数の使い道として正しいのは？",
+        "opts": [
+          "将来の目標額から毎年の積立額を求める",
+          "一定の元本を複数年に分けて取り崩す場合の毎年の受取額（または借入金の毎年の返済額）を求める",
+          "現在の金額から将来の金額を求める",
+          "将来の年金原資から現在必要な元本を求める"
+        ],
+        "a": 1,
+        "exp": "資本回収係数は、元本を一定期間で取り崩す際の毎年の受取額、あるいはローンの毎年の返済額を計算する際に使います。"
+      },
+      {
+        "q": "国民年金の第1号被保険者が上乗せで利用できる制度はどれか？",
+        "opts": [
+          "厚生年金",
+          "国民年金基金",
+          "企業型DC",
+          "加給年金"
+        ],
+        "a": 1,
+        "exp": "第1号被保険者（自営業者等）は、国民年金基金やiDeCoで上乗せの年金を準備できます。厚生年金・企業型DCは会社員等が対象。"
+      }
+    ],
+    "cards": [
+      {
+        "f": "老齢基礎年金の受給開始年齢（原則）",
+        "b": "65歳。60〜64歳への繰上げで減額、66〜75歳への繰下げで増額。"
+      },
+      {
+        "f": "国民年金第1号・第2号・第3号の違い",
+        "b": "第1号=自営業・学生等、第2号=会社員・公務員、第3号=第2号に扶養される配偶者。"
+      },
+      {
+        "f": "傷病手当金の支給期間",
+        "b": "支給開始から通算1年6ヶ月。健康保険の被保険者が対象で国保にはない。"
+      },
+      {
+        "f": "終価係数の使い道",
+        "b": "現在の金額 → 複利運用後の将来の金額を求める。"
+      },
+      {
+        "f": "減債基金係数の使い道",
+        "b": "将来の目標額 → 毎年いくら積み立てればよいかを求める。"
+      },
+      {
+        "f": "iDeCoの引き出し可能年齢",
+        "b": "原則60歳まで引き出し不可。"
+      },
+      {
+        "f": "雇用保険 基本手当の対象",
+        "b": "離職前2年間に被保険者期間が通算12ヶ月以上（会社都合は6ヶ月以上）などの要件を満たす失業者。"
+      },
+      {
+        "f": "労災保険料の負担者",
+        "b": "全額事業主負担（労働者負担なし）。"
+      }
+    ]
+  },
+  {
+    "id": "risk",
+    "name": "②リスク管理",
+    "short": "生保/損保/第三分野",
+    "quiz": [
+      {
+        "q": "収入保障保険の特徴として正しいのは？",
+        "opts": [
+          "死亡保険金が一時金でのみ支払われる",
+          "死亡後、満期まで年金形式で保険金を受け取れる",
+          "貯蓄性が非常に高い",
+          "保険期間の経過とともに保障額が増える"
+        ],
+        "a": 1,
+        "exp": "収入保障保険は死亡時から満期までの残り期間、年金形式で受け取る保険で、保障額は逓減します。"
+      },
+      {
+        "q": "一般生命保険料控除の所得税における最高控除額（新制度）は？",
+        "opts": [
+          "3万円",
+          "4万円",
+          "5万円",
+          "12万円"
+        ],
+        "a": 1,
+        "exp": "新制度では一般・介護医療・個人年金の3区分それぞれ最高4万円、合計最高12万円が所得税の控除上限です。"
+      },
+      {
+        "q": "地震保険は単独で契約できるか？",
+        "opts": [
+          "単独で契約できる",
+          "火災保険とセットでのみ契約できる",
+          "生命保険とセットでのみ契約できる",
+          "契約できない"
+        ],
+        "a": 1,
+        "exp": "地震保険は火災保険に付帯する形でのみ契約可能で、単独契約はできません。"
+      },
+      {
+        "q": "自動車保険の対人賠償保険で補償されないのは？",
+        "opts": [
+          "歩行者への賠償",
+          "対向車の運転者への賠償",
+          "運転者本人のケガ",
+          "同乗させた友人への賠償"
+        ],
+        "a": 2,
+        "exp": "対人賠償保険は他人への賠償が対象で、運転者本人のケガは対象外（人身傷害保険等でカバー）。"
+      },
+      {
+        "q": "生命保険契約者保護機構による補償の目安は？",
+        "opts": [
+          "責任準備金等の90%まで補償",
+          "責任準備金等の100%補償",
+          "保険金額の50%まで補償",
+          "補償制度はない"
+        ],
+        "a": 0,
+        "exp": "生命保険会社破綻時は、責任準備金等の90%まで（高予定利率契約は別枠）が保護機構により補償されます。"
+      },
+      {
+        "q": "火災保険で地震・噴火・津波による損害は補償されるか？",
+        "opts": [
+          "補償される",
+          "補償されない（地震保険への加入が必要）",
+          "半額のみ補償される",
+          "契約者が選べば補償される"
+        ],
+        "a": 1,
+        "exp": "火災保険では地震・噴火・津波による損害は原則補償対象外で、地震保険への別途加入が必要です。"
+      },
+      {
+        "q": "個人年金保険料控除の対象となるための主な要件はどれか？",
+        "opts": [
+          "保険期間が5年以上であること",
+          "年金受取開始が60歳以降であること",
+          "被保険者が個人年金保険料税制適格特約を付加していること",
+          "一時払いであること"
+        ],
+        "a": 2,
+        "exp": "個人年金保険料税制適格特約が付加され、保険料払込期間10年以上、年金受取開始年齢60歳以降などの要件を満たす必要があります。"
+      },
+      {
+        "q": "リスクへの対応策のうち「保険に加入する」のはどれに分類されるか？",
+        "opts": [
+          "リスクの回避",
+          "リスクの軽減",
+          "リスクの移転",
+          "リスクの保有"
+        ],
+        "a": 2,
+        "exp": "保険加入は、リスクによる経済的損失を保険会社に移す「リスクの移転」に分類されます。"
+      },
+      {
+        "q": "がん保険の一般的な特徴として正しいのは？",
+        "opts": [
+          "契約後すぐ（待期期間なし）に保障が開始する",
+          "契約後90日程度の免責期間（待期期間）がある",
+          "入院給付金に日数制限が必ずある",
+          "医療保険の一種で第一分野に分類される"
+        ],
+        "a": 1,
+        "exp": "がん保険には契約後90日（3ヶ月）程度の免責期間があり、その間にがんと診断されても保障対象外となるのが一般的です。"
+      },
+      {
+        "q": "自賠責保険（強制保険）で補償されるのは？",
+        "opts": [
+          "対人賠償のみ",
+          "対物賠償のみ",
+          "対人・対物とも補償",
+          "搭乗者のケガのみ"
+        ],
+        "a": 0,
+        "exp": "自賠責保険は対人賠償事故のみを補償対象とし、対物賠償や自損事故は対象外（任意保険で補完）。"
+      }
+    ],
+    "cards": [
+      {
+        "f": "定期保険・終身保険・養老保険の違い",
+        "b": "定期=掛け捨てで一定期間保障、終身=一生涯保障で貯蓄性あり、養老=満期時に死亡保険金と同額の満期保険金。"
+      },
+      {
+        "f": "火災保険と地震保険の関係",
+        "b": "地震保険は火災保険とセットでのみ加入可能。地震・噴火・津波は火災保険単独では補償されない。"
+      },
+      {
+        "f": "自賠責保険の補償対象",
+        "b": "対人賠償のみ（対物・自損事故は対象外）。任意保険で補完する。"
+      },
+      {
+        "f": "生命保険料控除の区分（新制度）",
+        "b": "一般生命保険料・介護医療保険料・個人年金保険料の3区分、各最高4万円、合計最高12万円（所得税）。"
+      },
+      {
+        "f": "損害保険契約者保護機構の補償割合",
+        "b": "火災・自動車保険等は破綻後3ヶ月以内の事故は100%、それ以降は原則80%。"
+      },
+      {
+        "f": "収入保障保険の保険金の受け取り方",
+        "b": "年金形式（期間の経過とともに受取総額は逓減）。一時金への変更も可能だが総額は減る。"
+      }
+    ]
+  },
+  {
+    "id": "invest",
+    "name": "③金融資産運用",
+    "short": "預貯金/債券/株式/投信",
+    "quiz": [
+      {
+        "q": "債券価格と金利の関係として正しいのは？",
+        "opts": [
+          "金利が上昇すると債券価格も上昇する",
+          "金利が上昇すると債券価格は下落する",
+          "金利と債券価格は無関係",
+          "金利が下落すると債券価格も下落する"
+        ],
+        "a": 1,
+        "exp": "金利（市場金利）が上昇すると、既発債の相対的な魅力が下がり価格は下落します（逆相関）。"
+      },
+      {
+        "q": "株式投資指標のPERが示すのは？",
+        "opts": [
+          "株価が1株あたり純資産の何倍か",
+          "株価が1株あたり利益の何倍か",
+          "自己資本に対する当期純利益の割合",
+          "配当金の利回り"
+        ],
+        "a": 1,
+        "exp": "PER（株価収益率）＝株価 ÷ 1株あたり利益（EPS）。株価の割安・割高の目安。PBRは純資産倍率。"
+      },
+      {
+        "q": "NISA（つみたて投資枠等）の非課税対象となる利益は？",
+        "opts": [
+          "配当所得のみ",
+          "譲渡所得のみ",
+          "分配金・配当・譲渡益すべて",
+          "利子所得のみ"
+        ],
+        "a": 2,
+        "exp": "NISA口座内での分配金・配当金・譲渡益はすべて非課税となります。"
+      },
+      {
+        "q": "預金保険制度で全額保護されるのは？",
+        "opts": [
+          "普通預金の全額（常に）",
+          "決済用預金（無利息・要求払い・決済サービス提供）",
+          "定期預金のみ",
+          "外貨預金"
+        ],
+        "a": 1,
+        "exp": "決済用預金は全額保護、それ以外の predetermined 預金は元本1,000万円までとその利息が保護対象。"
+      },
+      {
+        "q": "投資信託の運用手法で「市場平均を上回る成果を目指す」のは？",
+        "opts": [
+          "パッシブ運用",
+          "アクティブ運用",
+          "インデックス運用",
+          "どちらでもない"
+        ],
+        "a": 1,
+        "exp": "アクティブ運用は指数を上回る成果を目指す運用。パッシブ（インデックス）運用は指数に連動する成果を目指す。"
+      },
+      {
+        "q": "ドル・コスト平均法の特徴は？",
+        "opts": [
+          "常に一定数量を購入する方法",
+          "常に一定金額を定期的に購入する方法で平均取得単価を平準化できる",
+          "値上がり時のみ購入する方法",
+          "一括投資の別名"
+        ],
+        "a": 1,
+        "exp": "一定金額を定期的に投資することで、価格が高い時は少なく、安い時は多く買え、平均取得単価が平準化されます。"
+      },
+      {
+        "q": "上場株式の配当所得を申告分離課税で申告する主なメリットは？",
+        "opts": [
+          "扶養控除が増える",
+          "上場株式等の譲渡損失と損益通算できる",
+          "消費税が非課税になる",
+          "住民税が免除される"
+        ],
+        "a": 1,
+        "exp": "申告分離課税を選択すると、上場株式等の譲渡損失との損益通算や繰越控除が可能になります。"
+      },
+      {
+        "q": "景気動向指数のうち「有効求人倍率」が含まれるのはどれか？",
+        "opts": [
+          "先行指数",
+          "一致指数",
+          "遅行指数",
+          "含まれない"
+        ],
+        "a": 1,
+        "exp": "有効求人倍率は現在の景気の実態を示す一致指数の代表的な採用系列です。"
+      },
+      {
+        "q": "個人向け国債（変動10年）の金利設定として正しいのは？",
+        "opts": [
+          "発行後の金利は固定される",
+          "半年ごとに基準金利に応じて金利が見直される",
+          "金利は市場価格の変動に応じて毎日変わる",
+          "最低保証金利はない"
+        ],
+        "a": 1,
+        "exp": "変動10年は半年ごとに基準金利に応じて適用利率が見直されます。最低保証金利0.05%があります。"
+      },
+      {
+        "q": "投資信託の目論見書に記載される「信託報酬」とは何か？",
+        "opts": [
+          "購入時に一度だけかかる費用",
+          "保有期間中、信託財産から日々差し引かれる運用管理費用",
+          "解約時にのみかかる費用",
+          "証券会社に支払う口座管理料"
+        ],
+        "a": 1,
+        "exp": "信託報酬は投資信託の保有期間中、信託財産の中から日々差し引かれるコストです。"
+      },
+      {
+        "q": "分散投資でリスク低減が期待できる主な理由は？",
+        "opts": [
+          "値動きの異なる資産を組み合わせることで、価格変動が相殺され合いやすくなるため",
+          "投資額が増えるため利益も増えるから",
+          "分散すると必ず値上がりするから",
+          "手数料が下がるから"
+        ],
+        "a": 0,
+        "exp": "相関性の低い資産を組み合わせることで、値動きが打ち消し合いポートフォリオ全体の振れ幅（リスク）が小さくなる効果が期待できます。"
+      }
+    ],
+    "cards": [
+      {
+        "f": "PER・PBR・ROEの意味",
+        "b": "PER=株価÷EPS（利益の何倍）、PBR=株価÷BPS（純資産の何倍）、ROE=当期純利益÷自己資本（収益性）。"
+      },
+      {
+        "f": "債券価格と金利の関係",
+        "b": "金利上昇 → 債券価格下落。金利低下 → 債券価格上昇（逆相関）。"
+      },
+      {
+        "f": "NISAの非課税対象",
+        "b": "口座内の配当金・分配金・譲渡益がすべて非課税（損益通算・繰越控除は不可）。"
+      },
+      {
+        "f": "預金保険制度の保護範囲",
+        "b": "決済用預金は全額、それ以外は元本1,000万円までとその利息を金融機関ごとに保護。"
+      },
+      {
+        "f": "アクティブ運用とパッシブ運用",
+        "b": "アクティブ=指数超えを狙う（コスト高）、パッシブ=指数に連動を狙う（コスト低）。"
+      },
+      {
+        "f": "ドル・コスト平均法",
+        "b": "定額を定期購入し平均取得単価を平準化する手法。値動きのタイミングを気にしにくい。"
+      },
+      {
+        "f": "景気動向指数の3指数",
+        "b": "先行指数・一致指数・遅行指数。景気の動きを事前/同時/事後に捉える指標。"
+      }
+    ]
+  },
+  {
+    "id": "tax",
+    "name": "④タックスプランニング",
+    "short": "所得税/控除",
+    "quiz": [
+      {
+        "q": "損益通算できる所得の赤字（覚え方：不事山譲）に含まれないのは？",
+        "opts": [
+          "不動産所得",
+          "事業所得",
+          "雑所得",
+          "譲渡所得（一部）"
+        ],
+        "a": 2,
+        "exp": "損益通算できるのは不動産・事業・山林・譲渡の4所得の赤字のみ。雑所得や一時所得の赤字は切り捨てです。"
+      },
+      {
+        "q": "配偶者控除の対象となる配偶者の合計所得金額の上限は？",
+        "opts": [
+          "38万円以下",
+          "48万円以下",
+          "103万円以下",
+          "130万円以下"
+        ],
+        "a": 1,
+        "exp": "合計所得金額48万円以下（給与収入のみなら年収103万円以下）が配偶者控除の対象基準です。"
+      },
+      {
+        "q": "住宅ローン控除の適用要件として正しいものは？",
+        "opts": [
+          "返済期間が5年以上",
+          "床面積が原則50㎡以上",
+          "所得制限はない",
+          "繰上げ返済すると即座に控除対象外になる"
+        ],
+        "a": 1,
+        "exp": "床面積は原則50㎡以上（所得1,000万円以下なら40㎡以上）、返済期間10年以上、合計所得金額2,000万円以下が主な要件。"
+      },
+      {
+        "q": "医療費控除の計算式として正しいのは？",
+        "opts": [
+          "支払った医療費全額がそのまま控除額になる",
+          "（支払った医療費－保険金等の補填額）－10万円（原則）",
+          "医療費の30%が控除される",
+          "上限なく全額控除される"
+        ],
+        "a": 1,
+        "exp": "（支払った医療費－保険金等で補填された金額）－10万円（総所得金額等が200万円未満なら5%）が控除額。"
+      },
+      {
+        "q": "給与所得者のうち、原則として確定申告が不要なのは？",
+        "opts": [
+          "給与収入が2,000万円を超える人",
+          "年末調整を受けた給与のみで他に所得がない人",
+          "2ヶ所以上から給与を受けている人",
+          "医療費控除を受けたい人"
+        ],
+        "a": 1,
+        "exp": "1ヶ所からのみ給与を受け年末調整済みで他の所得がなければ、原則確定申告不要です。"
+      },
+      {
+        "q": "給与所得の計算式として正しいのは？",
+        "opts": [
+          "給与収入金額そのまま",
+          "給与収入金額－給与所得控除額",
+          "給与収入金額×20%",
+          "給与収入金額－基礎控除額"
+        ],
+        "a": 1,
+        "exp": "給与所得＝給与収入金額－給与所得控除額。給与所得控除額は収入に応じて段階的に定められています。"
+      },
+      {
+        "q": "退職所得の計算式（原則）はどれか？",
+        "opts": [
+          "（退職収入－退職所得控除額）×1/2",
+          "退職収入全額",
+          "退職収入－退職所得控除額",
+          "退職収入×1/2"
+        ],
+        "a": 0,
+        "exp": "退職所得＝（退職金収入－退職所得控除額）×1/2（役員等の勤続年数5年以下の一部は1/2適用なし）。"
+      },
+      {
+        "q": "所得税の超過累進税率の特徴として正しいのは？",
+        "opts": [
+          "所得が高いほど税率が下がる",
+          "所得金額に関わらず税率は一律",
+          "所得が高くなるほど段階的に税率が上がる",
+          "住民税にのみ適用される"
+        ],
+        "a": 2,
+        "exp": "所得税は課税所得が高くなるほど段階的に税率が上がる超過累進課税方式を採用しています（5%〜45%）。"
+      },
+      {
+        "q": "青色申告の主な特典として正しいものは？",
+        "opts": [
+          "消費税が免除される",
+          "青色申告特別控除（最大65万円等）が受けられる",
+          "住民税が非課税になる",
+          "確定申告が不要になる"
+        ],
+        "a": 1,
+        "exp": "青色申告では最大65万円（e-Tax等要件充足時）の青色申告特別控除や純損失の繰越控除などの特典があります。"
+      }
+    ],
+    "cards": [
+      {
+        "f": "損益通算できる赤字の所得（不事山譲）",
+        "b": "不動産所得・事業所得・山林所得・譲渡所得（一部）の4つのみ。"
+      },
+      {
+        "f": "配偶者控除・配偶者特別控除の所得基準",
+        "b": "配偶者控除=合計所得48万円以下、配偶者特別控除=48万円超133万円以下。"
+      },
+      {
+        "f": "住宅ローン控除の主な要件",
+        "b": "返済期間10年以上、床面積原則50㎡以上、合計所得金額2,000万円以下。"
+      },
+      {
+        "f": "医療費控除の計算式",
+        "b": "(支払った医療費 − 保険金等の補填額) − 10万円（原則）。上限200万円。"
+      },
+      {
+        "f": "所得税の申告・納税期限",
+        "b": "翌年2月16日〜3月15日の間に申告、納付も同期限まで。"
+      },
+      {
+        "f": "基礎控除の額（所得税・原則）",
+        "b": "合計所得金額2,400万円以下なら48万円（段階的に逓減・消失）。"
+      },
+      {
+        "f": "給与所得の計算式",
+        "b": "給与収入金額－給与所得控除額。"
+      },
+      {
+        "f": "退職所得の計算式（原則）",
+        "b": "（退職収入－退職所得控除額）×1/2。"
+      },
+      {
+        "f": "青色申告の主な特典",
+        "b": "青色申告特別控除（最大65万円）、純損失の繰越控除・繰戻還付など。"
+      }
+    ]
+  },
+  {
+    "id": "re",
+    "name": "⑤不動産",
+    "short": "法令規制/取得/譲渡",
+    "quiz": [
+      {
+        "q": "建築基準法上、建築物の敷地が接していなければならない道路の幅員と接道長さは？",
+        "opts": [
+          "幅員2m以上に4m接する",
+          "幅員4m以上に2m以上接する",
+          "幅員6m以上に3m接する",
+          "規定はない"
+        ],
+        "a": 1,
+        "exp": "原則、幅員4m以上の道路に2m以上接していなければならない（接道義務）。"
+      },
+      {
+        "q": "普通借地権の存続期間（原則）は？",
+        "opts": [
+          "10年",
+          "20年",
+          "30年",
+          "50年以上"
+        ],
+        "a": 2,
+        "exp": "普通借地権の存続期間は30年（契約でこれより長い期間を定めることは可能）。定期借地権は50年以上。"
+      },
+      {
+        "q": "居住用財産を譲渡した場合の特別控除の額は？",
+        "opts": [
+          "最高500万円",
+          "最高1,000万円",
+          "最高2,000万円",
+          "最高3,000万円"
+        ],
+        "a": 3,
+        "exp": "居住用財産の3,000万円特別控除。一定の要件を満たせば譲渡所得から最高3,000万円を控除できます。"
+      },
+      {
+        "q": "不動産の譲渡所得で「長期譲渡所得」となるのは所有期間が何年を超える場合か？",
+        "opts": [
+          "3年",
+          "5年",
+          "10年",
+          "20年"
+        ],
+        "a": 1,
+        "exp": "譲渡した年の1月1日時点で所有期間5年を超えると長期譲渡所得（税率約20.315%）、5年以下は短期（約39.63%）。"
+      },
+      {
+        "q": "固定資産税の納税義務者は誰か？",
+        "opts": [
+          "その年の12月31日時点の所有者",
+          "毎年1月1日時点の所有者",
+          "売買契約締結時の所有者",
+          "賃借人"
+        ],
+        "a": 1,
+        "exp": "固定資産税は毎年1月1日時点の不動産所有者に課税されます。"
+      },
+      {
+        "q": "不動産登記簿の権利部乙区に記録される事項は？",
+        "opts": [
+          "所有権に関する事項",
+          "抵当権など所有権以外の権利に関する事項",
+          "土地の面積・所在",
+          "建物の構造・床面積"
+        ],
+        "a": 1,
+        "exp": "権利部甲区=所有権に関する事項、乙区=抵当権・賃借権など所有権以外の権利に関する事項が記録されます。"
+      },
+      {
+        "q": "宅地建物取引業者が売主となる場合の手付金の性質（原則）は？",
+        "opts": [
+          "違約手付",
+          "証約手付のみ",
+          "解約手付",
+          "手付金は認められない"
+        ],
+        "a": 2,
+        "exp": "民法上、原則として手付は解約手付と推定され、相手方が履行に着手するまでは手付放棄・倍返しで契約解除できます。"
+      },
+      {
+        "q": "区分所有建物の共用部分の持分割合の原則は？",
+        "opts": [
+          "等分",
+          "専有部分の床面積の割合",
+          "購入価格の割合",
+          "居住年数の割合"
+        ],
+        "a": 1,
+        "exp": "規約に別段の定めがない限り、共用部分の持分は各区分所有者の専有部分の床面積割合によります。"
+      },
+      {
+        "q": "投資利回りのうち、実質利回り(NOI利回り)の計算で分子から差し引くのはどれか？",
+        "opts": [
+          "空室損失や諸経費",
+          "減価償却費のみ",
+          "借入金の元本",
+          "固定資産税評価額"
+        ],
+        "a": 0,
+        "exp": "実質利回り＝（年間収入－諸経費）÷投資総額×100。表面利回りは経費を考慮しない粗い指標です。"
+      }
+    ],
+    "cards": [
+      {
+        "f": "建ぺい率・容積率の違い",
+        "b": "建ぺい率=敷地面積に対する建築面積の割合、容積率=敷地面積に対する延べ床面積の割合。"
+      },
+      {
+        "f": "普通借地権・定期借地権の存続期間",
+        "b": "普通=30年（更新あり）、定期=50年以上（更新なし）。"
+      },
+      {
+        "f": "居住用財産譲渡の3,000万円特別控除",
+        "b": "居住用不動産の売却益から最高3,000万円を控除できる特例。"
+      },
+      {
+        "f": "譲渡所得の長期・短期の境目",
+        "b": "譲渡した年の1月1日時点で所有期間5年超なら長期、5年以下なら短期。"
+      },
+      {
+        "f": "固定資産税評価額の評価替え頻度",
+        "b": "原則3年ごとに評価替えが行われる。"
+      },
+      {
+        "f": "宅地の評価方法（路線価方式・倍率方式）",
+        "b": "路線価方式=市街地、倍率方式=それ以外の地域で固定資産税評価額×倍率。"
+      },
+      {
+        "f": "登記簿の権利部甲区・乙区",
+        "b": "甲区=所有権に関する事項、乙区=抵当権など所有権以外の権利に関する事項。"
+      },
+      {
+        "f": "手付金の性質（原則）",
+        "b": "解約手付と推定され、相手方の履行着手前なら手付放棄・倍返しで解除可能。"
+      },
+      {
+        "f": "区分所有建物の共用部分の持分",
+        "b": "規約に定めがなければ専有部分の床面積割合による。"
+      }
+    ]
+  },
+  {
+    "id": "souzoku",
+    "name": "⑥相続・事業承継",
+    "short": "贈与/相続/評価",
+    "quiz": [
+      {
+        "q": "贈与税の基礎控除額（暦年課税・年間）は？",
+        "opts": [
+          "48万円",
+          "60万円",
+          "110万円",
+          "150万円"
+        ],
+        "a": 2,
+        "exp": "暦年課税の基礎控除額は年間110万円。これ以下の贈与は申告不要・非課税です。"
+      },
+      {
+        "q": "相続税の遺産に係る基礎控除額の計算式は？",
+        "opts": [
+          "3,000万円＋600万円×法定相続人の数",
+          "5,000万円＋500万円×法定相続人の数",
+          "3,000万円のみ一律",
+          "法定相続人の数×1,000万円"
+        ],
+        "a": 0,
+        "exp": "相続税の基礎控除額＝3,000万円＋（600万円×法定相続人の数）。"
+      },
+      {
+        "q": "配偶者の相続税額の軽減で、相続税がかからない金額の上限は次のいずれか多い方だが、その一つは？",
+        "opts": [
+          "3,000万円",
+          "1億6,000万円",
+          "2,000万円",
+          "5,000万円"
+        ],
+        "a": 1,
+        "exp": "配偶者は「1億6,000万円」と「配偶者の法定相続分相当額」のいずれか多い金額まで相続税がかかりません。"
+      },
+      {
+        "q": "法定相続人が配偶者と子2人の場合、子1人あたりの法定相続分は？",
+        "opts": [
+          "1/2",
+          "1/3",
+          "1/4",
+          "1/6"
+        ],
+        "a": 2,
+        "exp": "配偶者1/2、子全体で1/2をさらに人数按分するため、子1人あたり1/4。"
+      },
+      {
+        "q": "相続放棄をした場合、代襲相続は発生するか？",
+        "opts": [
+          "発生する",
+          "発生しない",
+          "家庭裁判所の許可があれば発生する",
+          "子のみ発生する"
+        ],
+        "a": 1,
+        "exp": "相続放棄をした人の子は代襲相続人になれません（死亡・欠格・廃除の場合とは異なる）。"
+      },
+      {
+        "q": "死亡保険金の相続税非課税限度額の計算式は？",
+        "opts": [
+          "500万円×法定相続人の数",
+          "300万円×法定相続人の数",
+          "一律1,000万円",
+          "非課税枠はない"
+        ],
+        "a": 0,
+        "exp": "死亡保険金・死亡退職金ともに「500万円×法定相続人の数」が相続税の非課税限度額。"
+      },
+      {
+        "q": "相続時精算課税制度の特別控除額（累計）はいくらか？",
+        "opts": [
+          "1,000万円",
+          "1,500万円",
+          "2,000万円",
+          "2,500万円"
+        ],
+        "a": 3,
+        "exp": "相続時精算課税制度では累計2,500万円まで贈与税が非課税（それを超える部分は一律20%課税）となり、相続時に精算されます。"
+      },
+      {
+        "q": "公正証書遺言の作成に必要なものとして正しいのは？",
+        "opts": [
+          "証人の立会いは不要",
+          "証人2人以上の立会いが必要",
+          "家庭裁判所の検認が必要",
+          "自筆で全文を書く必要がある"
+        ],
+        "a": 1,
+        "exp": "公正証書遺言は証人2人以上の立会いのもと公証人が作成する遺言で、家庭裁判所の検認は不要です。"
+      },
+      {
+        "q": "遺留分を有する相続人に含まれないのは誰か？",
+        "opts": [
+          "配偶者",
+          "子",
+          "兄弟姉妹",
+          "直系尊属（父母）"
+        ],
+        "a": 2,
+        "exp": "遺留分権利者は配偶者・子（代襲相続人含む）・直系尊属で、兄弟姉妹には遺留分がありません。"
+      },
+      {
+        "q": "取引相場のない株式（自社株）の評価方式のうち、大会社に主に用いられるのは？",
+        "opts": [
+          "純資産価額方式",
+          "類似業種比準方式",
+          "配当還元方式",
+          "時価純資産方式のみ"
+        ],
+        "a": 1,
+        "exp": "大会社は原則として類似業種比準方式、小会社は純資産価額方式が中心、中会社は両者の併用となります。"
+      }
+    ],
+    "cards": [
+      {
+        "f": "贈与税の基礎控除額（暦年課税）",
+        "b": "年間110万円。超えた部分に贈与税がかかる。"
+      },
+      {
+        "f": "相続税の基礎控除額の計算式",
+        "b": "3,000万円＋600万円×法定相続人の数。"
+      },
+      {
+        "f": "配偶者の税額軽減",
+        "b": "1億6,000万円と配偶者の法定相続分相当額のいずれか多い金額まで非課税。"
+      },
+      {
+        "f": "死亡保険金・死亡退職金の非課税枠",
+        "b": "どちらも500万円×法定相続人の数まで非課税。"
+      },
+      {
+        "f": "法定相続分（配偶者と子）",
+        "b": "配偶者1/2・子（全体で）1/2を人数で均等分割。"
+      },
+      {
+        "f": "相続放棄と代襲相続の関係",
+        "b": "相続放棄をすると、その人の子への代襲相続は発生しない。"
+      },
+      {
+        "f": "小規模宅地等の評価減の特例",
+        "b": "要件を満たす宅地は評価額を最大80%（一部50%）減額できる。"
+      },
+      {
+        "f": "相続時精算課税制度の特別控除額",
+        "b": "累計2,500万円まで非課税、超過分は一律20%課税。相続時に精算。"
+      },
+      {
+        "f": "公正証書遺言の要件",
+        "b": "証人2人以上の立会いのもと公証人が作成。家庭裁判所の検認は不要。"
+      },
+      {
+        "f": "遺留分権利者",
+        "b": "配偶者・子（代襲相続人含む）・直系尊属。兄弟姉妹には遺留分なし。"
+      }
+    ]
+  }
+];
+
+const $ = s => document.querySelector(s);
+const els = {};
+let state = {
+  examDate: localStorage.getItem("fp3_examDate") || "",
+  quizHistory: JSON.parse(localStorage.getItem("fp3_quizHistory") || "[]"),
+  studyLog: JSON.parse(localStorage.getItem("fp3_studyLog") || "[]"),
+  flashState: JSON.parse(localStorage.getItem("fp3_flashState") || "{}"),
+  activeChapter: DATA[0].id,
+  mode: "quiz"
+};
+
+function save(){
+  localStorage.setItem("fp3_examDate", state.examDate);
+  localStorage.setItem("fp3_quizHistory", JSON.stringify(state.quizHistory));
+  localStorage.setItem("fp3_studyLog", JSON.stringify(state.studyLog));
+  localStorage.setItem("fp3_flashState", JSON.stringify(state.flashState));
+}
+
+function logToday(){
+  const today = new Date().toISOString().slice(0,10);
+  if(!state.studyLog.includes(today)){
+    state.studyLog.push(today);
+    save();
+    renderDashboard();
+  }
+}
+
+function chapterLatestScore(chId){
+  const attempts = state.quizHistory.filter(h => h.chapter === chId);
+  if(attempts.length === 0) return null;
+  return attempts[attempts.length - 1].pct;
+}
+
+function overallAverage(){
+  if(state.quizHistory.length === 0) return null;
+  const sum = state.quizHistory.reduce((s,h)=>s+h.pct,0);
+  return Math.round(sum / state.quizHistory.length);
+}
+
+function renderDashboard(){
+  try{
+    const examDateEl = $("#examDate");
+    examDateEl.value = state.examDate;
+
+    const avg = overallAverage();
+    $("#overallScore").textContent = avg === null ? "—" : avg + "%";
+    $("#totalAttempts").textContent = state.quizHistory.length;
+
+    if(state.examDate){
+      const d = Math.ceil((new Date(state.examDate) - new Date(new Date().toDateString())) / 86400000);
+      $("#daysLeft").textContent = d >= 0 ? d : "終了";
+    } else {
+      $("#daysLeft").textContent = "—";
+    }
+
+    // streak
+    const sorted = [...state.studyLog].sort();
+    let streak = 0;
+    let cursor = new Date();
+    while(true){
+      const key = cursor.toISOString().slice(0,10);
+      if(state.studyLog.includes(key)){ streak++; cursor.setDate(cursor.getDate()-1); }
+      else break;
+    }
+    $("#streakCount").textContent = streak;
+
+    // streak grid (last 14 days)
+    const grid = $("#streakGrid");
+    grid.innerHTML = "";
+    for(let i=13;i>=0;i--){
+      const dt = new Date();
+      dt.setDate(dt.getDate()-i);
+      const key = dt.toISOString().slice(0,10);
+      const cell = document.createElement("div");
+      cell.className = "streak-cell" + (state.studyLog.includes(key) ? " done" : "") + (i===0 ? " today" : "");
+      cell.title = key;
+      grid.appendChild(cell);
+    }
+
+    // chapter bars
+    const barsEl = $("#chapterBars");
+    barsEl.innerHTML = "";
+    DATA.forEach(ch=>{
+      const pct = chapterLatestScore(ch.id);
+      const row = document.createElement("div");
+      row.className = "bar-row";
+      row.innerHTML = `<span>${ch.short}</span><div class="bar-track"><div class="bar-fill" style="width:${pct||0}%"></div></div><span class="pct num">${pct===null?"未受験":pct+"%"}</span>`;
+      barsEl.appendChild(row);
+    });
+
+    renderChart();
+    renderPace();
+  }catch(e){ console.error(e); }
+}
+
+function renderChart(){
+  const wrap = $("#chartWrap");
+  if(state.quizHistory.length < 1){
+    wrap.innerHTML = '<div class="chart-empty">クイズを1回受けるとグラフが表示されます</div>';
+    return;
+  }
+  const w = 560, h = 170, pad = 28;
+  const pts = state.quizHistory.map((h,i)=>({x:i, y:h.pct}));
+  const n = pts.length;
+  const xScale = i => n<=1 ? w/2 : pad + i*(w-2*pad)/(n-1);
+  const yScale = v => h - pad - (v/100)*(h-2*pad);
+  const linePath = pts.map((p,i)=> (i===0?"M":"L") + xScale(p.x).toFixed(1) + "," + yScale(p.y).toFixed(1)).join(" ");
+  const areaPath = linePath + ` L${xScale(n-1).toFixed(1)},${h-pad} L${xScale(0).toFixed(1)},${h-pad} Z`;
+
+  let gridLines = "";
+  [0,25,50,75,100].forEach(v=>{
+    const y = yScale(v).toFixed(1);
+    gridLines += `<line x1="${pad}" y1="${y}" x2="${w-pad}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
+    gridLines += `<text x="4" y="${Number(y)+3}" font-size="9" fill="var(--ink-soft)">${v}</text>`;
+  });
+
+  const last = pts[pts.length-1];
+  wrap.innerHTML = `<svg class="chart" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    ${gridLines}
+    <path d="${areaPath}" fill="var(--accent)" opacity="0.12"/>
+    <path d="${linePath}" fill="none" stroke="var(--primary)" stroke-width="2.5"/>
+    ${pts.map(p=>`<circle cx="${xScale(p.x)}" cy="${yScale(p.y)}" r="3" fill="var(--primary)"/>`).join("")}
+    <circle cx="${xScale(last.x)}" cy="${yScale(last.y)}" r="5" fill="var(--accent)"/>
+  </svg>`;
+}
+
+function renderPace(){
+  const headline = $("#paceHeadline");
+  const detail = $("#paceDetail");
+  const attempts = state.quizHistory;
+  const untested = DATA.filter(ch => chapterLatestScore(ch.id) === null).length;
+
+  let examInfo = "";
+  if(state.examDate){
+    const days = Math.ceil((new Date(state.examDate) - new Date(new Date().toDateString())) / 86400000);
+    if(days >= 0){
+      examInfo = `試験まで残り<strong class="num">${days}</strong>日。`;
+      if(untested > 0){
+        const perDay = Math.max(1, Math.ceil(untested / Math.max(1, Math.floor(days/2))));
+        examInfo += ` 未着手の分野が${untested}個あります。復習期間を確保するなら、1日あたり分野${perDay}個ペースで一巡させるのがおすすめです。`;
+      } else {
+        examInfo += " 全分野に着手済みです。理解度が低い分野を優先して復習しましょう。";
+      }
+    } else {
+      examInfo = "試験日を過ぎています。日付を更新してください。";
+    }
+  }
+
+  if(attempts.length < 3){
+    headline.textContent = untested>0 ? `まず${DATA[0].short}から一問一答を始めましょう` : "データを蓄積中…";
+    detail.innerHTML = (examInfo ? examInfo + "<br>" : "") + "クイズを3回以上受けると、あなたの伸び方から合格ライン（正答率80%目安）到達時期を予測します。";
+    return;
+  }
+
+  // linear regression of pct over attempt index, project to 80%
+  const xs = attempts.map((_,i)=>i);
+  const ys = attempts.map(h=>h.pct);
+  const n = xs.length;
+  const sumX = xs.reduce((a,b)=>a+b,0), sumY = ys.reduce((a,b)=>a+b,0);
+  const sumXY = xs.reduce((a,x,i)=>a+x*ys[i],0);
+  const sumXX = xs.reduce((a,x)=>a+x*x,0);
+  const slope = (n*sumXY - sumX*sumY) / (n*sumXX - sumX*sumX || 1);
+  const intercept = (sumY - slope*sumX) / n;
+  const current = slope*(n-1) + intercept;
+
+  if(slope <= 0.05){
+    headline.textContent = "伸びが停滞ぎみです";
+    detail.innerHTML = (examInfo?examInfo+"<br>":"") + "同じ分野の復習よりも、理解度が低い分野のクイズ・暗記カードを優先すると伸びやすくなります。";
+    return;
+  }
+  const attemptsNeeded = (80 - current) / slope;
+  if(attemptsNeeded <= 0){
+    headline.innerHTML = `合格ライン（80%）に到達しています <span class="pill ok dot">順調</span>`;
+    detail.innerHTML = (examInfo?examInfo+"<br>":"") + "この調子で本番まで定期的に復習を続けましょう。";
+    return;
+  }
+  // assume roughly one attempt per study session; estimate sessions per day from log frequency
+  const daysActive = new Set(state.studyLog).size || 1;
+  const firstDate = attempts[0].date ? new Date(attempts[0].date) : new Date();
+  const spanDays = Math.max(1, Math.round((new Date() - firstDate) / 86400000));
+  const attemptsPerDay = attempts.length / spanDays;
+  const daysNeeded = attemptsPerDay > 0 ? Math.ceil(attemptsNeeded / attemptsPerDay) : Math.ceil(attemptsNeeded);
+
+  headline.innerHTML = `このペースなら約<strong class="num">${daysNeeded}</strong>日で合格ライン到達`;
+  detail.innerHTML = (examInfo?examInfo+"<br>":"") +
+    `現在の平均正答率は${Math.round(current)}%、1回のクイズで平均${slope.toFixed(1)}ポイントずつ伸びています。このペースを維持すると、あと${Math.ceil(attemptsNeeded)}回のクイズ（約${daysNeeded}日）で目安の80%に到達する見込みです。`;
+}
+
+function renderChapterNav(){
+  const nav = $("#chapterNav");
+  nav.innerHTML = "";
+  DATA.forEach(ch=>{
+    const pct = chapterLatestScore(ch.id);
+    const btn = document.createElement("button");
+    btn.className = "chap-btn" + (ch.id === state.activeChapter ? " active" : "");
+    btn.innerHTML = `${ch.name} <span class="chip">${pct===null?"–":pct+"%"}</span>`;
+    btn.onclick = () => { state.activeChapter = ch.id; renderChapterNav(); renderMode(); };
+    nav.appendChild(btn);
+  });
+}
+
+let quizSession = null;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+const QUIZ_SET_SIZE = 10;
+
+function buildShuffledQuiz(rawQuiz){
+  const order = shuffle(rawQuiz.map((q,idx)=>idx)).slice(0, QUIZ_SET_SIZE);
+  return order.map(idx=>{
+    const q = rawQuiz[idx];
+    const optOrder = shuffle(q.opts.map((o,i)=>i));
+    const opts = optOrder.map(i=>q.opts[i]);
+    const a = optOrder.indexOf(q.a);
+    return { q:q.q, opts, a, exp:q.exp, srcIdx:idx };
+  });
+}
+
+function startQuiz(ch, questions){
+  const qs = questions || buildShuffledQuiz(ch.quiz);
+  quizSession = { i:0, correct:0, total:qs.length, answered:false, questions:qs, wrong:[] };
+  renderQuizQuestion(ch);
+}
+
+function renderQuizQuestion(ch){
+  const area = $("#quizArea");
+  if(quizSession.i >= quizSession.total){
+    const pct = Math.round((quizSession.correct/quizSession.total)*100);
+    state.quizHistory.push({chapter:ch.id, date:new Date().toISOString(), pct, correct:quizSession.correct, total:quizSession.total});
+    logToday();
+    save();
+    renderDashboard();
+    renderChapterNav();
+    const wrongCount = quizSession.wrong.length;
+    area.innerHTML = `
+      <div style="text-align:center; padding:26px 0;">
+        <div class="eyebrow">結果</div>
+        <div style="font-family:'Shippori Mincho',serif; font-size:2.4rem; color:var(--primary-ink);">${pct}%</div>
+        <div style="color:var(--ink-soft); margin:6px 0 18px;">${quizSession.correct} / ${quizSession.total} 問正解</div>
+        <button class="btn" id="retryBtn">もう一度挑戦（シャッフル）</button>
+        ${wrongCount>0?`<button class="btn ghost" id="reviewBtn" style="margin-left:8px;">間違えた${wrongCount}問だけ復習</button>`:""}
+      </div>`;
+    $("#retryBtn").onclick = () => startQuiz(ch);
+    if(wrongCount>0){
+      $("#reviewBtn").onclick = () => {
+        const wrongRaw = quizSession.wrong.map(w=>ch.quiz[w]);
+        startQuiz(ch, buildShuffledQuiz(wrongRaw));
+      };
+    }
+    return;
+  }
+  const q = quizSession.questions[quizSession.i];
+  area.innerHTML = `
+    <div class="eyebrow">${ch.name} · 第${quizSession.i+1}問 / ${quizSession.total}</div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-opts">${q.opts.map((o,idx)=>`<button class="opt" data-idx="${idx}">${o}</button>`).join("")}</div>
+    <div id="explainWrap"></div>
+    <div class="quiz-foot">
+      <span>スコア: <strong class="num">${quizSession.correct}</strong> / ${quizSession.i}</span>
+      <button class="btn ghost" id="nextBtn" disabled>次へ</button>
+    </div>`;
+  area.querySelectorAll(".opt").forEach(btn=>{
+    btn.onclick = () => {
+      if(quizSession.answered) return;
+      quizSession.answered = true;
+      const idx = Number(btn.dataset.idx);
+      area.querySelectorAll(".opt").forEach((b,i)=>{
+        b.disabled = true;
+        if(i === q.a) b.classList.add("correct");
+        else if(i === idx) b.classList.add("wrong");
+      });
+      if(idx === q.a) quizSession.correct++;
+      else if(q.srcIdx !== undefined) quizSession.wrong.push(q.srcIdx);
+      $("#explainWrap").innerHTML = `<div class="explain">${q.exp}</div>`;
+      $("#nextBtn").disabled = false;
+    };
+  });
+  $("#nextBtn").onclick = () => { quizSession.i++; quizSession.answered=false; renderQuizQuestion(ch); };
+}
+
+let cardSession = null;
+
+function startCards(ch){
+  cardSession = { i:0, flipped:false };
+  renderCard(ch);
+}
+
+function renderCard(ch){
+  const area = $("#cardArea");
+  if(cardSession.i >= ch.cards.length){
+    area.innerHTML = `<div style="text-align:center; padding:26px 0;">
+      <div class="eyebrow">全カード完了</div>
+      <button class="btn" id="cardRestart">最初から</button>
+    </div>`;
+    $("#cardRestart").onclick = () => startCards(ch);
+    return;
+  }
+  const c = ch.cards[cardSession.i];
+  area.innerHTML = `
+    <div class="eyebrow">${ch.name} · カード ${cardSession.i+1} / ${ch.cards.length}</div>
+    <div class="flash-stage">
+      <div class="flash-card" id="flashCard">
+        <div class="flash-face front">${c.f}</div>
+        <div class="flash-face back">${c.b}</div>
+      </div>
+    </div>
+    <div class="flash-nav">
+      <span>タップして裏面を表示</span>
+      <div class="flash-actions">
+        <button class="dontknow" id="dkBtn">まだ不安</button>
+        <button class="know" id="okBtn">覚えた</button>
+      </div>
+    </div>`;
+  const cardEl = $("#flashCard");
+  cardEl.onclick = () => cardEl.classList.toggle("flipped");
+  const advance = (known) => {
+    const key = ch.id + "_" + cardSession.i;
+    state.flashState[key] = known;
+    save();
+    cardSession.i++;
+    renderCard(ch);
+  };
+  $("#okBtn").onclick = (e) => { e.stopPropagation(); advance(true); };
+  $("#dkBtn").onclick = (e) => { e.stopPropagation(); advance(false); };
+}
+
+function renderMode(){
+  const ch = DATA.find(c=>c.id===state.activeChapter);
+  $("#quizArea").style.display = state.mode === "quiz" ? "block" : "none";
+  $("#cardArea").style.display = state.mode === "cards" ? "block" : "none";
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.mode===state.mode));
+  if(state.mode === "quiz") startQuiz(ch);
+  else startCards(ch);
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.onclick = () => { state.mode = btn.dataset.mode; renderMode(); };
+});
+
+$("#examDate").addEventListener("change", (e) => {
+  state.examDate = e.target.value;
+  save();
+  renderDashboard();
+});
+
+renderDashboard();
+renderChapterNav();
+renderMode();
+</script>
