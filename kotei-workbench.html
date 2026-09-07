@@ -1,0 +1,1683 @@
+<title>工程表ワークベンチ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700&family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9EEF4; --panel:#FFFFFF; --panel2:#F4F7FA; --panel3:#E9F0F7;
+  --line:#CBD6E2; --line2:#E2E9F1; --line3:#A9B9CA;
+  --ink:#15212C; --ink2:#4C5E70; --ink3:#7A8B9B;
+  --accent:#1D4E76; --accent2:#2E7CC4; --accent-soft:#DBE8F5; --accent-ring:#9EC4E8;
+  --bar:#3A7FBF; --bar-edge:#255C90; --bar-prog:#16405F; --bar-txt:#FFFFFF;
+  --summary:#243444; --milestone:#243444;
+  --crit:#C0392B; --crit-bar:#CE5A4A; --crit-edge:#9E2A1D; --crit-soft:#F7E1DD;
+  --warn:#A9700F; --warn-soft:#F8EED8; --good:#2C7A55; --good-soft:#DDEFE5;
+  --nonwork:#DFE6EE; --holiday:#F1E3E3; --todayline:#C0392B;
+  --gridline:#E7EDF4; --weekline:#D3DEEA; --base-bar:#94A3B1;
+  --plan:#2E6DA4; --actual:#C9861A;
+  --shadow:0 1px 2px rgba(16,33,48,.10), 0 10px 28px rgba(16,33,48,.10);
+  --rowh:30px; --headh:48px;
+  --font-ui:"IBM Plex Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --font-disp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  --font-num:"IBM Plex Mono",SFMono-Regular,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]){
+  --ground:#0C121A;
+  --panel:#141D27;
+  --panel2:#1A2531;
+  --panel3:#202D3A;
+  --line:#2A3746;
+  --line2:#1E2A36;
+  --line3:#3D4D5E;
+  --ink:#E6ECF3;
+  --ink2:#A6B6C5;
+  --ink3:#76889A;
+  --accent:#5AA3E0;
+  --accent2:#7CBCF0;
+  --accent-soft:#173049;
+  --accent-ring:#2F6693;
+  --bar:#356E9E;
+  --bar-edge:#4E93D0;
+  --bar-prog:#8FC0E8;
+  --bar-txt:#EAF3FB;
+  --summary:#9FB3C6;
+  --milestone:#B7C7D6;
+  --crit:#E0705C;
+  --crit-bar:#9C4133;
+  --crit-edge:#E0705C;
+  --crit-soft:#3A211D;
+  --warn:#D8A33C;
+  --warn-soft:#33290F;
+  --good:#5FB78A;
+  --good-soft:#14301F;
+  --nonwork:#111B25;
+  --holiday:#26191F;
+  --todayline:#E0705C;
+  --gridline:#1B2632;
+  --weekline:#243342;
+  --base-bar:#5B6C7D;
+  --plan:#4E93D0;
+  --actual:#B0802F;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+}
+}
+:root[data-theme="dark"]{
+  --ground:#0C121A;
+  --panel:#141D27;
+  --panel2:#1A2531;
+  --panel3:#202D3A;
+  --line:#2A3746;
+  --line2:#1E2A36;
+  --line3:#3D4D5E;
+  --ink:#E6ECF3;
+  --ink2:#A6B6C5;
+  --ink3:#76889A;
+  --accent:#5AA3E0;
+  --accent2:#7CBCF0;
+  --accent-soft:#173049;
+  --accent-ring:#2F6693;
+  --bar:#356E9E;
+  --bar-edge:#4E93D0;
+  --bar-prog:#8FC0E8;
+  --bar-txt:#EAF3FB;
+  --summary:#9FB3C6;
+  --milestone:#B7C7D6;
+  --crit:#E0705C;
+  --crit-bar:#9C4133;
+  --crit-edge:#E0705C;
+  --crit-soft:#3A211D;
+  --warn:#D8A33C;
+  --warn-soft:#33290F;
+  --good:#5FB78A;
+  --good-soft:#14301F;
+  --nonwork:#111B25;
+  --holiday:#26191F;
+  --todayline:#E0705C;
+  --gridline:#1B2632;
+  --weekline:#243342;
+  --base-bar:#5B6C7D;
+  --plan:#4E93D0;
+  --actual:#B0802F;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-ui);font-size:12.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:1px}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-thumb{background:var(--line3);border:3px solid var(--panel2);border-radius:8px}
+::-webkit-scrollbar-track{background:var(--panel2)}
+
+#app{height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;overflow:hidden}
+
+/* ---- title bar ---- */
+.titlebar{display:flex;align-items:center;gap:14px;padding:0 12px;height:42px;background:var(--accent);color:#EAF2FA;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:9px;font-family:var(--font-disp);font-weight:700;letter-spacing:.02em}
+.brand .mark{width:15px;height:15px;border:2px solid #EAF2FA;border-radius:2px;position:relative;transform:translateY(2px)}
+.brand .mark::after{content:"";position:absolute;left:1px;top:3px;width:9px;height:3px;background:#EAF2FA}
+.brand small{font-family:var(--font-num);font-weight:400;font-size:10px;opacity:.7;letter-spacing:.08em}
+.pjname{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.pjname input{background:transparent;border:1px solid transparent;color:#fff;padding:3px 7px;border-radius:3px;width:100%;max-width:420px;font-weight:500}
+.pjname input:hover{border-color:rgba(255,255,255,.28)}
+.pjname input:focus{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.5);outline:none}
+.qat{display:flex;gap:3px}
+.qat button{background:transparent;border:1px solid transparent;color:#DCE9F5;border-radius:3px;padding:4px 8px;cursor:pointer;font-size:11.5px}
+.qat button:hover:not(:disabled){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
+.qat button:disabled{opacity:.34;cursor:default}
+
+/* ---- ribbon ---- */
+.ribbon-tabs{display:flex;gap:0;background:var(--panel2);border-bottom:1px solid var(--line);padding:0 8px}
+.ribbon-tabs button{background:none;border:none;border-bottom:2px solid transparent;padding:7px 15px 6px;cursor:pointer;color:var(--ink2);font-weight:500}
+.ribbon-tabs button:hover{color:var(--ink);background:var(--panel3)}
+.ribbon-tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);background:var(--panel)}
+.ribbon{display:none;gap:0;background:var(--panel);border-bottom:1px solid var(--line);padding:6px 8px 4px;overflow-x:auto}
+.ribbon.on{display:flex}
+.rgroup{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 10px;border-right:1px solid var(--line2)}
+.rgroup:last-child{border-right:none}
+.rrow{display:flex;gap:3px;align-items:stretch}
+.rgroup .glabel{font-size:9.5px;color:var(--ink3);letter-spacing:.06em;font-family:var(--font-num)}
+.rb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:46px;padding:4px 6px;background:transparent;border:1px solid transparent;border-radius:3px;cursor:pointer;color:var(--ink);font-size:10.5px;white-space:nowrap}
+.rb .ic{font-size:15px;line-height:1;font-family:var(--font-num);color:var(--accent);font-weight:500}
+.rb:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent-ring)}
+.rb:disabled{opacity:.35;cursor:default}
+.rb[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-ring)}
+.rb.wide{flex-direction:row;min-width:0;gap:5px;font-size:11.5px}
+.seg{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--panel2)}
+.seg button{background:transparent;border:none;border-right:1px solid var(--line);padding:5px 10px;cursor:pointer;color:var(--ink2)}
+.seg button:last-child{border-right:none}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.field{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)}
+.field input,.field select{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:4px 6px;font-family:var(--font-num);font-size:11px}
+
+/* ---- workspace ---- */
+.workspace{display:grid;grid-template-columns:auto 1fr auto;min-height:0;background:var(--ground)}
+.viewrail{display:flex;flex-direction:column;gap:2px;padding:8px 5px;background:var(--panel2);border-right:1px solid var(--line);width:78px}
+.viewrail button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;background:transparent;border:1px solid transparent;border-radius:4px;cursor:pointer;color:var(--ink2);font-size:10px;line-height:1.25;text-align:center}
+.viewrail button .ic{font-size:17px;color:var(--accent);font-family:var(--font-num)}
+.viewrail button:hover{background:var(--panel3)}
+.viewrail button[aria-current="true"]{background:var(--panel);border-color:var(--line);color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.stage{min-width:0;min-height:0;position:relative;overflow:hidden;background:var(--panel)}
+.view{position:absolute;inset:0;display:none;min-height:0}
+.view.on{display:grid}
+
+/* ---- gantt view ---- */
+#v-gantt{grid-template-columns:var(--gw,640px) 6px 1fr}
+.pane{min-width:0;min-height:0;overflow:auto;position:relative;background:var(--panel)}
+.splitter{background:var(--panel2);border-left:1px solid var(--line);border-right:1px solid var(--line);cursor:col-resize;position:relative}
+.splitter::after{content:"";position:absolute;top:50%;left:1px;width:2px;height:34px;margin-top:-17px;background:var(--line3);border-radius:2px}
+
+table.grid{border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px;width:max-content;min-width:100%}
+table.grid th{position:sticky;top:0;z-index:3;height:var(--headh);background:var(--panel3);color:var(--ink2);font-weight:600;font-size:11px;text-align:left;padding:0 7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line3);white-space:nowrap;user-select:none}
+table.grid td{height:var(--rowh);padding:0 7px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--panel)}
+table.grid td.num,table.grid th.num{text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:11px}
+table.grid td.ctr{text-align:center}
+table.grid td.date{font-family:var(--font-num);font-size:11px;color:var(--ink2)}
+tr.trow:hover td{background:var(--panel2)}
+tr.trow.sel td{background:var(--accent-soft)}
+tr.trow.summary td{font-weight:600;background:var(--panel2)}
+tr.trow.summary.sel td{background:var(--accent-soft)}
+tr.trow.crit td.c-id{color:var(--crit);box-shadow:inset 3px 0 0 var(--crit)}
+tr.trow.done td.c-name{color:var(--ink3)}
+td.c-id{color:var(--ink3);font-family:var(--font-num);font-size:10.5px;text-align:right;background:var(--panel2)!important}
+td.c-wbs{font-family:var(--font-num);font-size:10.5px;color:var(--ink3)}
+.nm{display:flex;align-items:center;gap:4px;min-width:0}
+.tw{width:14px;height:14px;flex:none;border:none;background:none;cursor:pointer;color:var(--ink2);font-size:9px;line-height:1;padding:0}
+.tw.ph{visibility:hidden}
+.nm .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{display:inline-block;padding:0 5px;border-radius:9px;font-size:9.5px;line-height:15px;font-family:var(--font-num);background:var(--panel3);color:var(--ink2);border:1px solid var(--line)}
+.chip.ms{background:var(--panel3);color:var(--ink)}
+.chip.cr{background:var(--crit-soft);color:var(--crit);border-color:var(--crit)}
+.chip.wn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+.pbar{position:relative;height:11px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);overflow:hidden;min-width:44px}
+.pbar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent2);display:block}
+.pbar b{position:absolute;inset:0;text-align:center;font-size:9px;font-family:var(--font-num);font-weight:500;color:var(--ink);line-height:9px;mix-blend-mode:normal}
+.cell-edit{width:100%;height:calc(var(--rowh) - 6px);border:1px solid var(--accent2);border-radius:2px;background:var(--panel);padding:0 4px;font-size:12px;font-family:var(--font-ui)}
+.cell-edit.num{font-family:var(--font-num);text-align:right}
+
+/* ---- chart ---- */
+.chart-inner{position:relative;width:max-content;min-width:100%}
+.tl{position:sticky;top:0;z-index:3;height:var(--headh);background:var(--panel3);border-bottom:1px solid var(--line3)}
+.tl-major,.tl-minor{position:relative;height:24px}
+.tl-major{border-bottom:1px solid var(--line)}
+.tl-cell{position:absolute;top:0;bottom:0;border-right:1px solid var(--line);font-size:10.5px;color:var(--ink2);display:flex;align-items:center;justify-content:center;font-family:var(--font-num);overflow:hidden;white-space:nowrap}
+.tl-major .tl-cell{font-weight:500;color:var(--ink);justify-content:flex-start;padding-left:6px}
+.tl-cell.we{color:var(--ink3);background:var(--nonwork)}
+.tl-cell.hd{color:var(--crit);background:var(--holiday)}
+.tl-cell.td{background:var(--accent-soft);color:var(--accent);font-weight:500}
+.chart-body{position:relative;overflow:hidden}
+.bg-nonwork{position:absolute;top:0;bottom:0;background:var(--nonwork);opacity:.75}
+.bg-holiday{position:absolute;top:0;bottom:0;background:var(--holiday);opacity:.85}
+.bg-vline{position:absolute;top:0;bottom:0;width:1px;background:var(--weekline)}
+.bg-hline{position:absolute;left:0;right:0;height:1px;background:var(--gridline)}
+.row-hit{position:absolute;left:0;right:0}
+.row-hit:hover{background:var(--panel2)}
+.row-hit.sel{background:var(--accent-soft)}
+.todayline{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--todayline);z-index:4;pointer-events:none}
+.todayflag{position:absolute;top:2px;transform:translateX(-50%);font-size:9px;font-family:var(--font-num);color:#fff;background:var(--todayline);padding:0 4px;border-radius:2px;z-index:5;pointer-events:none;white-space:nowrap}
+
+.bar{position:absolute;border-radius:3px;cursor:grab;z-index:2}
+.bar.task{background:var(--bar);border:1px solid var(--bar-edge);box-shadow:0 1px 1px rgba(16,33,48,.18)}
+.bar.task.crit{background:var(--crit-bar);border-color:var(--crit-edge)}
+.bar.task .prog{position:absolute;left:0;top:0;bottom:0;background:var(--bar-prog);border-radius:2px 0 0 2px;opacity:.9}
+.bar.task.sel{outline:2px solid var(--accent);outline-offset:1px}
+.bar.sum{background:var(--summary);height:9px!important;border-radius:1px}
+.bar.sum::before,.bar.sum::after{content:"";position:absolute;top:100%;border-style:solid;border-color:var(--summary) transparent transparent transparent;border-width:6px 5px 0 0}
+.bar.sum::before{left:0}
+.bar.sum::after{right:0;border-width:6px 0 0 5px;border-color:var(--summary) transparent transparent transparent}
+.bar.sum .sprog{position:absolute;left:0;top:2px;bottom:2px;background:var(--panel);opacity:.55}
+.ms-mark{position:absolute;width:13px;height:13px;background:var(--milestone);transform:rotate(45deg);z-index:2;cursor:grab;border-radius:2px}
+.ms-mark.crit{background:var(--crit)}
+.ms-mark.sel{outline:2px solid var(--accent);outline-offset:2px}
+.bar-label{position:absolute;font-size:10.5px;color:var(--ink2);white-space:nowrap;pointer-events:none;z-index:2;font-family:var(--font-num)}
+.bar-label.in{color:var(--bar-txt);font-family:var(--font-ui)}
+.base-bar{position:absolute;height:5px;background:var(--base-bar);border-radius:1px;opacity:.85;z-index:1}
+.slack-line{position:absolute;height:0;border-top:1px dashed var(--ink3);z-index:1}
+.slack-line::after{content:"";position:absolute;right:0;top:-3px;width:1px;height:7px;background:var(--ink3)}
+.grip{position:absolute;top:0;bottom:0;width:6px;cursor:ew-resize;z-index:3}
+.grip.l{left:-3px}
+.grip.r{right:-3px}
+.link-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--panel);border:1.5px solid var(--accent);top:50%;margin-top:-4.5px;z-index:5;cursor:crosshair;opacity:0;transition:opacity .12s}
+.link-dot.l{left:-13px}
+.link-dot.r{right:-13px}
+.barwrap:hover .link-dot{opacity:1}
+.prog-grip{position:absolute;width:8px;height:8px;top:50%;margin-top:-4px;background:var(--panel);border:1.5px solid var(--bar-prog);border-radius:2px;z-index:4;cursor:ew-resize;opacity:0}
+.barwrap:hover .prog-grip{opacity:1}
+svg.links{position:absolute;left:0;top:0;pointer-events:none;z-index:3;overflow:visible}
+svg.links path{fill:none;stroke:var(--ink3);stroke-width:1.2}
+svg.links path.crit{stroke:var(--crit);stroke-width:1.4}
+.drag-ghost{position:absolute;border:1.5px dashed var(--accent);background:rgba(46,124,196,.14);border-radius:3px;z-index:9;pointer-events:none}
+.link-rubber{position:absolute;height:0;border-top:1.5px dashed var(--accent);z-index:9;pointer-events:none;transform-origin:0 0}
+
+/* ---- tooltip ---- */
+#tip{position:fixed;z-index:200;background:var(--panel);color:var(--ink);border:1px solid var(--line3);border-radius:5px;box-shadow:var(--shadow);padding:8px 10px;font-size:11.5px;max-width:290px;pointer-events:none;display:none}
+#tip h5{margin:0 0 5px;font-size:12px;font-family:var(--font-disp);font-weight:700}
+#tip dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0}
+#tip dt{color:var(--ink3);font-size:10.5px}
+#tip dd{margin:0;font-family:var(--font-num);font-size:10.5px}
+
+/* ---- inspector ---- */
+.inspector{width:312px;background:var(--panel2);border-left:1px solid var(--line);overflow:auto;display:flex;flex-direction:column}
+.inspector.hidden{display:none}
+.insp-head{position:sticky;top:0;background:var(--panel2);border-bottom:1px solid var(--line);padding:9px 12px;display:flex;align-items:center;justify-content:space-between;z-index:2}
+.insp-head h3{margin:0;font-family:var(--font-disp);font-size:13px;font-weight:700;letter-spacing:.02em}
+.insp-body{padding:10px 12px 22px;display:flex;flex-direction:column;gap:12px}
+.fset{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:9px 10px;display:flex;flex-direction:column;gap:8px}
+.fset h4{margin:0;font-size:10px;letter-spacing:.1em;color:var(--ink3);font-family:var(--font-num);font-weight:500;text-transform:uppercase}
+.frow{display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center}
+.frow>label{font-size:11px;color:var(--ink2)}
+.frow input,.frow select,.frow textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:4px 6px;font-size:11.5px}
+.frow input[type=date],.frow input[type=number]{font-family:var(--font-num)}
+.frow textarea{resize:vertical;min-height:52px;font-size:11.5px}
+.icon-btn{background:transparent;border:1px solid transparent;border-radius:3px;cursor:pointer;color:var(--ink2);padding:2px 6px;font-size:12px}
+.icon-btn:hover{background:var(--panel3);border-color:var(--line)}
+.mini{width:100%;border-collapse:collapse;font-size:11px}
+.mini th{text-align:left;color:var(--ink3);font-weight:500;font-size:10px;padding:2px 4px;border-bottom:1px solid var(--line2)}
+.mini td{padding:2px 4px;border-bottom:1px solid var(--line2)}
+.mini select,.mini input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:2px 3px;font-size:10.5px;font-family:var(--font-num)}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:4px 9px;cursor:pointer;font-size:11.5px;color:var(--ink)}
+.btn:hover{background:var(--panel3);border-color:var(--line3)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn.dgr{color:var(--crit);border-color:var(--crit)}
+.btn.dgr:hover{background:var(--crit-soft)}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ---- statusbar ---- */
+.statusbar{display:flex;align-items:center;gap:0;background:var(--panel2);border-top:1px solid var(--line);padding:0 6px;height:30px;overflow-x:auto}
+.st{display:flex;align-items:baseline;gap:5px;padding:0 11px;border-right:1px solid var(--line2);white-space:nowrap}
+.st:last-of-type{border-right:none}
+.st .k{font-size:9.5px;color:var(--ink3);letter-spacing:.05em}
+.st .v{font-family:var(--font-num);font-size:11.5px;font-variant-numeric:tabular-nums}
+.st .v.warnv{color:var(--crit)}
+.st .v.okv{color:var(--good)}
+.spacer{flex:1}
+
+/* ---- sheet-style views ---- */
+.sheet{padding:0;overflow:auto}
+.sheet-inner{padding:16px 20px 30px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.vhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.vhead h2{margin:0;font-family:var(--font-disp);font-size:17px;font-weight:700;letter-spacing:.02em}
+.vhead p{margin:2px 0 0;color:var(--ink2);font-size:11.5px;max-width:62ch}
+table.data{border-collapse:separate;border-spacing:0;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:12px}
+table.data th{background:var(--panel3);text-align:left;font-size:10.5px;color:var(--ink2);font-weight:600;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.data td{padding:5px 9px;border-bottom:1px solid var(--line2);vertical-align:middle}
+table.data tr:last-child td{border-bottom:none}
+table.data td.num,table.data th.num{text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums}
+table.data tr.over td{background:var(--crit-soft)}
+table.data input{background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 4px;width:100%}
+table.data input:hover{border-color:var(--line)}
+table.data input:focus{background:var(--panel);border-color:var(--accent2);outline:none}
+table.data input.num{font-family:var(--font-num);text-align:right}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:11px 13px;display:flex;flex-direction:column;gap:3px}
+.tile .k{font-size:10px;color:var(--ink3);letter-spacing:.05em}
+.tile .v{font-family:var(--font-num);font-size:22px;font-weight:500;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile .s{font-size:10.5px;color:var(--ink2)}
+.tile.alert{border-color:var(--crit)}
+.tile.alert .v{color:var(--crit)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:13px 15px}
+.card h3{margin:0 0 2px;font-family:var(--font-disp);font-size:13px;font-weight:700}
+.card p.sub{margin:0 0 10px;font-size:11px;color:var(--ink3)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--ink2);margin-bottom:6px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:14px;height:3px;border-radius:2px;display:block}
+.chartbox{overflow-x:auto}
+.chartbox svg{display:block}
+.chartbox text{font-family:var(--font-num);font-size:9.5px;fill:var(--ink3)}
+.chartbox text.lbl{fill:var(--ink2);font-size:10px}
+.netbox{overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:18px;min-height:0}
+.net-inner{position:relative}
+.node{position:absolute;width:158px;background:var(--panel);border:1.5px solid var(--line3);border-radius:5px;padding:5px 7px;font-size:10.5px;cursor:pointer;box-shadow:0 1px 2px rgba(16,33,48,.08)}
+.node.crit{border-color:var(--crit)}
+.node.sel{outline:2px solid var(--accent);outline-offset:1px}
+.node .nid{font-family:var(--font-num);font-size:9px;color:var(--ink3);display:flex;justify-content:space-between}
+.node .nnm{font-weight:600;margin:1px 0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.node .ndt{font-family:var(--font-num);font-size:9px;color:var(--ink2);display:flex;justify-content:space-between}
+.node.ms{border-style:double;border-width:3px}
+svg.netlinks{position:absolute;left:0;top:0;pointer-events:none}
+svg.netlinks path{fill:none;stroke:var(--ink3);stroke-width:1.2}
+svg.netlinks path.crit{stroke:var(--crit);stroke-width:1.5}
+
+/* ---- dialogs ---- */
+dialog{border:1px solid var(--line3);border-radius:8px;background:var(--panel);color:var(--ink);padding:0;box-shadow:var(--shadow);max-width:min(94vw,600px);width:100%}
+dialog::backdrop{background:rgba(10,20,30,.42)}
+dialog h3{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-family:var(--font-disp);font-size:14px;font-weight:700;background:var(--panel2)}
+.dlg-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;max-height:66vh;overflow:auto}
+.dlg-foot{padding:10px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:var(--panel2)}
+.wk{display:flex;gap:5px;flex-wrap:wrap}
+.wk label{display:flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:3px;padding:3px 7px;font-size:11px;background:var(--panel2);cursor:pointer}
+.hol-list{display:flex;flex-direction:column;gap:3px;max-height:190px;overflow:auto;border:1px solid var(--line2);border-radius:4px;padding:6px}
+.hol-item{display:grid;grid-template-columns:88px 1fr auto;gap:7px;align-items:center;font-size:11px}
+.hol-item span{font-family:var(--font-num);color:var(--ink2)}
+.hint{font-size:10.5px;color:var(--ink3);line-height:1.55}
+.toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);background:var(--accent);color:#fff;padding:7px 16px;border-radius:20px;font-size:12px;z-index:300;box-shadow:var(--shadow);opacity:0;transition:opacity .18s}
+.toast.on{opacity:1}
+.ctxmenu{position:fixed;z-index:250;background:var(--panel);border:1px solid var(--line3);border-radius:5px;box-shadow:var(--shadow);padding:4px;min-width:172px;display:none}
+.ctxmenu.on{display:block}
+.ctxmenu button{display:flex;justify-content:space-between;gap:16px;width:100%;background:none;border:none;text-align:left;padding:5px 9px;border-radius:3px;cursor:pointer;font-size:11.5px;color:var(--ink)}
+.ctxmenu button:hover{background:var(--accent-soft)}
+.ctxmenu button kbd{font-family:var(--font-num);font-size:9.5px;color:var(--ink3)}
+.ctxmenu hr{border:none;border-top:1px solid var(--line2);margin:4px 2px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  .titlebar,.ribbon-tabs,.ribbon,.viewrail,.inspector,.statusbar,.splitter{display:none!important}
+  #app{height:auto;display:block}
+  .view{position:static;display:none}
+  .view.on{display:grid}
+  .pane{overflow:visible}
+  body{background:#fff}
+}
+</style>
+
+<div id="app">
+  <div class="titlebar">
+    <div class="brand"><span class="mark"></span><span>工程表ワークベンチ</span><small>KOTEI / WBS · CPM</small></div>
+    <div class="pjname"><input id="pjname" aria-label="プロジェクト名" spellcheck="false"></div>
+    <div class="qat">
+      <button data-act="undo" id="b-undo" title="元に戻す (Ctrl+Z)">↩ 元に戻す</button>
+      <button data-act="redo" id="b-redo" title="やり直し (Ctrl+Y)">↪ やり直し</button>
+      <button data-act="save" title="この工程表を .json で保存">⤓ 保存</button>
+      <button data-act="open" title="保存した .json を読み込む">⤒ 開く</button>
+      <button data-act="csv" title="CSV に書き出す">CSV</button>
+      <button data-act="print" title="印刷 / PDF">🖨 印刷</button>
+      <button data-act="theme" title="配色を切り替える">◐ 配色</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="ribbon-tabs" role="tablist">
+      <button role="tab" data-tab="task" aria-selected="true">タスク</button>
+      <button role="tab" data-tab="view" aria-selected="false">表示</button>
+      <button role="tab" data-tab="res" aria-selected="false">リソース</button>
+      <button role="tab" data-tab="proj" aria-selected="false">プロジェクト</button>
+    </div>
+
+    <div class="ribbon on" data-panel="task">
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="addTask"><span class="ic">＋</span>タスク</button>
+        <button class="rb" data-act="addMilestone"><span class="ic">◆</span>マイル<br>ストーン</button>
+        <button class="rb" data-act="delTask"><span class="ic">✕</span>削除</button>
+      </div><div class="glabel">挿入</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="outdent" title="Alt+←"><span class="ic">⇤</span>レベル<br>上げ</button>
+        <button class="rb" data-act="indent" title="Alt+→"><span class="ic">⇥</span>レベル<br>下げ</button>
+        <button class="rb" data-act="moveUp"><span class="ic">↑</span>上へ</button>
+        <button class="rb" data-act="moveDown"><span class="ic">↓</span>下へ</button>
+      </div><div class="glabel">アウトライン</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="link" title="選択した2つ以上のタスクを FS で接続"><span class="ic">⛓</span>リンク</button>
+        <button class="rb" data-act="unlink"><span class="ic">⛓̸</span>リンク<br>解除</button>
+      </div><div class="glabel">依存関係</div></div>
+      <div class="rgroup"><div class="rrow">
+        <div class="seg" id="seg-pct">
+          <button data-act="pct" data-v="0">0%</button>
+          <button data-act="pct" data-v="25">25%</button>
+          <button data-act="pct" data-v="50">50%</button>
+          <button data-act="pct" data-v="75">75%</button>
+          <button data-act="pct" data-v="100">100%</button>
+        </div>
+      </div><div class="glabel">進捗の更新</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="info"><span class="ic">☰</span>タスク<br>情報</button>
+        <button class="rb" data-act="scrollTo"><span class="ic">◎</span>バーへ<br>移動</button>
+      </div><div class="glabel">プロパティ</div></div>
+    </div>
+
+    <div class="ribbon" data-panel="view">
+      <div class="rgroup"><div class="rrow">
+        <div class="seg" id="seg-zoom">
+          <button data-act="zoom" data-v="day">日</button>
+          <button data-act="zoom" data-v="week">週</button>
+          <button data-act="zoom" data-v="month">月</button>
+          <button data-act="zoom" data-v="quarter">四半期</button>
+        </div>
+        <button class="rb wide" data-act="today"><span class="ic">▾</span>今日へ</button>
+      </div><div class="glabel">タイムスケール</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="tgl" data-v="showCritical"><span class="ic">▰</span>クリティカル<br>パス</button>
+        <button class="rb" data-act="tgl" data-v="showBaseline"><span class="ic">▭</span>ベース<br>ライン</button>
+        <button class="rb" data-act="tgl" data-v="showSlack"><span class="ic">┄</span>余裕<br>時間</button>
+        <button class="rb" data-act="tgl" data-v="showLabel"><span class="ic">🏷</span>バー<br>ラベル</button>
+      </div><div class="glabel">ガントの表示</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="expandAll"><span class="ic">⊞</span>すべて<br>展開</button>
+        <button class="rb" data-act="collapseAll"><span class="ic">⊟</span>すべて<br>折りたたみ</button>
+      </div><div class="glabel">アウトライン</div></div>
+      <div class="rgroup"><div class="rrow" style="gap:10px">
+        <div class="field"><label for="f-filter">フィルター</label>
+          <select id="f-filter">
+            <option value="all">すべてのタスク</option>
+            <option value="crit">クリティカルのみ</option>
+            <option value="inc">未完了</option>
+            <option value="late">遅れ（今日基準）</option>
+            <option value="ms">マイルストーン</option>
+            <option value="over">過負荷リソースを含む</option>
+          </select></div>
+        <div class="field"><label for="f-search">検索</label><input id="f-search" type="search" placeholder="タスク名・担当" style="width:150px;font-family:var(--font-ui)"></div>
+      </div><div class="glabel">絞り込み</div></div>
+    </div>
+
+    <div class="ribbon" data-panel="res">
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="addRes"><span class="ic">＋</span>リソース<br>追加</button>
+        <button class="rb" data-act="gotoRes"><span class="ic">▤</span>リソース<br>シート</button>
+        <button class="rb" data-act="gotoLoad"><span class="ic">▯</span>負荷<br>グラフ</button>
+      </div><div class="glabel">リソース</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb wide" data-act="levelHint"><span class="ic">⚠</span>過負荷を検出</button>
+      </div><div class="glabel">調整</div></div>
+    </div>
+
+    <div class="ribbon" data-panel="proj">
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="dlgProj"><span class="ic">ⓘ</span>プロジェクト<br>情報</button>
+        <button class="rb" data-act="dlgCal"><span class="ic">▦</span>稼働<br>カレンダー</button>
+      </div><div class="glabel">設定</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="setBaseline"><span class="ic">▭</span>ベースライン<br>設定</button>
+        <button class="rb" data-act="clearBaseline"><span class="ic">⌫</span>ベースライン<br>解除</button>
+      </div><div class="glabel">基準計画</div></div>
+      <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="gotoReport"><span class="ic">▲</span>進捗<br>レポート</button>
+        <button class="rb" data-act="gotoNet"><span class="ic">⊹</span>ネット<br>ワーク図</button>
+        <button class="rb" data-act="sample"><span class="ic">↺</span>サンプル<br>再読込</button>
+      </div><div class="glabel">分析</div></div>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <nav class="viewrail" id="viewrail">
+      <button data-view="gantt" aria-current="true"><span class="ic">▤</span>ガント<br>チャート</button>
+      <button data-view="res"><span class="ic">👷</span>リソース<br>シート</button>
+      <button data-view="load"><span class="ic">▯</span>リソース<br>グラフ</button>
+      <button data-view="net"><span class="ic">⊹</span>ネット<br>ワーク図</button>
+      <button data-view="report"><span class="ic">▲</span>進捗<br>レポート</button>
+    </nav>
+
+    <div class="stage">
+      <div class="view on" id="v-gantt">
+        <div class="pane" id="gridPane"><table class="grid" id="grid"><colgroup id="gridcols"></colgroup><thead id="gridhead"></thead><tbody id="gridbody"></tbody></table></div>
+        <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" title="ドラッグで表の幅を変更"></div>
+        <div class="pane" id="chartPane"><div class="chart-inner" id="chartInner"></div></div>
+      </div>
+      <div class="view sheet" id="v-res"><div class="sheet-inner" id="resInner"></div></div>
+      <div class="view sheet" id="v-load"><div class="sheet-inner" id="loadInner"></div></div>
+      <div class="view sheet" id="v-net"><div class="sheet-inner" id="netInner"></div></div>
+      <div class="view sheet" id="v-report"><div class="sheet-inner" id="reportInner"></div></div>
+    </div>
+
+    <aside class="inspector" id="inspector"></aside>
+  </div>
+
+  <div class="statusbar" id="statusbar"></div>
+</div>
+
+<div id="tip" role="tooltip"></div>
+<div class="toast" id="toast"></div>
+<div class="ctxmenu" id="ctxmenu"></div>
+<input type="file" id="fileInput" accept=".json,application/json" hidden>
+
+<dialog id="dlgProj"><h3>プロジェクト情報</h3><div class="dlg-body" id="dlgProjBody"></div>
+  <div class="dlg-foot"><button class="btn" data-close>キャンセル</button><button class="btn pri" id="dlgProjOk">OK</button></div></dialog>
+<dialog id="dlgCal"><h3>稼働カレンダー</h3><div class="dlg-body" id="dlgCalBody"></div>
+  <div class="dlg-foot"><button class="btn" data-close>閉じる</button><button class="btn pri" id="dlgCalOk">適用</button></div></dialog>
+
+<script>
+"use strict";
+/* ============================ 基本ユーティリティ ============================ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const pd=s=>{const a=String(s).split("-").map(Number);return new Date(a[0],a[1]-1,a[2]);};
+const addD=(d,n)=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()+n);return x;};
+const dayDiff=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-new Date(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);
+const WD=["日","月","火","水","木","金","土"];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const yen=n=>"¥"+Math.round(n||0).toLocaleString("ja-JP");
+const md=d=>(d.getMonth()+1)+"/"+d.getDate();
+const jdate=d=>ymd(d)+"("+WD[d.getDay()]+")";
+const todayD=()=>{const t=new Date();return new Date(t.getFullYear(),t.getMonth(),t.getDate());};
+const uid=p=>p+Math.random().toString(36).slice(2,8);
+
+/* ============================ 既定データ ============================ */
+const HOLIDAYS_2026={
+ "2026-01-01":"元日","2026-01-02":"年始休","2026-01-12":"成人の日","2026-02-11":"建国記念の日",
+ "2026-02-23":"天皇誕生日","2026-03-20":"春分の日","2026-04-29":"昭和の日","2026-05-03":"憲法記念日",
+ "2026-05-04":"みどりの日","2026-05-05":"こどもの日","2026-05-06":"振替休日","2026-07-20":"海の日",
+ "2026-08-11":"山の日","2026-08-13":"夏季休暇","2026-08-14":"夏季休暇","2026-09-21":"敬老の日",
+ "2026-09-22":"国民の休日","2026-09-23":"秋分の日","2026-10-12":"スポーツの日","2026-11-03":"文化の日",
+ "2026-11-23":"勤労感謝の日","2026-12-29":"年末休","2026-12-30":"年末休","2026-12-31":"年末休",
+ "2027-01-01":"元日","2027-01-04":"年始休"
+};
+function sampleState(){
+  const R=[
+    {id:"r1",name:"佐藤 健一",init:"佐藤",group:"元請・管理",max:100,rate:42000},
+    {id:"r2",name:"鈴木 美和",init:"鈴木",group:"元請・管理",max:100,rate:36000},
+    {id:"r3",name:"解体A班",init:"解体",group:"協力会社",max:100,rate:240000},
+    {id:"r4",name:"B電設",init:"電気",group:"協力会社",max:100,rate:210000},
+    {id:"r5",name:"C空調",init:"空調",group:"協力会社",max:100,rate:230000},
+    {id:"r6",name:"D設備",init:"給排水",group:"協力会社",max:100,rate:190000},
+    {id:"r7",name:"E内装",init:"内装",group:"協力会社",max:200,rate:200000},
+    {id:"r8",name:"F塗装",init:"塗装",group:"協力会社",max:100,rate:170000}
+  ];
+  const raw=[
+    [1,"着工準備",0,0,null,[],[],0],
+    [2,"契約締結・着手届の提出",1,3,null,[],["r1"],100],
+    [3,"施工計画書・総合工程表の作成",1,5,null,[[2,"FS",0]],["r2"],25],
+    [4,"近隣挨拶・仮囲い / 養生設置",1,2,null,[[3,"FS",0]],["r2","r3"],0],
+    [5,"解体・撤去",0,0,null,[],[],0],
+    [6,"既存内装解体（3〜5F）",1,8,null,[[4,"FS",0]],["r3"],0],
+    [7,"産業廃棄物の搬出・マニフェスト整理",1,4,null,[[6,"SS",3]],["r3"],0],
+    [8,"躯体補修・床レベル調整",1,4,null,[[6,"FS",0]],["r3"],0],
+    [9,"設備工事",0,0,null,[],[],0],
+    [10,"電気幹線・配線工事",1,7,null,[[8,"FS",0]],["r4"],0],
+    [11,"空調ダクト・室内機設置",1,8,null,[[8,"FS",0]],["r5"],0],
+    [12,"給排水配管",1,5,null,[[8,"FS",1]],["r6"],0],
+    [13,"設備中間検査",1,1,null,[[10,"FS",0],[11,"FS",0],[12,"FS",0]],["r2"],0],
+    [14,"内装仕上工事",0,0,null,[],[],0],
+    [15,"軽量鉄骨下地組",1,6,null,[[13,"FS",0]],["r7"],0],
+    [16,"石膏ボード張り",1,6,null,[[15,"SS",2]],["r7"],0],
+    [17,"塗装・クロス仕上",1,7,null,[[16,"FS",0]],["r8"],0],
+    [18,"床仕上（タイルカーペット）",1,4,null,[[17,"FS",0]],["r7"],0],
+    [19,"建具・サイン取付",1,3,null,[[18,"FS",0]],["r7"],0],
+    [20,"検査・引渡し",0,0,null,[],[],0],
+    [21,"社内検査・是正リスト作成",1,2,null,[[19,"FS",0]],["r1","r2"],0],
+    [22,"是正工事",1,3,null,[[21,"FS",0]],["r7"],0],
+    [23,"消防・建築設備検査",1,1,null,[[22,"FS",0]],["r1"],0],
+    [24,"施主検査",1,1,null,[[23,"FS",0]],["r1"],0],
+    [25,"引渡し・鍵渡し",1,0,"ms",[[24,"FS",0]],["r1"],0]
+  ];
+  const notes={4:"仮囲い H=3.0m / 出入口2ヶ所。近隣説明は 17:00 以降を避ける。",
+    6:"アスベスト事前調査済（含有なし）。3F→5F の順に階別解体。",
+    7:"産廃搬出は 9:00-11:00 / 14:00-16:00 の時間帯指定。マニフェストは E票まで確認。",
+    13:"監理者立会。指摘は当日中に是正計画へ反映すること。",
+    17:"F☆☆☆☆材料のみ使用。臭気対策で夜間換気を実施。",
+    25:"引渡書類一式（竣工図・保証書・取扱説明）を同時提出。"};
+  const tasks=raw.map(r=>({
+    id:r[0],name:r[1],level:r[2],dur:r[4]==="ms"?0:r[3],ms:r[4]==="ms",
+    preds:r[5].map(p=>({id:p[0],type:p[1],lag:p[2]})),
+    res:r[6].map(id=>({id:id,units:100})),
+    pct:r[7],mode:"auto",constraint:{type:"ASAP",date:null},notes:notes[r[0]]||"",start:null,finish:null
+  }));
+  return {
+    meta:{name:"新社屋 内装リニューアル工事（3〜5F）",start:"2026-09-01",manager:"佐藤 健一",note:"延床 1,240㎡ / 施主：株式会社アオイ商事"},
+    cal:{work:[false,true,true,true,true,true,false],holidays:Object.assign({},HOLIDAYS_2026)},
+    tasks:tasks,resources:R,baseline:null,nextTask:26
+  };
+}
+
+/* ============================ 状態 ============================ */
+const LS="kotei-workbench.v1";
+let D=sampleState();
+let U={view:"gantt",zoom:"day",sel:[],showCritical:true,showBaseline:false,showSlack:false,showLabel:true,
+       filter:"all",query:"",gw:520,collapsed:{},inspector:true,loadRes:"all",tab:"task"};
+let undoStack=[],redoStack=[],suspend=false;
+
+function snap(){return JSON.stringify(D);}
+function pushUndo(){ if(suspend)return; undoStack.push(snap()); if(undoStack.length>80)undoStack.shift(); redoStack.length=0; }
+function doUndo(){ if(!undoStack.length)return; redoStack.push(snap()); D=JSON.parse(undoStack.pop()); U.sel=U.sel.filter(id=>D.tasks.some(t=>t.id===id)); render(); toast("元に戻しました"); }
+function doRedo(){ if(!redoStack.length)return; undoStack.push(snap()); D=JSON.parse(redoStack.pop()); render(); toast("やり直しました"); }
+function persist(){ try{localStorage.setItem(LS,JSON.stringify({D:D,U:{zoom:U.zoom,view:U.view,gw:U.gw,showCritical:U.showCritical,showBaseline:U.showBaseline,showSlack:U.showSlack,showLabel:U.showLabel,collapsed:U.collapsed,inspector:U.inspector}}));}catch(e){} }
+function restore(){ try{const s=JSON.parse(localStorage.getItem(LS)||"null"); if(s&&s.D&&Array.isArray(s.D.tasks)&&s.D.tasks.length){D=s.D; Object.assign(U,s.U||{}); return true;} }catch(e){} return false; }
+
+/* ============================ カレンダー ============================ */
+function isWork(d){ return !!D.cal.work[d.getDay()] && !D.cal.holidays[ymd(d)]; }
+function nextWork(d,dir){ dir=dir||1; let x=new Date(d),g=0; while(!isWork(x)&&g<2000){x=addD(x,dir);g++;} return x; }
+function shiftWork(d,n){ let x=nextWork(d,n<0?-1:1); const dir=n<0?-1:1; let k=Math.abs(n),g=0;
+  while(k>0&&g<20000){ x=addD(x,dir); if(isWork(x))k--; g++; } return x; }
+function endFrom(s,dur){ return dur<=1?nextWork(s):shiftWork(s,dur-1); }
+function startFrom(f,dur){ return dur<=1?nextWork(f,-1):shiftWork(f,-(dur-1)); }
+function workDays(a,b){ if(dayDiff(a,b)<0)return 0; let n=0,x=new Date(a),g=0;
+  while(dayDiff(x,b)>=0&&g<20000){ if(isWork(x))n++; x=addD(x,1); g++; } return n; }
+
+/* ============================ スケジューリング（CPM） ============================ */
+let SCH={ps:null,pf:null,cyclic:false,byId:new Map()};
+function descendants(i){ const t=D.tasks[i],out=[]; for(let j=i+1;j<D.tasks.length;j++){ if(D.tasks[j].level<=t.level)break; out.push(D.tasks[j]); } return out; }
+function parentOf(i){ for(let j=i-1;j>=0;j--) if(D.tasks[j].level<D.tasks[i].level) return D.tasks[j]; return null; }
+
+function schedule(){
+  const T=D.tasks, byId=new Map(T.map(t=>[t.id,t])); SCH.byId=byId;
+  T.forEach((t,i)=>{ t.isSummary=(i+1<T.length&&T[i+1].level>t.level); if(t.ms)t.dur=0; t.warn=""; });
+  let ctr=[];
+  T.forEach(t=>{ ctr=ctr.slice(0,t.level+1); ctr[t.level]=(ctr[t.level]||0)+1; t.wbs=ctr.map(n=>n||1).join("."); });
+  const leaves=T.filter(t=>!t.isSummary);
+  leaves.forEach(t=>{ t.preds=(t.preds||[]).filter(p=>byId.has(p.id)&&p.id!==t.id&&!byId.get(p.id).isSummary); });
+  T.filter(t=>t.isSummary).forEach(t=>{t.preds=[];});
+  const indeg=new Map(),succ=new Map();
+  leaves.forEach(t=>{indeg.set(t.id,0);succ.set(t.id,[]);});
+  leaves.forEach(t=>t.preds.forEach(p=>{ if(indeg.has(p.id)){ indeg.set(t.id,indeg.get(t.id)+1); succ.get(p.id).push({id:t.id,type:p.type,lag:p.lag||0}); } }));
+  const q=leaves.filter(t=>indeg.get(t.id)===0).map(t=>t.id),order=[];
+  while(q.length){ const id=q.shift(); order.push(id);
+    succ.get(id).forEach(s=>{ indeg.set(s.id,indeg.get(s.id)-1); if(indeg.get(s.id)===0)q.push(s.id); }); }
+  SCH.cyclic=order.length!==leaves.length;
+  if(SCH.cyclic){ leaves.forEach(t=>{ if(order.indexOf(t.id)<0){ order.push(t.id); t.warn="循環参照"; } }); }
+
+  const PS=nextWork(pd(D.meta.start)); SCH.ps=PS;
+  order.forEach(id=>{
+    const t=byId.get(id), dur=Math.max(t.ms?0:1,t.dur|0);
+    let st=PS;
+    t.preds.forEach(p=>{ const q2=byId.get(p.id); if(!q2||!q2._s)return; const lag=p.lag||0; let c;
+      if(p.type==="SS") c=shiftWork(q2._s,lag);
+      else if(p.type==="FF") c=startFrom(shiftWork(q2._f,lag),dur||1);
+      else if(p.type==="SF") c=startFrom(shiftWork(q2._s,lag),dur||1);
+      else c=shiftWork(q2._f,1+lag);
+      if(dayDiff(st,c)>0) st=c; });
+    if(t.mode==="manual"&&t.start) st=nextWork(pd(t.start));
+    const c=t.constraint||{type:"ASAP",date:null};
+    if(c.date){ const cd=nextWork(pd(c.date));
+      if(c.type==="MSO") st=cd;
+      else if(c.type==="SNET"){ if(dayDiff(st,cd)>0) st=cd; }
+      else if(c.type==="SNLT"){ if(dayDiff(cd,st)>0){ st=cd; t.warn="制約と競合"; } }
+      else if(c.type==="MFO") st=startFrom(nextWork(pd(c.date),-1),dur||1);
+      else if(c.type==="FNLT"){ const lim=startFrom(nextWork(pd(c.date),-1),dur||1); if(dayDiff(lim,st)>0){ st=lim; t.warn="制約と競合"; } }
+    }
+    t._s=nextWork(st); t._f=(dur<=0)?t._s:endFrom(t._s,dur);
+  });
+  let PF=PS; leaves.forEach(t=>{ if(t._f&&dayDiff(PF,t._f)>0)PF=t._f; }); SCH.pf=PF;
+  for(let i=order.length-1;i>=0;i--){
+    const t=byId.get(order[i]), dur=Math.max(t.ms?0:1,t.dur|0); let lf=PF;
+    succ.get(t.id).forEach(s=>{ const u=byId.get(s.id); if(!u||!u._ls)return; const lag=s.lag||0; let c;
+      if(s.type==="SS") c=endFrom(shiftWork(u._ls,-lag),dur||1);
+      else if(s.type==="FF") c=shiftWork(u._lf,-lag);
+      else if(s.type==="SF") c=endFrom(shiftWork(u._lf,-lag),dur||1);
+      else c=shiftWork(u._ls,-1-lag);
+      if(dayDiff(c,lf)>0) lf=c; });
+    t._lf=lf; t._ls=(dur<=0)?lf:startFrom(lf,dur);
+    t.slack=(dayDiff(t._f,t._lf)>=0)?workDays(t._f,t._lf)-1:-(workDays(t._lf,t._f)-1);
+    t.critical=t.slack<=0;
+  }
+  for(let i=T.length-1;i>=0;i--){
+    const t=T[i]; if(!t.isSummary)continue;
+    const kids=descendants(i).filter(k=>!k.isSummary);
+    if(!kids.length){ t._s=PS; t._f=PS; t.dur=0; t.slack=0; t.critical=false; continue; }
+    let s=kids[0]._s,f=kids[0]._f,slk=Infinity,w=0,wp=0;
+    kids.forEach(k=>{ if(dayDiff(k._s,s)>0)s=k._s; if(dayDiff(f,k._f)>0)f=k._f;
+      slk=Math.min(slk,k.slack); const d=Math.max(1,k.dur|0)||1; w+=d; wp+=d*(k.pct||0); });
+    t._s=s; t._f=f; t.dur=workDays(s,f); t.slack=slk; t.critical=slk<=0; t.pct=w?Math.round(wp/w):0;
+  }
+  T.forEach(t=>{ t.start=ymd(t._s); t.finish=ymd(t._f); t.cost=taskCost(t); });
+  D.tasks.forEach((t,i)=>{ if(t.isSummary) t.cost=descendants(i).filter(k=>!k.isSummary).reduce((a,k)=>a+k.cost,0); });
+}
+function resById(id){ return D.resources.find(r=>r.id===id); }
+function taskCost(t){ if(t.isSummary)return 0; const dur=Math.max(t.ms?0:1,t.dur|0);
+  return (t.res||[]).reduce((a,x)=>{ const r=resById(x.id); return a+(r?r.rate*(x.units/100)*dur:0); },0); }
+
+/* リソース日別負荷 */
+function loadMap(){
+  const m=new Map();
+  D.tasks.forEach(t=>{ if(t.isSummary||t.ms)return;
+    (t.res||[]).forEach(x=>{ if(!m.has(x.id))m.set(x.id,{});
+      const o=m.get(x.id); let d=new Date(t._s),g=0;
+      while(dayDiff(d,t._f)>=0&&g<2000){ if(isWork(d)){ const k=ymd(d); o[k]=(o[k]||0)+(x.units||100); } d=addD(d,1); g++; } });
+  });
+  return m;
+}
+function overAlloc(){
+  const m=loadMap(),out=[];
+  m.forEach((o,rid)=>{ const r=resById(rid); if(!r)return; const days=Object.keys(o).filter(k=>o[k]>r.max);
+    if(days.length) out.push({id:rid,name:r.name,days:days.sort(),peak:Math.max.apply(null,Object.keys(o).map(k=>o[k]))}); });
+  return out;
+}
+
+/* ============================ 表示対象の抽出 ============================ */
+const ROWH=30, HEADH=48;
+const ZOOMW={day:28,week:11,month:3.6,quarter:1.25};
+const CTYPE={ASAP:"できるだけ早く",SNET:"開始日以降",SNLT:"開始日以前",MSO:"開始日固定",MFO:"終了日固定",FNLT:"終了日以前"};
+
+function matchTask(t){
+  const q=U.query.trim().toLowerCase(); let ok=true;
+  if(U.filter==="crit") ok=!t.isSummary&&t.critical;
+  else if(U.filter==="inc") ok=!t.isSummary&&(t.pct||0)<100;
+  else if(U.filter==="late") ok=!t.isSummary&&(t.pct||0)<100&&dayDiff(t._f,todayD())>0;
+  else if(U.filter==="ms") ok=!!t.ms;
+  else if(U.filter==="over"){ const s=new Set(overAlloc().map(o=>o.id)); ok=(t.res||[]).some(x=>s.has(x.id)); }
+  if(ok&&q){ const rn=(t.res||[]).map(x=>(resById(x.id)||{}).name||"").join(" ");
+    ok=(t.name+" "+rn+" "+(t.notes||"")).toLowerCase().indexOf(q)>=0; }
+  return ok;
+}
+function isFiltering(){ return U.filter!=="all"||!!U.query.trim(); }
+function visibleTasks(){
+  if(isFiltering()){
+    const keep=new Set();
+    D.tasks.forEach((t,i)=>{ if(t.isSummary||!matchTask(t))return; keep.add(t.id);
+      let lv=t.level; for(let j=i-1;j>=0;j--){ if(D.tasks[j].level<lv){ keep.add(D.tasks[j].id); lv=D.tasks[j].level; if(!lv)break; } } });
+    return D.tasks.filter(t=>keep.has(t.id));
+  }
+  const out=[]; let hide=null;
+  for(const t of D.tasks){ if(hide!==null){ if(t.level>hide) continue; hide=null; }
+    out.push(t); if(t.isSummary&&U.collapsed[t.id]) hide=t.level; }
+  return out;
+}
+/* ============================ 文字列変換 ============================ */
+function predsText(t){ return (t.preds||[]).map(p=>{ const lag=p.lag||0;
+  return p.id+(p.type&&p.type!=="FS"?p.type:"")+(lag?(lag>0?"+":"")+lag+"日":""); }).join(", "); }
+function parsePreds(s){ const out=[];
+  String(s).split(/[,、]/).forEach(tok=>{ const m=tok.trim().match(/^(\d+)\s*(FS|SS|FF|SF)?\s*([+-]?\s*\d+)?/i);
+    if(m&&m[1]) out.push({id:+m[1],type:(m[2]||"FS").toUpperCase(),lag:m[3]?parseInt(m[3].replace(/\s/g,""),10):0}); });
+  return out; }
+function resText(t){ return (t.res||[]).map(x=>{ const r=resById(x.id); if(!r)return"";
+  return r.name+(x.units!==100?"["+x.units+"%]":""); }).filter(Boolean).join(", "); }
+function parseRes(s){ const out=[];
+  String(s).split(/[,、]/).forEach(tok=>{ tok=tok.trim(); if(!tok)return;
+    const m=tok.match(/^(.*?)(?:\[(\d+)%?\])?$/); const nm=(m[1]||"").trim(); if(!nm)return;
+    let r=D.resources.find(x=>x.name===nm||x.init===nm);
+    if(!r){ r={id:uid("r"),name:nm,init:nm.slice(0,3),group:"未分類",max:100,rate:0}; D.resources.push(r); }
+    out.push({id:r.id,units:m[2]?+m[2]:100}); });
+  return out; }
+function durText(t){ return t.ms?"0 日":(t.dur|0)+" 日"+(t.isSummary?"":""); }
+
+/* ============================ グリッド描画 ============================ */
+const COLS=[
+ {k:"id",t:"ID",w:38,cls:"c-id"},
+ {k:"wbs",t:"WBS",w:54,cls:"c-wbs"},
+ {k:"mode",t:"⚙",w:26,cls:"ctr"},
+ {k:"name",t:"タスク名",w:256,cls:"c-name",edit:1},
+ {k:"dur",t:"期間",w:58,cls:"num",edit:1},
+ {k:"start",t:"開始",w:96,cls:"date",edit:1},
+ {k:"finish",t:"終了",w:96,cls:"date"},
+ {k:"preds",t:"先行タスク",w:104,cls:"",edit:1},
+ {k:"res",t:"リソース名",w:136,cls:"",edit:1},
+ {k:"pct",t:"進捗",w:70,cls:"ctr",edit:1},
+ {k:"cost",t:"コスト",w:88,cls:"num"},
+ {k:"slack",t:"余裕",w:52,cls:"num"}
+];
+function cellHTML(t,c){
+  switch(c.k){
+    case "id": return t.id;
+    case "wbs": return esc(t.wbs||"");
+    case "mode": return t.mode==="manual"?'<span title="手動スケジュール">✋</span>':'<span title="自動スケジュール" style="color:var(--ink3)">⚙</span>';
+    case "name":{
+      const tw=t.isSummary?'<button class="tw" data-tw="'+t.id+'" aria-label="折りたたみ">'+(U.collapsed[t.id]?"▶":"▼")+'</button>':'<span class="tw ph"></span>';
+      const badge=t.warn?'<span class="chip wn" title="'+esc(t.warn)+'">!</span>':(t.ms?'<span class="chip ms">◆</span>':"");
+      return '<div class="nm" style="padding-left:'+(t.level*15)+'px">'+tw+'<span class="txt">'+esc(t.name)+'</span>'+badge+'</div>';
+    }
+    case "dur": return durText(t);
+    case "start": return md(t._s)+"("+WD[t._s.getDay()]+")";
+    case "finish": return md(t._f)+"("+WD[t._f.getDay()]+")";
+    case "preds": return esc(predsText(t));
+    case "res": return esc(resText(t));
+    case "pct": return '<div class="pbar"><i style="width:'+(t.pct||0)+'%"></i><b>'+(t.pct||0)+'%</b></div>';
+    case "cost": return yen(t.cost);
+    case "slack": return t.isSummary?"":(t.slack>0?t.slack+"日":(t.slack<0?'<span style="color:var(--crit)">'+t.slack+"日</span>":"0"));
+  }
+  return "";
+}
+function renderGrid(rows){
+  $("#gridcols").innerHTML=COLS.map(c=>'<col style="width:'+c.w+'px">').join("");
+  $("#gridhead").innerHTML='<tr>'+COLS.map(c=>'<th class="'+(c.cls.indexOf("num")>=0?"num":"")+'">'+c.t+'</th>').join("")+'</tr>';
+  const sel=new Set(U.sel);
+  $("#gridbody").innerHTML=rows.map(t=>{
+    const cls=["trow"]; if(t.isSummary)cls.push("summary"); if(sel.has(t.id))cls.push("sel");
+    if(U.showCritical&&t.critical&&!t.isSummary)cls.push("crit"); if((t.pct||0)>=100)cls.push("done");
+    return '<tr class="'+cls.join(" ")+'" data-tid="'+t.id+'">'+COLS.map(c=>
+      '<td class="'+c.cls+'" data-col="'+c.k+'"'+(c.edit?' data-edit="1"':"")+'>'+cellHTML(t,c)+'</td>').join("")+'</tr>';
+  }).join("");
+}
+/* ============================ ガント描画 ============================ */
+let RANGE={s:null,f:null,days:0};
+function chartRange(){
+  let s=SCH.ps,f=SCH.pf;
+  D.tasks.forEach(t=>{ if(t._s&&dayDiff(t._s,s)>0)s=t._s; if(t._f&&dayDiff(f,t._f)>0)f=t._f; });
+  if(D.baseline) Object.keys(D.baseline).forEach(k=>{ const b=D.baseline[k];
+    if(dayDiff(pd(b.s),s)>0)s=pd(b.s); if(dayDiff(f,pd(b.f))>0)f=pd(b.f); });
+  const t0=todayD(); if(dayDiff(t0,s)>0)s=t0; if(dayDiff(f,t0)>0)f=t0;
+  s=new Date(s.getFullYear(),s.getMonth(),1);
+  f=addD(new Date(f.getFullYear(),f.getMonth()+1,0),10);
+  return {s:s,f:f,days:dayDiff(s,f)+1};
+}
+const X=d=>dayDiff(RANGE.s,d)*ZOOMW[U.zoom];
+function timelineHTML(){
+  const w=ZOOMW[U.zoom], z=U.zoom, t0=ymd(todayD());
+  let major="",minor="";
+  const days=[]; for(let i=0;i<RANGE.days;i++) days.push(addD(RANGE.s,i));
+  const grp=(keyFn,labFn,cls)=>{ let out="",st=0;
+    for(let i=1;i<=days.length;i++){
+      if(i===days.length||keyFn(days[i])!==keyFn(days[st])){
+        const x=st*w,wd=(i-st)*w;
+        out+='<div class="tl-cell '+(cls?cls(days[st],i-st):"")+'" style="left:'+x+'px;width:'+wd+'px">'+labFn(days[st],i-st)+'</div>';
+        st=i; } }
+    return out; };
+  if(z==="day"){
+    major=grp(d=>d.getFullYear()+"-"+d.getMonth(),d=>d.getFullYear()+"年"+(d.getMonth()+1)+"月");
+    minor=days.map((d,i)=>{ const k=ymd(d); const c=k===t0?"td":(D.cal.holidays[k]?"hd":(isWork(d)?"":"we"));
+      return '<div class="tl-cell '+c+'" style="left:'+(i*w)+'px;width:'+w+'px" title="'+jdate(d)+(D.cal.holidays[k]?" "+esc(D.cal.holidays[k]):"")+'">'+d.getDate()+'<br>'+WD[d.getDay()]+'</div>'; }).join("");
+  } else if(z==="week"){
+    major=grp(d=>d.getFullYear()+"-"+d.getMonth(),d=>d.getFullYear()+"年"+(d.getMonth()+1)+"月");
+    minor=grp(d=>{const x=addD(d,-((d.getDay()+6)%7));return ymd(x);},(d,n)=>n*w>28?md(addD(d,-((d.getDay()+6)%7))):"");
+  } else if(z==="month"){
+    major=grp(d=>d.getFullYear(),d=>d.getFullYear()+"年");
+    minor=grp(d=>d.getFullYear()+"-"+d.getMonth(),(d,n)=>n*w>22?(d.getMonth()+1)+"月":"");
+  } else {
+    major=grp(d=>d.getFullYear(),d=>d.getFullYear()+"年");
+    minor=grp(d=>d.getFullYear()+"-"+Math.floor(d.getMonth()/3),(d,n)=>n*w>26?"Q"+(Math.floor(d.getMonth()/3)+1):"");
+  }
+  return '<div class="tl"><div class="tl-major">'+major+'</div><div class="tl-minor">'+minor+'</div></div>';
+}
+
+function chartHTML(rows){
+  const w=ZOOMW[U.zoom], W=RANGE.days*w, H=Math.max(rows.length*ROWH+30,180), sel=new Set(U.sel);
+  let bg="",bars="",lab="";
+  if(w>=8){ for(let i=0;i<RANGE.days;i++){ const d=addD(RANGE.s,i),k=ymd(d);
+      if(D.cal.holidays[k]) bg+='<div class="bg-holiday" style="left:'+(i*w)+'px;width:'+w+'px"></div>';
+      else if(!isWork(d)) bg+='<div class="bg-nonwork" style="left:'+(i*w)+'px;width:'+w+'px"></div>'; } }
+  for(let i=0;i<RANGE.days;i++){ const d=addD(RANGE.s,i);
+    const line=(U.zoom==="day"&&d.getDay()===1)||(U.zoom!=="day"&&d.getDate()===1);
+    if(line) bg+='<div class="bg-vline" style="left:'+(i*w)+'px"></div>'; }
+  rows.forEach((t,i)=>{ bg+='<div class="bg-hline" style="top:'+((i+1)*ROWH-1)+'px"></div>'; });
+  const rects=new Map();
+  rows.forEach((t,i)=>{
+    const y=i*ROWH, x1=X(t._s), x2=X(t._f)+w, crit=U.showCritical&&t.critical;
+    bars+='<div class="row-hit'+(sel.has(t.id)?" sel":"")+'" data-row="'+t.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>';
+    if(D.baseline&&U.showBaseline&&D.baseline[t.id]){ const b=D.baseline[t.id];
+      bars+='<div class="base-bar" style="left:'+X(pd(b.s))+'px;width:'+Math.max(3,X(pd(b.f))+w-X(pd(b.s)))+'px;top:'+(y+22)+'px" title="ベースライン '+b.s+" 〜 "+b.f+'"></div>'; }
+    if(t.ms){
+      rects.set(t.id,{x1:x1+w/2-7,x2:x1+w/2+7,ym:y+ROWH/2,y:y});
+      bars+='<div class="ms-mark barwrap'+(crit?" crit":"")+(sel.has(t.id)?" sel":"")+'" data-tid="'+t.id+'" data-bar="ms" style="left:'+(x1+w/2-6.5)+'px;top:'+(y+8)+'px">'+
+        '<span class="link-dot l" data-dot="l"></span><span class="link-dot r" data-dot="r"></span></div>';
+      if(U.showLabel) lab+='<div class="bar-label" style="left:'+(x1+w/2+11)+'px;top:'+(y+8)+'px">'+esc(t.name)+" "+md(t._s)+'</div>';
+    } else if(t.isSummary){
+      rects.set(t.id,{x1:x1,x2:x2,ym:y+13,y:y});
+      bars+='<div class="bar sum" data-tid="'+t.id+'" data-bar="sum" style="left:'+x1+'px;width:'+Math.max(6,x2-x1)+'px;top:'+(y+9)+'px">'+
+        '<span class="sprog" style="left:'+(t.pct||0)+'%;right:0"></span></div>';
+      if(U.showLabel) lab+='<div class="bar-label" style="left:'+(x2+8)+'px;top:'+(y+8)+'px">'+(t.pct||0)+'%</div>';
+    } else {
+      const bw=Math.max(3,x2-x1);
+      rects.set(t.id,{x1:x1,x2:x2,ym:y+15,y:y});
+      bars+='<div class="bar task barwrap'+(crit?" crit":"")+(sel.has(t.id)?" sel":"")+'" data-tid="'+t.id+'" data-bar="task" style="left:'+x1+'px;width:'+bw+'px;top:'+(y+8)+'px;height:15px">'+
+        '<span class="prog" style="width:'+(t.pct||0)+'%"></span>'+
+        '<span class="grip l" data-grip="l"></span><span class="grip r" data-grip="r"></span>'+
+        (bw>26?'<span class="prog-grip" data-grip="p" style="left:calc('+(t.pct||0)+'% - 4px);margin-left:'+((t.pct||0)<3?6:0)+'px" title="ドラッグで進捗を更新"></span>':"")+
+        '<span class="link-dot l" data-dot="l"></span><span class="link-dot r" data-dot="r"></span></div>';
+      if(U.showSlack&&t.slack>0&&t._lf){ const sx=x2,ex=X(t._lf)+w;
+        if(ex>sx) bars+='<div class="slack-line" style="left:'+sx+'px;width:'+(ex-sx)+'px;top:'+(y+15)+'px"></div>'; }
+      if(U.showLabel){ const rn=resText(t); const txt=(rn?rn:"")+(t.pct?"  "+t.pct+"%":"");
+        if(txt) lab+='<div class="bar-label" style="left:'+(x2+7)+'px;top:'+(y+9)+'px">'+esc(txt)+'</div>'; }
+    }
+  });
+  /* 依存関係の矢印 */
+  let paths="";
+  rows.forEach(t=>{ (t.preds||[]).forEach(p=>{ const a=rects.get(p.id),b=rects.get(t.id); if(!a||!b)return;
+    const pt=SCH.byId.get(p.id), crit=U.showCritical&&t.critical&&pt&&pt.critical;
+    const c=crit?' class="crit"':"", g=9;
+    let d="",ah="";
+    if(p.type==="SS"){ const ex=b.x1-6; d="M"+a.x1+","+a.ym+"h-"+g+"V"+b.ym+"H"+ex; ah=arrowR(ex,b.ym); }
+    else if(p.type==="FF"){ const ex=b.x2+6; d="M"+a.x2+","+a.ym+"h"+g+"V"+b.ym+"H"+ex; ah=arrowL(ex,b.ym); }
+    else if(p.type==="SF"){ const ex=b.x2+6; d="M"+a.x1+","+a.ym+"h-"+g+"V"+b.ym+"H"+ex; ah=arrowL(ex,b.ym); }
+    else { const ex=b.x1-6;
+      if(ex>a.x2+g) d="M"+a.x2+","+a.ym+"H"+(a.x2+g)+"V"+b.ym+"H"+ex;
+      else { const my=(b.ym>a.ym)?(b.y-5):(b.y+ROWH+5);
+        d="M"+a.x2+","+a.ym+"h"+g+"V"+my+"H"+(ex-g)+"V"+b.ym+"H"+ex; }
+      ah=arrowR(ex,b.ym); }
+    paths+='<path'+c+' d="'+d+'"></path><path'+c+' d="'+ah+'" style="fill:'+(crit?"var(--crit)":"var(--ink3)")+';stroke:none"></path>';
+  }); });
+  const svg='<svg class="links" width="'+W+'" height="'+H+'">'+paths+'</svg>';
+  const tx=X(todayD());
+  const today=(tx>=0&&tx<=W)?'<div class="todayline" style="left:'+tx+'px"></div><div class="todayflag" style="left:'+tx+'px">今日 '+md(todayD())+'</div>':"";
+  return timelineHTML()+'<div class="chart-body" id="chartBody" style="width:'+W+'px;height:'+H+'px">'+bg+bars+svg+lab+today+'</div>';
+}
+const arrowR=(x,y)=>"M"+x+","+y+"l-5,-3.2 l0,6.4 z";
+const arrowL=(x,y)=>"M"+x+","+y+"l5,-3.2 l0,6.4 z";
+
+/* ============================ ステータスバー ============================ */
+function projStats(){
+  const leaves=D.tasks.filter(t=>!t.isSummary);
+  const w=leaves.reduce((a,t)=>a+Math.max(1,t.dur|0),0);
+  const wp=leaves.reduce((a,t)=>a+Math.max(1,t.dur|0)*(t.pct||0),0);
+  const t0=todayD();
+  return {
+    start:SCH.ps,finish:SCH.pf,days:workDays(SCH.ps,SCH.pf),
+    pct:w?Math.round(wp/w):0,
+    cost:leaves.reduce((a,t)=>a+(t.cost||0),0),
+    crit:leaves.filter(t=>t.critical).length,
+    late:leaves.filter(t=>(t.pct||0)<100&&dayDiff(t._f,t0)>0).length,
+    ms:leaves.filter(t=>t.ms).length,
+    over:overAlloc().length,total:leaves.length
+  };
+}
+function renderStatus(){
+  const s=projStats();
+  $("#statusbar").innerHTML=
+   st("開始",jdate(s.start))+st("完了",jdate(s.finish))+st("工期",s.days+" 稼働日")+
+   st("全体進捗",s.pct+"%",s.pct>=100?"okv":"")+
+   st("タスク",s.total+" 件（マイルストーン "+s.ms+"）")+
+   st("クリティカル",s.crit+" 件")+
+   st("遅延",s.late+" 件",s.late?"warnv":"okv")+
+   st("過負荷リソース",s.over+" 件",s.over?"warnv":"okv")+
+   st("総コスト",yen(s.cost))+
+   '<div class="spacer"></div>'+
+   (SCH.cyclic?'<div class="st"><span class="v warnv">⚠ 循環参照があります</span></div>':"")+
+   st("表示",{gantt:"ガントチャート",res:"リソースシート",load:"リソースグラフ",net:"ネットワーク図",report:"進捗レポート"}[U.view]);
+}
+const st=(k,v,c)=>'<div class="st"><span class="k">'+k+'</span><span class="v '+(c||"")+'">'+v+'</span></div>';
+
+/* ============================ タスク情報パネル ============================ */
+function renderInspector(){
+  const el=$("#inspector"); el.classList.toggle("hidden",!U.inspector);
+  if(!U.inspector) return;
+  const t=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]):null;
+  const head='<div class="insp-head"><h3>タスク情報</h3><button class="icon-btn" data-act="info" title="閉じる">✕</button></div>';
+  if(!t){ el.innerHTML=head+'<div class="insp-body"><p class="hint">グリッドの行、またはガントのバーを選択すると詳細を編集できます。<br><br>操作のヒント<br>・バーをドラッグ＝移動（開始日以降の制約が付きます）<br>・バー端をドラッグ＝期間の変更<br>・バー内の小さな四角をドラッグ＝進捗の更新<br>・バー左右の丸をドラッグ＝依存関係の作成<br>・右クリック＝コンテキストメニュー</p></div>'; return; }
+  const bl=D.baseline&&D.baseline[t.id];
+  const varF=bl?workDays(pd(bl.f),t._f)*(dayDiff(pd(bl.f),t._f)>=0?1:-1):null;
+  const opt=(v,cur,lab)=>'<option value="'+v+'"'+(v===cur?" selected":"")+'>'+lab+'</option>';
+  const predRows=(t.preds||[]).map((p,i)=>{
+    const cands=D.tasks.filter(x=>!x.isSummary&&x.id!==t.id);
+    return '<tr><td><select data-p="id" data-i="'+i+'">'+cands.map(c=>opt(c.id,p.id,c.id+" "+c.name.slice(0,12))).join("")+'</select></td>'+
+    '<td><select data-p="type" data-i="'+i+'">'+["FS","SS","FF","SF"].map(x=>opt(x,p.type,x)).join("")+'</select></td>'+
+    '<td><input data-p="lag" data-i="'+i+'" type="number" value="'+(p.lag||0)+'"></td>'+
+    '<td><button class="icon-btn" data-p="del" data-i="'+i+'">✕</button></td></tr>'; }).join("");
+  const resRows=(t.res||[]).map((x,i)=>{
+    return '<tr><td><select data-r="id" data-i="'+i+'">'+D.resources.map(r=>opt(r.id,x.id,r.name)).join("")+'</select></td>'+
+    '<td><input data-r="units" data-i="'+i+'" type="number" step="10" value="'+x.units+'"></td>'+
+    '<td><button class="icon-btn" data-r="del" data-i="'+i+'">✕</button></td></tr>'; }).join("");
+  el.innerHTML=head+'<div class="insp-body">'+
+  '<div class="fset"><h4>基本</h4>'+
+    '<div class="frow"><label>タスク名</label><input data-f="name" value="'+esc(t.name)+'"></div>'+
+    '<div class="frow"><label>WBS / ID</label><input value="'+esc(t.wbs)+"  /  #"+t.id+'" readonly></div>'+
+    '<div class="frow"><label>種別</label><select data-f="ms">'+opt("0",t.ms?"1":"0","通常タスク")+opt("1",t.ms?"1":"0","マイルストーン")+'</select></div>'+
+    '<div class="frow"><label>モード</label><select data-f="mode">'+opt("auto",t.mode,"自動スケジュール")+opt("manual",t.mode,"手動スケジュール")+'</select></div>'+
+    '<div class="frow"><label>期間（日）</label><input data-f="dur" type="number" min="0" value="'+(t.dur|0)+'"'+(t.isSummary?" readonly":"")+'></div>'+
+    '<div class="frow"><label>進捗（%）</label><input data-f="pct" type="number" min="0" max="100" step="5" value="'+(t.pct||0)+'"'+(t.isSummary?" readonly":"")+'></div>'+
+  '</div>'+
+  '<div class="fset"><h4>日程</h4>'+
+    '<div class="frow"><label>開始</label><input data-f="start" type="date" value="'+t.start+'"'+(t.isSummary?" readonly":"")+'></div>'+
+    '<div class="frow"><label>終了</label><input value="'+jdate(t._f)+'" readonly></div>'+
+    '<div class="frow"><label>制約</label><select data-f="ctype">'+Object.keys(CTYPE).map(k=>opt(k,(t.constraint||{}).type||"ASAP",CTYPE[k])).join("")+'</select></div>'+
+    '<div class="frow"><label>制約日</label><input data-f="cdate" type="date" value="'+((t.constraint&&t.constraint.date)||"")+'"></div>'+
+    '<div class="frow"><label>余裕 / 状態</label><input value="'+(t.isSummary?"—":(t.slack+" 日 ／ "+(t.critical?"クリティカル":"余裕あり")))+'" readonly></div>'+
+    (bl?'<div class="frow"><label>基準との差</label><input value="'+(varF>0?"+":"")+varF+' 日（基準 '+bl.f+'）" readonly></div>':"")+
+  '</div>'+
+  '<div class="fset"><h4>先行タスク</h4>'+
+    (predRows?'<table class="mini"><thead><tr><th>タスク</th><th>種類</th><th>ラグ</th><th></th></tr></thead><tbody id="predBody">'+predRows+'</tbody></table>':'<p class="hint">先行タスクはありません。</p>')+
+    '<div class="btnrow"><button class="btn" data-act="addPred">先行タスクを追加</button></div>'+
+  '</div>'+
+  '<div class="fset"><h4>リソース割当</h4>'+
+    (resRows?'<table class="mini"><thead><tr><th>リソース</th><th>単位%</th><th></th></tr></thead><tbody id="resBody">'+resRows+'</tbody></table>':'<p class="hint">割当はありません。</p>')+
+    '<div class="btnrow"><button class="btn" data-act="addAssign">リソースを割り当て</button></div>'+
+    '<div class="frow"><label>コスト</label><input value="'+yen(t.cost)+'" readonly></div>'+
+  '</div>'+
+  '<div class="fset"><h4>メモ</h4><textarea data-f="notes" placeholder="現場メモ・申し送り">'+esc(t.notes||"")+'</textarea></div>'+
+  '<div class="btnrow"><button class="btn dgr" data-act="delTask">このタスクを削除</button></div>'+
+  '</div>';
+}
+
+/* ============================ 描画のとりまとめ ============================ */
+let ROWS=[];
+function render(){
+  schedule();
+  ROWS=visibleTasks();
+  RANGE=chartRange();
+  document.documentElement.style.setProperty("--gw",U.gw+"px");
+  $("#pjname").value=D.meta.name;
+  $$("#viewrail button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===U.view?"true":"false"));
+  $$(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+U.view));
+  $$("#seg-zoom button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===U.zoom?"true":"false"));
+  $$('[data-act="tgl"]').forEach(b=>b.setAttribute("aria-pressed",U[b.dataset.v]?"true":"false"));
+  $("#b-undo").disabled=!undoStack.length; $("#b-redo").disabled=!redoStack.length;
+  $("#f-filter").value=U.filter;
+  if(U.view==="gantt"){ renderGrid(ROWS); $("#chartInner").innerHTML=chartHTML(ROWS); }
+  else if(U.view==="res") renderResSheet();
+  else if(U.view==="load") renderLoad();
+  else if(U.view==="net") renderNet();
+  else if(U.view==="report") renderReport();
+  renderInspector(); renderStatus(); persist();
+}
+function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("on"),1700); }
+
+/* ============================ リソースシート ============================ */
+function resStats(){
+  const m=loadMap(),out=[];
+  D.resources.forEach(r=>{ const o=m.get(r.id)||{}; const ks=Object.keys(o);
+    const pd_=ks.reduce((a,k)=>a+o[k]/100,0), peak=ks.length?Math.max.apply(null,ks.map(k=>o[k])):0;
+    out.push({r:r,days:pd_,peak:peak,cost:pd_*r.rate,over:ks.filter(k=>o[k]>r.max).length,
+      tasks:D.tasks.filter(t=>!t.isSummary&&(t.res||[]).some(x=>x.id===r.id)).length}); });
+  return out;
+}
+function renderResSheet(){
+  const rows=resStats();
+  const total=rows.reduce((a,x)=>a+x.cost,0);
+  $("#resInner").innerHTML=
+  '<div class="vhead"><div><h2>リソースシート</h2><p>作業員・協力会社の単価と稼働を管理します。1 日あたりの単位%（100% = 専任）で割り当て、最大単位を超えた日がある行は過負荷として色分けされます。</p></div>'+
+  '<div class="btnrow"><button class="btn" data-act="addRes">リソースを追加</button><button class="btn" data-act="gotoLoad">負荷グラフを見る</button></div></div>'+
+  '<table class="data"><thead><tr><th style="width:26px"></th><th>リソース名</th><th>略称</th><th>グループ</th><th class="num">最大単位%</th><th class="num">標準単価（円/日）</th><th class="num">割当タスク</th><th class="num">延べ稼働（人日）</th><th class="num">ピーク%</th><th class="num">コスト</th><th>状態</th><th style="width:34px"></th></tr></thead><tbody>'+
+  rows.map(x=>'<tr class="'+(x.over?"over":"")+'" data-rid="'+x.r.id+'">'+
+    '<td><span class="swatch" style="background:'+resColor(x.r.id)+'"></span></td>'+
+    '<td><input data-rf="name" value="'+esc(x.r.name)+'"></td>'+
+    '<td><input data-rf="init" value="'+esc(x.r.init||"")+'"></td>'+
+    '<td><input data-rf="group" value="'+esc(x.r.group||"")+'"></td>'+
+    '<td class="num"><input class="num" data-rf="max" type="number" step="10" value="'+x.r.max+'"></td>'+
+    '<td class="num"><input class="num" data-rf="rate" type="number" step="1000" value="'+x.r.rate+'"></td>'+
+    '<td class="num">'+x.tasks+'</td><td class="num">'+x.days.toFixed(1)+'</td>'+
+    '<td class="num">'+x.peak+'%</td><td class="num">'+yen(x.cost)+'</td>'+
+    '<td>'+(x.over?'<span class="chip cr">過負荷 '+x.over+'日</span>':'<span class="chip">適正</span>')+'</td>'+
+    '<td><button class="icon-btn" data-act="delRes" data-rid="'+x.r.id+'" title="削除">✕</button></td></tr>').join("")+
+  '</tbody></table>'+
+  '<p class="hint">合計人件費 '+yen(total)+'（延べ '+rows.reduce((a,x)=>a+x.days,0).toFixed(1)+' 人日）。単価と単位%を変更すると、タスクのコストとステータスバーの総コストに即座に反映されます。</p>';
+}
+const RESHUE=["#3A7FBF","#2C7A55","#A9700F","#7A4FA3","#0F7B8A","#B0532E","#4A6B8A","#8A6D1F"];
+function resColor(id){ const i=D.resources.findIndex(r=>r.id===id); return RESHUE[(i<0?0:i)%RESHUE.length]; }
+
+/* ============================ リソースグラフ ============================ */
+function workDayList(a,b){ const out=[]; let d=new Date(a),g=0; while(dayDiff(d,b)>=0&&g<3000){ if(isWork(d))out.push(new Date(d)); d=addD(d,1); g++; } return out; }
+function loadAxis(days,cw,W){
+  let ticks="";
+  days.forEach((d,i)=>{ if(i===0||days[i-1].getMonth()!==d.getMonth())
+    ticks+='<line x1="'+(i*cw)+'" y1="8" x2="'+(i*cw)+'" y2="15" stroke="var(--line3)" stroke-width="1"/>'+
+           '<text x="'+(i*cw+3)+'" y="12" fill="var(--ink2)">'+d.getFullYear()+'年'+(d.getMonth()+1)+'月</text>'; });
+  return '<div class="chartbox"><svg width="'+W+'" height="16" aria-hidden="true">'+ticks+'</svg></div>';
+}
+function renderLoad(){
+  const days=workDayList(SCH.ps,SCH.pf), m=loadMap(), cw=Math.max(4,Math.min(9,Math.floor(760/Math.max(1,days.length))));
+  const W=days.length*cw+2, H=54, t0=ymd(todayD());
+  const rows=D.resources.map(r=>{
+    const o=m.get(r.id)||{}, peak=Math.max(r.max, days.reduce((a,d)=>Math.max(a,o[ymd(d)]||0),0));
+    const bars=days.map((d,i)=>{ const v=o[ymd(d)]||0; if(!v)return"";
+      const h=Math.max(2,Math.round(v/peak*(H-10))), over=v>r.max;
+      return '<rect x="'+(i*cw)+'" y="'+(H-h)+'" width="'+Math.max(2,cw-2)+'" height="'+h+'" rx="1.5" fill="'+(over?"var(--crit)":resColor(r.id))+'"><title>'+jdate(d)+"  "+v+"%</title></rect>"; }).join("");
+    const my=H-Math.round(r.max/peak*(H-10));
+    const ticks=days.map((d,i)=>d.getDate()<=3&&d.getDay()>0?'<line x1="'+(i*cw)+'" y1="0" x2="'+(i*cw)+'" y2="'+H+'" stroke="var(--gridline)" stroke-width="1"/>':"").join("");
+    const tdi=days.findIndex(d=>ymd(d)===t0);
+    const tdl=tdi>=0?'<line x1="'+(tdi*cw)+'" y1="0" x2="'+(tdi*cw)+'" y2="'+H+'" stroke="var(--todayline)" stroke-width="1.5" stroke-dasharray="3 2"/>':"";
+    const ovd=days.filter(d=>(o[ymd(d)]||0)>r.max).length;
+    return '<tr class="'+(ovd?"over":"")+'"><td style="width:150px"><span class="swatch" style="background:'+resColor(r.id)+'"></span>'+esc(r.name)+
+      '<br><span class="hint">最大 '+r.max+'% ／ ピーク '+Math.round(days.reduce((a,d)=>Math.max(a,o[ymd(d)]||0),0))+'%</span></td>'+
+      '<td><div class="chartbox"><svg width="'+W+'" height="'+H+'" role="img" aria-label="'+esc(r.name)+'の日別負荷">'+ticks+
+      '<line x1="0" y1="'+my+'" x2="'+W+'" y2="'+my+'" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="4 3"/>'+bars+tdl+
+      '<line x1="0" y1="'+H+'" x2="'+W+'" y2="'+H+'" stroke="var(--line)" stroke-width="1"/></svg></div></td>'+
+      '<td style="width:104px" class="num">'+(ovd?'<span class="chip cr">超過 '+ovd+' 日</span>':'<span class="chip">適正</span>')+'</td></tr>';
+  }).join("");
+  $("#loadInner").innerHTML=
+  '<div class="vhead"><div><h2>リソースグラフ</h2><p>稼働日ごとの割当単位%です。破線がそのリソースの最大単位、赤い縦破線が今日。最大単位を超えた日は赤で表示され、同じ班を並行作業に重ねて割り当てている箇所が一目で分かります。</p></div></div>'+
+  '<div class="legend"><span><i style="background:var(--bar)"></i>割当（帯の色はリソース別）</span><span><i style="background:var(--crit)"></i>最大単位を超過</span><span><i style="background:var(--ink3)"></i>最大単位ライン</span><span><i style="background:var(--todayline)"></i>今日</span></div>'+
+  '<table class="data"><tbody><tr><td style="width:150px"></td><td>'+loadAxis(days,cw,W)+'</td><td style="width:104px"></td></tr>'+rows+'</tbody></table>'+
+  '<p class="hint">期間：'+jdate(SCH.ps)+' 〜 '+jdate(SCH.pf)+'（稼働 '+days.length+' 日）。過負荷を解消するには、タスク情報で単位%を下げるか、開始日をずらしてください。</p>';
+}
+
+/* ============================ ネットワーク図 ============================ */
+function renderNet(){
+  const leaves=D.tasks.filter(t=>!t.isSummary), byId=SCH.byId;
+  const dep=new Map(), seen=new Set();
+  const depthOf=t=>{ if(dep.has(t.id))return dep.get(t.id); if(seen.has(t.id))return 0; seen.add(t.id);
+    const v=(t.preds||[]).reduce((a,p)=>{ const q=byId.get(p.id); return q&&!q.isSummary?Math.max(a,depthOf(q)+1):a; },0);
+    dep.set(t.id,v); return v; };
+  leaves.forEach(depthOf);
+  const cols={}; leaves.forEach(t=>{ const d=dep.get(t.id)||0; (cols[d]=cols[d]||[]).push(t); });
+  const NW=160,NH=64,GX=56,GY=14, keys=Object.keys(cols).map(Number).sort((a,b)=>a-b);
+  const pos=new Map(); let maxRows=0;
+  keys.forEach(k=>{ cols[k].forEach((t,i)=>{ pos.set(t.id,{x:k*(NW+GX),y:i*(NH+GY)}); }); maxRows=Math.max(maxRows,cols[k].length); });
+  const W=keys.length*(NW+GX), H=maxRows*(NH+GY)+8;
+  const sel=new Set(U.sel);
+  const nodes=leaves.map(t=>{ const p=pos.get(t.id);
+    return '<div class="node'+(U.showCritical&&t.critical?" crit":"")+(t.ms?" ms":"")+(sel.has(t.id)?" sel":"")+'" data-tid="'+t.id+'" style="left:'+p.x+'px;top:'+p.y+'px;height:'+NH+'px">'+
+      '<div class="nid"><span>#'+t.id+' / '+esc(t.wbs)+'</span><span>'+(t.ms?"◆":(t.dur|0)+"日")+'</span></div>'+
+      '<div class="nnm" title="'+esc(t.name)+'">'+esc(t.name)+'</div>'+
+      '<div class="ndt"><span>'+md(t._s)+' → '+md(t._f)+'</span><span>'+(t.pct||0)+'%</span></div>'+
+      '<div class="ndt"><span style="color:'+(t.critical?"var(--crit)":"var(--ink3)")+'">'+(t.critical?"クリティカル":"余裕 "+t.slack+"日")+'</span></div></div>'; }).join("");
+  let paths="";
+  leaves.forEach(t=>{ (t.preds||[]).forEach(p=>{ const a=pos.get(p.id),b=pos.get(t.id); if(!a||!b)return;
+    const q=byId.get(p.id), crit=U.showCritical&&t.critical&&q&&q.critical;
+    const x1=a.x+NW,y1=a.y+NH/2,x2=b.x,y2=b.y+NH/2,mx=(x1+x2)/2;
+    paths+='<path'+(crit?' class="crit"':"")+' d="M'+x1+','+y1+'C'+mx+','+y1+' '+mx+','+y2+' '+(x2-7)+','+y2+'"></path>'+
+      '<path'+(crit?' class="crit"':"")+' d="'+arrowR(x2-1,y2)+'" style="stroke:none;fill:'+(crit?"var(--crit)":"var(--ink3)")+'"></path>'; }); });
+  $("#netInner").innerHTML=
+  '<div class="vhead"><div><h2>ネットワーク図（PERT）</h2><p>先行タスクからの最長経路で列を決めた依存関係図です。赤枠がクリティカルパス上のタスク、二重枠がマイルストーン。ボックスをクリックすると選択され、タスク情報に反映されます。</p></div></div>'+
+  '<div class="netbox"><div class="net-inner" style="width:'+W+'px;height:'+H+'px">'+
+  '<svg class="netlinks" width="'+W+'" height="'+H+'">'+paths+'</svg>'+nodes+'</div></div>';
+}
+
+/* ============================ 進捗レポート ============================ */
+function curveData(){
+  const days=workDayList(SCH.ps,SCH.pf), leaves=D.tasks.filter(t=>!t.isSummary&&!t.ms);
+  const total=leaves.reduce((a,t)=>a+Math.max(1,t.dur|0),0)||1, t0=todayD();
+  const info=leaves.map(t=>{ const dur=Math.max(1,t.dur|0);
+    const endNow=dayDiff(t0,t._f)>=0?t0:t._f;
+    const elapsedNow=dayDiff(t._s,t0)>=0?workDays(t._s,endNow):0;
+    return {t:t,dur:dur,earned:dur*(t.pct||0)/100,en:elapsedNow}; });
+  return days.map(d=>{ let p=0,a=0;
+    info.forEach(x=>{ const t=x.t;
+      const end=dayDiff(d,t._f)>=0?d:t._f;
+      const el=dayDiff(t._s,d)>=0?workDays(t._s,end):0;
+      p+=Math.min(x.dur,el);
+      a+=x.en>0?x.earned*Math.min(1,el/x.en):(el>0?x.earned:0); });
+    return {d:d,p:p/total*100,a:dayDiff(d,t0)>=0?a/total*100:null}; });
+}
+let SCGEO=null;
+function sCurveSVG(data){
+  const W=Math.max(620,data.length*7),H=214,pl=40,pr=78,pt=14,pb=30, iw=W-pl-pr, ih=H-pt-pb;
+  const x=i=>pl+(data.length<2?0:i/(data.length-1)*iw), y=v=>pt+ih-(v/100)*ih;
+  SCGEO={pl:pl,iw:iw,pt:pt,ih:ih,n:data.length,data:data};
+  let grid="",xl="";
+  [0,25,50,75,100].forEach(v=>{ grid+='<line x1="'+pl+'" y1="'+y(v)+'" x2="'+(pl+iw)+'" y2="'+y(v)+'" stroke="var(--gridline)" stroke-width="1"/>'+
+    '<text x="'+(pl-7)+'" y="'+(y(v)+3.5)+'" text-anchor="end">'+v+'%</text>'; });
+  data.forEach((r,i)=>{ if(r.d.getDate()<=3&&(i===0||data[i-1].d.getMonth()!==r.d.getMonth()))
+    xl+='<line x1="'+x(i)+'" y1="'+pt+'" x2="'+x(i)+'" y2="'+(pt+ih)+'" stroke="var(--gridline)" stroke-width="1"/>'+
+        '<text x="'+x(i)+'" y="'+(H-11)+'" text-anchor="middle">'+(r.d.getMonth()+1)+'月</text>'; });
+  const line=(key,color)=>{ const pts=data.map((r,i)=>r[key]==null?null:x(i)+","+y(r[key])).filter(Boolean);
+    return pts.length?'<polyline points="'+pts.join(" ")+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>':""; };
+  const area='<polygon points="'+[pl+","+y(0)].concat(data.map((r,i)=>x(i)+","+y(r.p))).concat([(pl+iw)+","+y(0)]).join(" ")+'" fill="var(--plan)" opacity="0.08"/>';
+  const last=data[data.length-1];
+  const lastA=data.filter(r=>r.a!=null).slice(-1)[0], lastAi=lastA?data.indexOf(lastA):-1;
+  const t0=ymd(todayD()), ti=data.findIndex(r=>ymd(r.d)===t0);
+  const tl=ti>=0?'<line x1="'+x(ti)+'" y1="'+pt+'" x2="'+x(ti)+'" y2="'+(pt+ih)+'" stroke="var(--todayline)" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+    '<text x="'+x(ti)+'" y="'+(pt-3)+'" text-anchor="middle" fill="var(--todayline)">今日</text>':"";
+  const endLbl=(v,i,color,txt)=>i<0?"":'<circle cx="'+x(i)+'" cy="'+y(v)+'" r="3.5" fill="'+color+'" stroke="var(--panel)" stroke-width="2"/>'+
+    '<text class="lbl" x="'+(x(i)+8)+'" y="'+(y(v)+3.5)+'" fill="'+color+'">'+txt+'</text>';
+  return '<svg id="scurve" width="'+W+'" height="'+H+'" role="img" aria-label="計画と実績の累積出来高曲線">'+grid+xl+area+
+    line("p","var(--plan)")+line("a","var(--actual)")+tl+
+    endLbl(last.p,data.length-1,"var(--plan)","計画 "+Math.round(last.p)+"%")+
+    (lastAi>=0?endLbl(lastA.a,lastAi,"var(--actual)","実績 "+Math.round(lastA.a)+"%"):"")+
+    '<line x1="'+pl+'" y1="'+(pt+ih)+'" x2="'+(pl+iw)+'" y2="'+(pt+ih)+'" stroke="var(--line3)" stroke-width="1"/>'+
+    '<g id="sc-hover" style="display:none"><line id="sc-cross" y1="'+pt+'" y2="'+(pt+ih)+'" stroke="var(--ink3)" stroke-width="1"/>'+
+    '<circle id="sc-dp" r="4" fill="var(--plan)" stroke="var(--panel)" stroke-width="2"/>'+
+    '<circle id="sc-da" r="4" fill="var(--actual)" stroke="var(--panel)" stroke-width="2"/></g>'+
+    '<rect id="sc-hit" x="'+pl+'" y="'+pt+'" width="'+iw+'" height="'+ih+'" fill="transparent" style="cursor:crosshair"/></svg>';
+}
+function renderReport(){
+  const s=projStats(), data=curveData(), t0=todayD();
+  const cur=data.filter(r=>r.a!=null).slice(-1)[0]||{p:0,a:0};
+  const gap=Math.round((cur.a||0)-(cur.p||0));
+  const late=D.tasks.filter(t=>!t.isSummary&&(t.pct||0)<100&&dayDiff(t._f,t0)>0)
+    .map(t=>({t:t,d:workDays(t._f,t0)-1})).sort((a,b)=>b.d-a.d);
+  const tops=D.tasks.filter(t=>t.isSummary&&t.level===0);
+  $("#reportInner").innerHTML=
+  '<div class="vhead"><div><h2>進捗レポート</h2><p>'+esc(D.meta.name)+' ／ 監督：'+esc(D.meta.manager||"—")+' ／ 基準日 '+jdate(t0)+'</p></div></div>'+
+  '<div class="tiles">'+
+   tile("全体進捗",s.pct+"%","出来高（作業日）ベース")+
+   tile("計画比",(gap>0?"+":"")+gap+" pt",gap<0?"計画を下回っています":"計画どおり",gap<0)+
+   tile("工期",s.days+" 日",jdate(s.start)+" 〜 "+jdate(s.finish))+
+   tile("残り",Math.max(0,workDays(t0,s.finish)-1)+" 稼働日","今日から完了まで")+
+   tile("遅延タスク",late.length+" 件",late.length?"最大 "+late[0].d+" 日遅れ":"遅れなし",late.length>0)+
+   tile("総コスト",yen(s.cost),"人件費ベース")+
+  '</div>'+
+  '<div class="card"><h3>出来高曲線（S カーブ）</h3><p class="sub">稼働日あたりの作業量を 100% として積み上げた、計画と実績の累積。実績は今日までを描画します。</p>'+
+   '<div class="legend"><span><i style="background:var(--plan)"></i>計画 累積出来高</span><span><i style="background:var(--actual)"></i>実績 累積出来高</span><span><i style="background:var(--todayline)"></i>今日</span></div>'+
+   '<div class="chartbox">'+sCurveSVG(data)+'</div></div>'+
+  '<div class="card"><h3>大工程の進捗</h3><p class="sub">アウトライン最上位の工程ごとの出来高と工期。</p>'+
+   '<table class="data"><thead><tr><th>工程</th><th>期間</th><th class="num">日数</th><th style="width:210px">進捗</th><th class="num">コスト</th><th>状態</th></tr></thead><tbody>'+
+   tops.map(t=>'<tr><td>'+esc(t.wbs)+' '+esc(t.name)+'</td><td class="num">'+md(t._s)+' → '+md(t._f)+'</td><td class="num">'+(t.dur|0)+'</td>'+
+     '<td><div class="pbar" style="height:13px"><i style="width:'+(t.pct||0)+'%"></i><b style="line-height:11px">'+(t.pct||0)+'%</b></div></td>'+
+     '<td class="num">'+yen(t.cost)+'</td><td>'+(t.pct>=100?'<span class="chip">完了</span>':(t.critical?'<span class="chip cr">クリティカル</span>':'<span class="chip">進行中</span>'))+'</td></tr>').join("")+
+   '</tbody></table></div>'+
+  '<div class="card"><h3>遅延タスク</h3><p class="sub">終了予定日を過ぎても 100% になっていないタスク。</p>'+
+   (late.length?'<table class="data"><thead><tr><th>タスク</th><th class="num">終了予定</th><th class="num">遅れ</th><th class="num">進捗</th><th>担当</th></tr></thead><tbody>'+
+    late.map(x=>'<tr><td>#'+x.t.id+' '+esc(x.t.name)+'</td><td class="num">'+jdate(x.t._f)+'</td><td class="num" style="color:var(--crit)">'+x.d+' 日</td>'+
+      '<td class="num">'+(x.t.pct||0)+'%</td><td>'+esc(resText(x.t)||"—")+'</td></tr>').join("")+'</tbody></table>'
+    :'<p class="hint">遅延しているタスクはありません。</p>')+'</div>';
+  bindSCurve();
+}
+function bindSCurve(){
+  const svg=$("#scurve"),hit=$("#sc-hit"); if(!svg||!hit||!SCGEO)return;
+  const g=SCGEO, hov=$("#sc-hover"), cross=$("#sc-cross"), dp=$("#sc-dp"), da=$("#sc-da");
+  const xOf=i=>g.pl+(g.n<2?0:i/(g.n-1)*g.iw), yOf=v=>g.pt+g.ih-(v/100)*g.ih;
+  hit.addEventListener("mousemove",e=>{
+    const r=svg.getBoundingClientRect(), sx=(e.clientX-r.left)*(svg.width.baseVal.value/r.width);
+    const i=clamp(Math.round((sx-g.pl)/(g.iw||1)*(g.n-1)),0,g.n-1), row=g.data[i];
+    hov.style.display="";
+    cross.setAttribute("x1",xOf(i)); cross.setAttribute("x2",xOf(i));
+    dp.setAttribute("cx",xOf(i)); dp.setAttribute("cy",yOf(row.p));
+    if(row.a==null){ da.style.display="none"; } else { da.style.display=""; da.setAttribute("cx",xOf(i)); da.setAttribute("cy",yOf(row.a)); }
+    tip.innerHTML='<h5>'+jdate(row.d)+'</h5><dl><dt>計画</dt><dd>'+row.p.toFixed(1)+'%</dd>'+
+      (row.a==null?'<dt>実績</dt><dd>—</dd>':'<dt>実績</dt><dd>'+row.a.toFixed(1)+'%</dd><dt>差</dt><dd>'+((row.a-row.p)>=0?"+":"")+(row.a-row.p).toFixed(1)+' pt</dd>')+'</dl>';
+    tip.style.display="block";
+    tip.style.left=Math.min(window.innerWidth-tip.offsetWidth-10,e.clientX+16)+"px";
+    tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-12)+"px";
+  });
+  hit.addEventListener("mouseleave",()=>{ hov.style.display="none"; tip.style.display="none"; });
+}
+const tile=(k,v,s,alert)=>'<div class="tile'+(alert?" alert":"")+'"><span class="k">'+k+'</span><span class="v">'+v+'</span><span class="s">'+s+'</span></div>';
+
+/* ============================ 変更ヘルパ ============================ */
+function idx(id){ return D.tasks.findIndex(t=>t.id===id); }
+function selTasks(){ return U.sel.map(id=>SCH.byId.get(id)).filter(Boolean); }
+function mutate(fn){ pushUndo(); fn(); render(); }
+function parseDateInput(s){
+  s=String(s).trim().replace(/[／]/g,"/"); if(!s)return null;
+  let m=s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/); if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})[-/](\d{1,2})$/); if(m)return new Date(SCH.ps.getFullYear(),+m[1]-1,+m[2]);
+  m=s.match(/^(\d{4})(\d{2})(\d{2})$/); if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  const d=new Date(s); return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());
+}
+function setStartByDrag(t,newStart){
+  if(t.mode==="manual"){ t.start=ymd(newStart); }
+  else { t.constraint={type:"SNET",date:ymd(newStart)}; }
+}
+function wouldCycle(predId,succId){
+  const g=new Map(D.tasks.map(t=>[t.id,(t.preds||[]).map(p=>p.id)]));
+  const stack=[predId],seen=new Set();
+  while(stack.length){ const c=stack.pop(); if(c===succId)return true; if(seen.has(c))continue; seen.add(c);
+    (g.get(c)||[]).forEach(p=>stack.push(p)); }
+  return false;
+}
+function addLink(predId,succId,type,lag){
+  if(predId===succId)return toast("同じタスクは接続できません");
+  const s=SCH.byId.get(succId),p=SCH.byId.get(predId);
+  if(!s||!p||s.isSummary||p.isSummary)return toast("集計タスクは接続できません");
+  if((s.preds||[]).some(x=>x.id===predId))return toast("すでに接続されています");
+  if(wouldCycle(predId,succId))return toast("循環参照になるため接続できません");
+  mutate(()=>{ s.preds=(s.preds||[]).concat([{id:predId,type:type||"FS",lag:lag||0}]); });
+  toast("#"+predId+" → #"+succId+" を "+(type||"FS")+" で接続しました");
+}
+function newTask(ms){
+  const T=D.tasks, at=U.sel.length?idx(U.sel[U.sel.length-1])+1:T.length;
+  const lv=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]).level:0;
+  const t={id:D.nextTask++,name:ms?"新しいマイルストーン":"新しいタスク",level:lv,dur:ms?0:3,ms:!!ms,
+    preds:[],res:[],pct:0,mode:"auto",constraint:{type:"ASAP",date:null},notes:"",start:null,finish:null};
+  mutate(()=>{ T.splice(at,0,t); U.sel=[t.id]; });
+  setTimeout(()=>{ const td=document.querySelector('tr[data-tid="'+t.id+'"] td[data-col="name"]'); if(td)startEdit(td); },30);
+}
+function deleteSel(){
+  const ids=new Set(); selTasks().forEach(t=>{ const i=idx(t.id); ids.add(t.id); if(t.isSummary)descendants(i).forEach(k=>ids.add(k.id)); });
+  if(!ids.size)return;
+  mutate(()=>{ D.tasks=D.tasks.filter(t=>!ids.has(t.id));
+    D.tasks.forEach(t=>{ t.preds=(t.preds||[]).filter(p=>!ids.has(p.id)); });
+    if(D.baseline) ids.forEach(id=>{ delete D.baseline[id]; });
+    U.sel=[]; });
+  toast(ids.size+" 件を削除しました");
+}
+function indentSel(dir){
+  mutate(()=>{ selTasks().forEach(t=>{ const i=idx(t.id); if(i<=0&&dir>0)return;
+    const prev=D.tasks[i-1];
+    if(dir>0){ if(!prev||t.level>prev.level)return; t.level=Math.min(t.level+1,prev.level+1); }
+    else { if(t.level===0)return; t.level--; }
+    const kids=descendants(i); kids.forEach(k=>{ k.level=Math.max(0,k.level+dir); }); }); });
+}
+function moveSel(dir){
+  const t=selTasks()[0]; if(!t)return;
+  const i=idx(t.id), n=1+descendants(i).length;
+  if(dir<0){
+    if(i===0)return;
+    let j=i-1; while(j>0&&D.tasks[j].level>t.level)j--;
+    mutate(()=>{ const cut=D.tasks.splice(i,n); D.tasks.splice(j,0,...cut); });
+  }else{
+    const after=i+n; if(after>=D.tasks.length)return;
+    const nb=1+descendants(after).length;
+    mutate(()=>{ const cut=D.tasks.splice(i,n); D.tasks.splice(i+nb,0,...cut); });
+  }
+}
+function setPct(v){ mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary)t.pct=clamp(v|0,0,100); }); }); }
+function linkSel(){
+  const s=selTasks().filter(t=>!t.isSummary); if(s.length<2)return toast("2つ以上のタスクを選択してください");
+  const order=s.slice().sort((a,b)=>idx(a.id)-idx(b.id));
+  pushUndo();
+  for(let i=1;i<order.length;i++){ const a=order[i-1],b=order[i];
+    if(!(b.preds||[]).some(p=>p.id===a.id)&&!wouldCycle(a.id,b.id)) b.preds=(b.preds||[]).concat([{id:a.id,type:"FS",lag:0}]); }
+  render(); toast("選択したタスクを FS で接続しました");
+}
+function unlinkSel(){ const ids=new Set(U.sel);
+  mutate(()=>{ selTasks().forEach(t=>{ t.preds=[]; });
+    D.tasks.forEach(t=>{ t.preds=(t.preds||[]).filter(p=>!ids.has(p.id)); }); });
+  toast("依存関係を解除しました"); }
+
+/* ============================ セル編集 ============================ */
+let editing=null;
+function rawValue(t,col){
+  switch(col){ case "name":return t.name; case "dur":return String(t.dur|0); case "start":return t.start;
+    case "preds":return predsText(t); case "res":return resText(t); case "pct":return String(t.pct||0); }
+  return "";
+}
+function startEdit(td){
+  if(!td||editing)return;
+  const tr=td.closest("tr"), t=SCH.byId.get(+tr.dataset.tid), col=td.dataset.col;
+  if(!t||!td.dataset.edit)return;
+  if(t.isSummary&&["dur","start","pct","preds"].indexOf(col)>=0)return toast("集計タスクは子タスクから自動計算されます");
+  const html=td.innerHTML, isNum=["dur","pct"].indexOf(col)>=0;
+  td.innerHTML='<input class="cell-edit'+(isNum?" num":"")+'" '+(col==="start"?'type="date"':"")+' value="'+esc(rawValue(t,col))+'">';
+  const inp=td.firstChild; editing={td:td,html:html,id:t.id,col:col};
+  inp.focus(); if(inp.select)inp.select();
+  inp.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){ e.preventDefault(); commitEdit(inp.value); }
+    else if(e.key==="Escape"){ e.preventDefault(); cancelEdit(); }
+    else if(e.key==="Tab"){ e.preventDefault(); const cols=COLS.filter(c=>c.edit).map(c=>c.k);
+      const ni=cols.indexOf(col)+(e.shiftKey?-1:1), nc=cols[(ni+cols.length)%cols.length];
+      commitEdit(inp.value); const ntd=document.querySelector('tr[data-tid="'+t.id+'"] td[data-col="'+nc+'"]'); if(ntd)startEdit(ntd); }
+  });
+  inp.addEventListener("blur",()=>{ if(editing&&editing.td===td) commitEdit(inp.value); });
+}
+function cancelEdit(){ if(!editing)return; editing.td.innerHTML=editing.html; editing=null; }
+function commitEdit(val){
+  if(!editing)return; const {id,col}=editing; editing=null;
+  const t=SCH.byId.get(id); if(!t)return render();
+  pushUndo();
+  if(col==="name") t.name=String(val).trim()||t.name;
+  else if(col==="dur"){ const n=Math.max(0,parseInt(String(val).replace(/[^\d-]/g,""),10)||0);
+    if(n===0){ t.ms=true; t.dur=0; } else { t.ms=false; t.dur=n; } }
+  else if(col==="start"){ const d=parseDateInput(val); if(d) setStartByDrag(t,nextWork(d)); }
+  else if(col==="preds"){ const ps=parsePreds(val).filter(p=>p.id!==t.id&&D.tasks.some(x=>x.id===p.id&&!x.isSummary)&&!wouldCycle(p.id,t.id)); t.preds=ps; }
+  else if(col==="res") t.res=parseRes(val);
+  else if(col==="pct") t.pct=clamp(parseInt(val,10)||0,0,100);
+  render();
+}
+
+/* ============================ 選択 ============================ */
+function selectRow(id,e){
+  const list=ROWS.map(t=>t.id);
+  if(e&&(e.ctrlKey||e.metaKey)){ const i=U.sel.indexOf(id); if(i>=0)U.sel.splice(i,1); else U.sel.push(id); }
+  else if(e&&e.shiftKey&&U.sel.length){ const a=list.indexOf(U.sel[U.sel.length-1]),b=list.indexOf(id);
+    if(a>=0&&b>=0){ const s=Math.min(a,b),t=Math.max(a,b); U.sel=list.slice(s,t+1); } else U.sel=[id]; }
+  else U.sel=[id];
+}
+/* ============================ グリッド操作 ============================ */
+$("#gridPane").addEventListener("click",e=>{
+  const tw=e.target.closest(".tw");
+  if(tw){ const id=+tw.dataset.tw; U.collapsed[id]=!U.collapsed[id]; render(); return; }
+  const tr=e.target.closest("tr.trow"); if(!tr)return;
+  const id=+tr.dataset.tid, td=e.target.closest("td");
+  const already=U.sel.length===1&&U.sel[0]===id&&td&&td.dataset.edit;
+  const col=td?td.dataset.col:null;
+  if(editing)return;
+  selectRow(id,e); render();
+  if(already){ const ntd=document.querySelector('tr[data-tid="'+id+'"] td[data-col="'+col+'"]'); if(ntd)startEdit(ntd); }
+});
+$("#gridPane").addEventListener("dblclick",e=>{
+  const td=e.target.closest("td[data-edit]"); if(!td||editing)return;
+  const id=+td.closest("tr").dataset.tid, col=td.dataset.col;
+  selectRow(id,e); render();
+  const ntd=document.querySelector('tr[data-tid="'+id+'"] td[data-col="'+col+'"]'); if(ntd)startEdit(ntd);
+});
+/* スクロール同期 */
+let syncing=false;
+const gp=$("#gridPane"), cp=$("#chartPane");
+gp.addEventListener("scroll",()=>{ if(syncing)return; syncing=true; cp.scrollTop=gp.scrollTop; syncing=false; });
+cp.addEventListener("scroll",()=>{ if(syncing)return; syncing=true; gp.scrollTop=cp.scrollTop; syncing=false; });
+
+/* ============================ ガントのドラッグ操作 ============================ */
+let drag=null;
+function chartBodyRect(){ const el=$("#chartBody"); return el?el.getBoundingClientRect():null; }
+cp.addEventListener("mousedown",e=>{
+  if(e.button!==0)return;
+  const dot=e.target.closest(".link-dot"), bar=e.target.closest("[data-bar]"), row=e.target.closest(".row-hit");
+  if(dot&&bar){ e.preventDefault(); startLink(bar,dot.dataset.dot,e); return; }
+  if(bar){ e.preventDefault(); const g=e.target.closest("[data-grip]");
+    const id=+bar.dataset.tid; if(U.sel.indexOf(id)<0){ selectRow(id,e); render(); }
+    startBar(document.querySelector('[data-bar][data-tid="'+id+'"]')||bar,g?g.dataset.grip:null,e); return; }
+  if(row){ selectRow(+row.dataset.row,e); render(); }
+});
+function startBar(el,grip,e){
+  const t=SCH.byId.get(+el.dataset.tid); if(!t||t.isSummary)return;
+  drag={kind:grip==="p"?"pct":(grip?"resize"+grip:"move"),t:t,el:el,x0:e.clientX,
+        left:parseFloat(el.style.left),width:el.offsetWidth,dd:0,pct:t.pct||0,
+        s0:new Date(t._s),f0:new Date(t._f),d0:Math.max(1,t.dur|0)};
+  document.body.style.cursor=drag.kind==="move"?"grabbing":"ew-resize";
+}
+function startLink(el,side,e){
+  const r=chartBodyRect(),br=el.getBoundingClientRect();
+  const ox=(side==="r"?br.right:br.left)-r.left, oy=br.top+br.height/2-r.top;
+  const rb=document.createElement("div"); rb.className="link-rubber"; rb.style.left=ox+"px"; rb.style.top=oy+"px";
+  $("#chartBody").appendChild(rb);
+  drag={kind:"link",t:SCH.byId.get(+el.dataset.tid),side:side,ox:ox,oy:oy,rb:rb};
+}
+document.addEventListener("mousemove",e=>{
+  if(!drag)return;
+  const w=ZOOMW[U.zoom];
+  if(drag.kind==="link"){ const r=chartBodyRect(); if(!r)return;
+    const dx=e.clientX-r.left-drag.ox, dy=e.clientY-r.top-drag.oy;
+    drag.rb.style.width=Math.sqrt(dx*dx+dy*dy)+"px";
+    drag.rb.style.transform="rotate("+Math.atan2(dy,dx)+"rad)"; return; }
+  const dd=Math.round((e.clientX-drag.x0)/w); drag.dd=dd;
+  if(drag.kind==="move"){ drag.el.style.left=(drag.left+dd*w)+"px"; }
+  else if(drag.kind==="resizer"){ drag.el.style.width=Math.max(w*0.6,drag.width+dd*w)+"px"; }
+  else if(drag.kind==="resizel"){ drag.el.style.left=(drag.left+dd*w)+"px"; drag.el.style.width=Math.max(w*0.6,drag.width-dd*w)+"px"; }
+  else if(drag.kind==="pct"){ const br=drag.el.getBoundingClientRect();
+    const p=clamp(Math.round((e.clientX-br.left)/br.width*100/5)*5,0,100); drag.pct=p;
+    const pe=drag.el.querySelector(".prog"); if(pe)pe.style.width=p+"%";
+    const pg=drag.el.querySelector(".prog-grip"); if(pg)pg.style.left="calc("+p+"% - 4px)"; }
+});
+document.addEventListener("mouseup",e=>{
+  if(!drag)return; const d=drag; drag=null; document.body.style.cursor="";
+  if(d.kind==="link"){ d.rb.remove();
+    const el=document.elementFromPoint(e.clientX,e.clientY), tgt=el&&el.closest?el.closest("[data-bar],[data-row]"):null;
+    if(tgt){ const tid=+(tgt.dataset.tid||tgt.dataset.row);
+      if(tid&&tid!==d.t.id){ if(d.side==="r")addLink(d.t.id,tid,"FS",0); else addLink(tid,d.t.id,"FS",0); } }
+    return; }
+  if(!d.dd&&d.kind!=="pct"){ render(); return; }
+  const t=d.t;
+  if(d.kind==="move"&&d.dd){ mutate(()=>{ setStartByDrag(t,nextWork(addD(d.s0,d.dd))); }); toast("#"+t.id+" を移動しました（制約：開始日以降）"); }
+  else if(d.kind==="resizer"&&d.dd){ mutate(()=>{ const nf=nextWork(addD(d.f0,d.dd),-1);
+      const nd=Math.max(1,workDays(t._s,nf)); if(t.ms&&nd>0)t.ms=false; t.dur=nd; }); }
+  else if(d.kind==="resizel"&&d.dd){ mutate(()=>{ const ns=nextWork(addD(d.s0,d.dd));
+      const nd=Math.max(1,workDays(ns,d.f0)); t.dur=nd; setStartByDrag(t,ns); }); }
+  else if(d.kind==="pct"){ if(d.pct!==(t.pct||0)) mutate(()=>{ t.pct=d.pct; }); else render(); }
+});
+/* ============================ ツールチップ ============================ */
+const tip=$("#tip");
+cp.addEventListener("mousemove",e=>{
+  const bar=e.target.closest("[data-bar]");
+  if(!bar||drag){ tip.style.display="none"; return; }
+  const t=SCH.byId.get(+bar.dataset.tid); if(!t)return;
+  const bl=D.baseline&&D.baseline[t.id];
+  tip.innerHTML='<h5>#'+t.id+' '+esc(t.name)+'</h5><dl>'+
+    '<dt>開始</dt><dd>'+jdate(t._s)+'</dd><dt>終了</dt><dd>'+jdate(t._f)+'</dd>'+
+    '<dt>期間</dt><dd>'+(t.dur|0)+' 稼働日</dd><dt>進捗</dt><dd>'+(t.pct||0)+'%</dd>'+
+    (t.isSummary?"":'<dt>余裕</dt><dd>'+t.slack+' 日'+(t.critical?"（クリティカル）":"")+'</dd>')+
+    (resText(t)?'<dt>担当</dt><dd>'+esc(resText(t))+'</dd>':"")+
+    (predsText(t)?'<dt>先行</dt><dd>'+esc(predsText(t))+'</dd>':"")+
+    (bl?'<dt>基準</dt><dd>'+bl.s+' → '+bl.f+'</dd>':"")+
+    '<dt>コスト</dt><dd>'+yen(t.cost)+'</dd></dl>';
+  tip.style.display="block";
+  const w=tip.offsetWidth,h=tip.offsetHeight;
+  tip.style.left=Math.min(window.innerWidth-w-10,e.clientX+16)+"px";
+  tip.style.top=Math.max(8,Math.min(window.innerHeight-h-10,e.clientY-h-12))+"px";
+});
+cp.addEventListener("mouseleave",()=>{ tip.style.display="none"; });
+
+/* ============================ スプリッター ============================ */
+(function(){ const sp=$("#splitter"); let on=false;
+  sp.addEventListener("mousedown",e=>{ on=true; e.preventDefault(); document.body.style.cursor="col-resize"; });
+  document.addEventListener("mousemove",e=>{ if(!on)return;
+    const r=$("#v-gantt").getBoundingClientRect(); U.gw=clamp(Math.round(e.clientX-r.left),220,Math.max(320,r.width-260));
+    document.documentElement.style.setProperty("--gw",U.gw+"px"); });
+  document.addEventListener("mouseup",()=>{ if(on){ on=false; document.body.style.cursor=""; persist(); } });
+})();
+/* ============================ インスペクタ操作 ============================ */
+$("#inspector").addEventListener("change",e=>{
+  const t=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]):null; if(!t)return;
+  const f=e.target.dataset.f, p=e.target.dataset.p, r=e.target.dataset.r, i=+e.target.dataset.i;
+  if(f){ pushUndo(); const v=e.target.value;
+    if(f==="name")t.name=v; else if(f==="mode")t.mode=v;
+    else if(f==="ms"){ t.ms=v==="1"; if(t.ms)t.dur=0; else if(!t.dur)t.dur=1; }
+    else if(f==="dur"){ const n=Math.max(0,parseInt(v,10)||0); t.dur=n; t.ms=n===0; }
+    else if(f==="pct")t.pct=clamp(parseInt(v,10)||0,0,100);
+    else if(f==="start"){ const d=parseDateInput(v); if(d)setStartByDrag(t,nextWork(d)); }
+    else if(f==="ctype"){ t.constraint=t.constraint||{}; t.constraint.type=v; if(v==="ASAP")t.constraint.date=null;
+      else if(!t.constraint.date)t.constraint.date=t.start; }
+    else if(f==="cdate"){ t.constraint=t.constraint||{type:"SNET"}; t.constraint.date=v||null; if(v&&t.constraint.type==="ASAP")t.constraint.type="SNET"; }
+    else if(f==="notes")t.notes=v;
+    render(); return; }
+  if(p){ pushUndo(); if(p==="id")t.preds[i].id=+e.target.value; else if(p==="type")t.preds[i].type=e.target.value;
+    else if(p==="lag")t.preds[i].lag=parseInt(e.target.value,10)||0;
+    t.preds=t.preds.filter(x=>!wouldCycle2(x.id,t.id,t)); render(); return; }
+  if(r){ pushUndo(); if(r==="id")t.res[i].id=e.target.value; else if(r==="units")t.res[i].units=clamp(parseInt(e.target.value,10)||0,0,400); render(); }
+});
+function wouldCycle2(pid,sid,t){ const save=t.preds; t.preds=save.filter(x=>x.id!==pid); const c=wouldCycle(pid,sid); t.preds=save; return c; }
+$("#inspector").addEventListener("click",e=>{
+  const t=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]):null;
+  const p=e.target.dataset.p, r=e.target.dataset.r, i=+e.target.dataset.i;
+  if(t&&p==="del"){ mutate(()=>{ t.preds.splice(i,1); }); return; }
+  if(t&&r==="del"){ mutate(()=>{ t.res.splice(i,1); }); return; }
+  const act=e.target.closest("[data-act]"); if(!act)return;
+  if(act.dataset.act==="addPred"&&t){ const cand=D.tasks.find(x=>!x.isSummary&&x.id!==t.id&&!(t.preds||[]).some(q=>q.id===x.id)&&!wouldCycle(x.id,t.id));
+    if(!cand)return toast("追加できる先行タスクがありません"); mutate(()=>{ t.preds=(t.preds||[]).concat([{id:cand.id,type:"FS",lag:0}]); }); }
+  if(act.dataset.act==="addAssign"&&t){ const cand=D.resources.find(x=>!(t.res||[]).some(q=>q.id===x.id));
+    if(!cand)return toast("未割当のリソースがありません"); mutate(()=>{ t.res=(t.res||[]).concat([{id:cand.id,units:100}]); }); }
+});
+/* ============================ リソースシート操作 ============================ */
+$("#v-res").addEventListener("change",e=>{
+  const tr=e.target.closest("tr[data-rid]"), f=e.target.dataset.rf; if(!tr||!f)return;
+  const r=resById(tr.dataset.rid); if(!r)return; pushUndo();
+  if(f==="max"||f==="rate")r[f]=Math.max(0,parseInt(e.target.value,10)||0); else r[f]=e.target.value;
+  render();
+});
+/* ============================ ネットワーク図の選択 ============================ */
+$("#v-net").addEventListener("click",e=>{ const n=e.target.closest(".node"); if(!n)return; selectRow(+n.dataset.tid,e); render(); });
+
+/* ============================ コンテキストメニュー ============================ */
+const ctx=$("#ctxmenu");
+function showCtx(x,y){
+  ctx.innerHTML=[["addTask","タスクを挿入","Ins"],["addMilestone","マイルストーンを挿入",""],["dup","複製",""],null,
+    ["indent","レベル下げ","Alt+→"],["outdent","レベル上げ","Alt+←"],["moveUp","上へ移動","Alt+↑"],["moveDown","下へ移動","Alt+↓"],null,
+    ["link","選択をリンク",""],["unlink","リンク解除",""],["setMS","マイルストーンに変更",""],null,
+    ["info","タスク情報",""],["delTask","削除","Del"]]
+    .map(m=>m?'<button data-act="'+m[0]+'">'+m[1]+'<kbd>'+m[2]+'</kbd></button>':"<hr>").join("");
+  ctx.style.left=Math.min(x,window.innerWidth-190)+"px"; ctx.style.top=Math.min(y,window.innerHeight-330)+"px";
+  ctx.classList.add("on");
+}
+document.addEventListener("contextmenu",e=>{
+  const row=e.target.closest("tr.trow,[data-bar],.row-hit,.node"); if(!row)return;
+  e.preventDefault();
+  const id=+(row.dataset.tid||row.dataset.row); if(id&&U.sel.indexOf(id)<0){ U.sel=[id]; render(); }
+  showCtx(e.clientX,e.clientY);
+});
+document.addEventListener("click",e=>{ if(!e.target.closest("#ctxmenu")) ctx.classList.remove("on"); });
+
+/* ============================ アクション ============================ */
+const ACT={
+  undo:doUndo, redo:doRedo,
+  addTask:()=>newTask(false), addMilestone:()=>newTask(true), delTask:deleteSel,
+  indent:()=>indentSel(1), outdent:()=>indentSel(-1), moveUp:()=>moveSel(-1), moveDown:()=>moveSel(1),
+  link:linkSel, unlink:unlinkSel,
+  dup:()=>{ const t=selTasks()[0]; if(!t)return; const c=JSON.parse(JSON.stringify(t)); c.id=D.nextTask++; c.name=t.name+"（複製）"; c.preds=[];
+    mutate(()=>{ D.tasks.splice(idx(t.id)+1,0,c); U.sel=[c.id]; }); },
+  setMS:()=>mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary){ t.ms=!t.ms; t.dur=t.ms?0:Math.max(1,t.dur|0); } }); }),
+  info:()=>{ U.inspector=!U.inspector; render(); },
+  scrollTo:()=>{ const t=selTasks()[0]; if(!t)return; cp.scrollLeft=Math.max(0,X(t._s)-160); },
+  today:()=>{ cp.scrollLeft=Math.max(0,X(todayD())-cp.clientWidth/2); },
+  expandAll:()=>{ U.collapsed={}; render(); },
+  collapseAll:()=>{ D.tasks.forEach(t=>{ if(t.isSummary)U.collapsed[t.id]=true; }); render(); },
+  addRes:()=>{ mutate(()=>{ D.resources.push({id:uid("r"),name:"新しいリソース",init:"新規",group:"未分類",max:100,rate:0}); }); U.view="res"; render(); },
+  delRes:(el)=>{ const id=el.dataset.rid; mutate(()=>{ D.resources=D.resources.filter(r=>r.id!==id);
+    D.tasks.forEach(t=>{ t.res=(t.res||[]).filter(x=>x.id!==id); }); }); },
+  gotoRes:()=>{ U.view="res"; render(); }, gotoLoad:()=>{ U.view="load"; render(); },
+  gotoNet:()=>{ U.view="net"; render(); }, gotoReport:()=>{ U.view="report"; render(); },
+  levelHint:()=>{ const o=overAlloc(); if(!o.length)return toast("過負荷のリソースはありません");
+    U.view="load"; render(); toast(o.map(x=>x.name+"（最大 "+x.peak+"%／"+x.days.length+"日）").join(" / ")); },
+  setBaseline:()=>{ mutate(()=>{ D.baseline={}; D.tasks.forEach(t=>{ D.baseline[t.id]={s:t.start,f:t.finish,p:t.pct||0}; }); }); U.showBaseline=true; render(); toast("現在の日程をベースラインとして保存しました"); },
+  clearBaseline:()=>{ mutate(()=>{ D.baseline=null; }); U.showBaseline=false; render(); toast("ベースラインを解除しました"); },
+  sample:()=>{ if(!confirm("サンプル工程（新社屋 内装リニューアル工事）を読み込みます。現在の内容は失われます。"))return;
+    pushUndo(); D=sampleState(); seedProgress(); U.sel=[]; U.collapsed={}; render(); toast("サンプル工程を読み込みました"); },
+  print:()=>window.print(),
+  theme:()=>{ const cur=document.documentElement.getAttribute("data-theme");
+    const next=cur==="dark"?"light":(cur==="light"?"":"dark");
+    if(next)document.documentElement.setAttribute("data-theme",next); else document.documentElement.removeAttribute("data-theme");
+    toast("配色："+(next==="dark"?"ダーク":next==="light"?"ライト":"システム設定に従う")); },
+  save:()=>{ const blob=new Blob([JSON.stringify(D,null,1)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download=(D.meta.name||"project").replace(/[\\/:*?"<>|]/g,"_")+".json"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),3000); toast("JSON を保存しました"); },
+  open:()=>$("#fileInput").click(),
+  csv:()=>{ const head=["ID","WBS","タスク名","期間(日)","開始","終了","先行タスク","リソース","進捗(%)","コスト","余裕(日)","クリティカル"];
+    const rows=D.tasks.map(t=>[t.id,t.wbs,t.name,t.dur|0,t.start,t.finish,predsText(t),resText(t),t.pct||0,Math.round(t.cost||0),t.isSummary?"":t.slack,t.critical?"○":""]);
+    const csv="﻿"+[head].concat(rows).map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download=(D.meta.name||"project")+"_工程表.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),3000); toast("CSV を書き出しました"); },
+  dlgProj:openProj, dlgCal:openCal
+};
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]"); if(!el)return;
+  const a=el.dataset.act;
+  if(a==="pct"){ setPct(+el.dataset.v); return; }
+  if(a==="zoom"){ U.zoom=el.dataset.v; render(); return; }
+  if(a==="tgl"){ U[el.dataset.v]=!U[el.dataset.v]; render(); return; }
+  if(ACT[a]){ ctx.classList.remove("on"); ACT[a](el); }
+});
+
+/* ============================ タブ・ビュー・フィルター ============================ */
+$$(".ribbon-tabs button").forEach(b=>b.addEventListener("click",()=>{
+  U.tab=b.dataset.tab;
+  $$(".ribbon-tabs button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));
+  $$(".ribbon").forEach(p=>p.classList.toggle("on",p.dataset.panel===U.tab));
+}));
+$("#viewrail").addEventListener("click",e=>{ const b=e.target.closest("button[data-view]"); if(!b)return; U.view=b.dataset.view; render(); });
+$("#f-filter").addEventListener("change",e=>{ U.filter=e.target.value; render(); });
+$("#f-search").addEventListener("input",e=>{ U.query=e.target.value; render(); });
+$("#pjname").addEventListener("change",e=>{ pushUndo(); D.meta.name=e.target.value; render(); });
+$("#fileInput").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f)return; const rd=new FileReader();
+  rd.onload=()=>{ try{ const o=JSON.parse(rd.result);
+      if(!o||!Array.isArray(o.tasks))throw 0;
+      pushUndo(); D=o; D.cal=D.cal||{work:[false,true,true,true,true,true,false],holidays:{}};
+      D.nextTask=D.nextTask||Math.max.apply(null,D.tasks.map(t=>t.id))+1; U.sel=[]; render(); toast("読み込みました："+(D.meta&&D.meta.name||f.name));
+    }catch(err){ alert("この JSON は読み込めませんでした。"); } e.target.value=""; };
+  rd.readAsText(f);
+});
+/* ============================ キーボード ============================ */
+document.addEventListener("keydown",e=>{
+  const inField=/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"&&!e.shiftKey){ e.preventDefault(); return doUndo(); }
+  if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==="y"||(e.shiftKey&&e.key.toLowerCase()==="z"))){ e.preventDefault(); return doRedo(); }
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="s"){ e.preventDefault(); return ACT.save(); }
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="f"){ e.preventDefault(); $("#f-search").focus(); return; }
+  if(inField)return;
+  if(e.key==="Delete"){ e.preventDefault(); return deleteSel(); }
+  if(e.key==="Insert"){ e.preventDefault(); return newTask(false); }
+  if(e.key==="F2"){ const id=U.sel[0]; if(id){ const td=document.querySelector('tr[data-tid="'+id+'"] td[data-col="name"]'); if(td){ e.preventDefault(); startEdit(td); } } return; }
+  if(e.altKey&&e.key==="ArrowRight"){ e.preventDefault(); return indentSel(1); }
+  if(e.altKey&&e.key==="ArrowLeft"){ e.preventDefault(); return indentSel(-1); }
+  if(e.altKey&&e.key==="ArrowUp"){ e.preventDefault(); return moveSel(-1); }
+  if(e.altKey&&e.key==="ArrowDown"){ e.preventDefault(); return moveSel(1); }
+  if(e.key==="ArrowUp"||e.key==="ArrowDown"){
+    const list=ROWS.map(t=>t.id); if(!list.length)return;
+    const i=list.indexOf(U.sel[U.sel.length-1]); const ni=clamp(i+(e.key==="ArrowDown"?1:-1),0,list.length-1);
+    e.preventDefault(); U.sel=[list[ni]]; render();
+    const tr=document.querySelector('tr[data-tid="'+list[ni]+'"]'); if(tr)tr.scrollIntoView({block:"nearest"});
+  }
+});
+/* ============================ ダイアログ ============================ */
+function openProj(){
+  const s=projStats();
+  $("#dlgProjBody").innerHTML=
+   '<div class="frow"><label>プロジェクト名</label><input id="pi-name" value="'+esc(D.meta.name)+'"></div>'+
+   '<div class="frow"><label>開始日</label><input id="pi-start" type="date" value="'+D.meta.start+'"></div>'+
+   '<div class="frow"><label>監督者</label><input id="pi-mgr" value="'+esc(D.meta.manager||"")+'"></div>'+
+   '<div class="frow"><label>備考</label><input id="pi-note" value="'+esc(D.meta.note||"")+'"></div>'+
+   '<p class="hint">現在の集計：完了予定 '+jdate(s.finish)+' ／ 工期 '+s.days+' 稼働日 ／ タスク '+s.total+' 件 ／ 総コスト '+yen(s.cost)+
+   '<br>開始日を変更すると、制約のない自動スケジュールのタスクがすべて再計算されます。</p>';
+  $("#dlgProj").showModal();
+}
+$("#dlgProjOk").addEventListener("click",()=>{
+  pushUndo(); D.meta.name=$("#pi-name").value; D.meta.start=$("#pi-start").value||D.meta.start;
+  D.meta.manager=$("#pi-mgr").value; D.meta.note=$("#pi-note").value; $("#dlgProj").close(); render();
+});
+function openCal(){
+  const hs=Object.keys(D.cal.holidays).sort();
+  $("#dlgCalBody").innerHTML=
+   '<div><h4 style="margin:0 0 6px;font-size:11px;color:var(--ink3)">稼働曜日</h4><div class="wk">'+
+    WD.map((w,i)=>'<label><input type="checkbox" data-wd="'+i+'"'+(D.cal.work[i]?" checked":"")+'>'+w+'</label>').join("")+'</div></div>'+
+   '<div><h4 style="margin:0 0 6px;font-size:11px;color:var(--ink3)">休日（'+hs.length+' 日）</h4><div class="hol-list">'+
+    hs.map(k=>'<div class="hol-item"><span>'+k+'</span><input data-hol="'+k+'" value="'+esc(D.cal.holidays[k])+'"><button class="icon-btn" data-delhol="'+k+'">✕</button></div>').join("")+
+    '</div></div>'+
+   '<div class="frow"><label>休日を追加</label><input id="cal-new" type="date"></div>'+
+   '<p class="hint">土日と休日は稼働日から除外され、期間・依存関係・クリティカルパスの計算に反映されます。初期値は 2026 年の主な祝日と年末年始の会社休日です（内容は編集できます）。</p>';
+  $("#dlgCal").showModal();
+}
+$("#dlgCalBody").addEventListener("click",e=>{ const k=e.target.dataset.delhol; if(!k)return;
+  pushUndo(); delete D.cal.holidays[k]; openCal(); render(); });
+$("#dlgCalOk").addEventListener("click",()=>{
+  pushUndo();
+  $$("#dlgCalBody [data-wd]").forEach(cb=>{ D.cal.work[+cb.dataset.wd]=cb.checked; });
+  $$("#dlgCalBody [data-hol]").forEach(inp=>{ D.cal.holidays[inp.dataset.hol]=inp.value||"休日"; });
+  const nv=$("#cal-new").value; if(nv)D.cal.holidays[nv]="休日";
+  $("#dlgCal").close(); render(); toast("カレンダーを更新しました");
+});
+document.addEventListener("click",e=>{ if(e.target.dataset&&"close" in e.target.dataset){ const d=e.target.closest("dialog"); if(d)d.close(); } });
+
+/* ============================ 初期化 ============================ */
+function seedProgress(){
+  schedule();
+  D.baseline={}; D.tasks.forEach(t=>{ D.baseline[t.id]={s:t.start,f:t.finish,p:0}; });
+  const g=id=>D.tasks.find(t=>t.id===id);
+  g(3).dur=7; g(6).dur=9;
+  schedule();
+}
+(function init(){
+  if(!restore()){ D=sampleState(); seedProgress(); }
+  const legacy=$("#f-search"); if(legacy)legacy.value=U.query||"";
+  render();
+  requestAnimationFrame(()=>{ cp.scrollLeft=Math.max(0,X(todayD())-200); });
+})();
+</script>
