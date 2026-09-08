@@ -1,0 +1,738 @@
+<title>工程表ワークベンチ 取扱説明書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9EEF4;
+  --panel:#FFFFFF;
+  --panel2:#F4F7FA;
+  --panel3:#E9F0F7;
+  --line:#CBD6E2;
+  --line2:#E2E9F1;
+  --line3:#A9B9CA;
+  --ink:#15212C;
+  --ink2:#4C5E70;
+  --ink3:#7A8B9B;
+  --accent:#1D4E76;
+  --accent2:#2E7CC4;
+  --accent-soft:#DBE8F5;
+  --crit:#C0392B;
+  --crit-soft:#F7E1DD;
+  --good:#2C7A55;
+  --good-soft:#DDEFE5;
+  --warn:#A9700F;
+  --warn-soft:#F8EED8;
+  --bar:#3A7FBF;
+  --bar-prog:#16405F;
+  --summary:#243444;
+  --shadow:0 1px 2px rgba(16,33,48,.08), 0 10px 26px rgba(16,33,48,.08);
+  --font-ui:"IBM Plex Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --font-disp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  --font-num:"IBM Plex Mono",SFMono-Regular,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]){
+  --ground:#0C121A;
+  --panel:#141D27;
+  --panel2:#1A2531;
+  --panel3:#202D3A;
+  --line:#2A3746;
+  --line2:#1E2A36;
+  --line3:#3D4D5E;
+  --ink:#E6ECF3;
+  --ink2:#A6B6C5;
+  --ink3:#76889A;
+  --accent:#5AA3E0;
+  --accent2:#7CBCF0;
+  --accent-soft:#173049;
+  --crit:#E0705C;
+  --crit-soft:#3A211D;
+  --good:#5FB78A;
+  --good-soft:#14301F;
+  --warn:#D8A33C;
+  --warn-soft:#33290F;
+  --bar:#4E93D0;
+  --bar-prog:#8FC0E8;
+  --summary:#9FB3C6;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px rgba(0,0,0,.32);
+}
+}
+:root[data-theme="dark"]{
+  --ground:#0C121A;
+  --panel:#141D27;
+  --panel2:#1A2531;
+  --panel3:#202D3A;
+  --line:#2A3746;
+  --line2:#1E2A36;
+  --line3:#3D4D5E;
+  --ink:#E6ECF3;
+  --ink2:#A6B6C5;
+  --ink3:#76889A;
+  --accent:#5AA3E0;
+  --accent2:#7CBCF0;
+  --accent-soft:#173049;
+  --crit:#E0705C;
+  --crit-soft:#3A211D;
+  --good:#5FB78A;
+  --good-soft:#14301F;
+  --warn:#D8A33C;
+  --warn-soft:#33290F;
+  --bar:#4E93D0;
+  --bar-prog:#8FC0E8;
+  --summary:#9FB3C6;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px rgba(0,0,0,.32);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-ui);font-size:14px;line-height:1.85;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+a{color:var(--accent2);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:currentColor}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:2px}
+
+.wrap{display:grid;grid-template-columns:262px minmax(0,1fr);max-width:1240px;margin:0 auto;background:var(--panel);min-height:100vh;box-shadow:var(--shadow)}
+/* --- 目次 --- */
+.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:26px 16px 40px 24px;border-right:1px solid var(--line);background:var(--panel2)}
+.toc .mark{display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.toc .mark span.ic{width:15px;height:15px;border:2px solid var(--accent);border-radius:2px;position:relative;flex:none}
+.toc .mark span.ic::after{content:"";position:absolute;left:1px;top:3px;width:9px;height:3px;background:var(--accent)}
+.toc .mark b{font-family:var(--font-disp);font-weight:700;font-size:14px;letter-spacing:.02em}
+.toc .sub{font-family:var(--font-num);font-size:10px;color:var(--ink3);letter-spacing:.08em;margin:0 0 18px 24px}
+.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.toc a{display:grid;grid-template-columns:22px 1fr;gap:7px;padding:5px 8px;border-radius:4px;color:var(--ink2);font-size:12.5px;line-height:1.45;border:none}
+.toc a em{font-family:var(--font-num);font-style:normal;font-size:10.5px;color:var(--ink3);padding-top:1px}
+.toc a:hover{background:var(--panel3);color:var(--ink)}
+.toc a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.toc a.on em{color:var(--accent)}
+.toc .tools{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:5px 10px;font:inherit;font-size:11.5px;color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--panel3);border-color:var(--line3)}
+
+/* --- 本文 --- */
+main{padding:0 0 90px;min-width:0}
+.cover{padding:52px 52px 40px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--panel3),var(--panel))}
+.eyebrow{font-family:var(--font-num);font-size:11px;letter-spacing:.14em;color:var(--accent);margin:0 0 10px}
+.cover h1{font-family:var(--font-disp);font-weight:700;font-size:clamp(28px,4.4vw,40px);line-height:1.25;margin:0 0 12px;letter-spacing:.01em;text-wrap:balance}
+.cover p.lead{margin:0;max-width:62ch;font-size:14.5px;color:var(--ink2)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:1px;margin-top:28px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.facts div{background:var(--panel);padding:11px 14px}
+.facts .k{display:block;font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.facts .v{font-family:var(--font-num);font-size:13px;color:var(--ink)}
+
+section{padding:44px 52px 8px;scroll-margin-top:10px}
+section+section{border-top:1px solid var(--line2)}
+h2{font-family:var(--font-disp);font-weight:700;font-size:21px;line-height:1.4;margin:0 0 6px;letter-spacing:.01em;display:flex;align-items:baseline;gap:12px;text-wrap:balance}
+h2 em{font-family:var(--font-num);font-style:normal;font-size:12px;color:var(--accent);letter-spacing:.1em;flex:none}
+h3{font-family:var(--font-disp);font-weight:500;font-size:15px;margin:30px 0 8px;color:var(--ink);border-left:3px solid var(--accent);padding-left:10px}
+h4{font-size:13px;margin:20px 0 6px;color:var(--ink2)}
+p{margin:0 0 12px;max-width:76ch}
+.sec-lead{color:var(--ink2);max-width:74ch;margin-bottom:22px}
+ul,ol.steps{max-width:76ch}
+ul{padding-left:20px;margin:0 0 14px}
+li{margin-bottom:5px}
+code{font-family:var(--font-num);font-size:12px;background:var(--panel3);border:1px solid var(--line2);border-radius:3px;padding:1px 5px}
+kbd{font-family:var(--font-num);font-size:11px;background:var(--panel);border:1px solid var(--line3);border-bottom-width:2px;border-radius:4px;padding:1px 6px;color:var(--ink);white-space:nowrap}
+.chip{display:inline-block;font-size:11px;font-family:var(--font-ui);background:var(--panel3);border:1px solid var(--line);border-radius:10px;padding:0 8px;line-height:18px;color:var(--ink2);white-space:nowrap}
+.chip.b{background:var(--accent-soft);border-color:var(--accent2);color:var(--accent)}
+
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:6px 0 18px}
+th{background:var(--panel3);text-align:left;font-weight:600;font-size:11.5px;color:var(--ink2);padding:8px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 11px;border-bottom:1px solid var(--line2);vertical-align:top;line-height:1.7}
+tr:last-child td{border-bottom:none}
+td.n,th.n{font-family:var(--font-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.k{white-space:nowrap;font-weight:600}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{min-width:520px}
+
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:12px}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;gap:12px;margin:0}
+ol.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--font-num);font-size:11.5px;color:var(--accent);background:var(--accent-soft);border-radius:4px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:500}
+ol.steps b{display:block;font-weight:600}
+ol.steps p{margin:0;color:var(--ink2);font-size:13px}
+
+.note{border-left:3px solid var(--accent2);background:var(--panel2);padding:11px 15px;margin:14px 0 18px;font-size:13px;border-radius:0 5px 5px 0;max-width:76ch}
+.note.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.note.stop{border-left-color:var(--crit);background:var(--crit-soft)}
+.note b{display:block;font-size:11.5px;letter-spacing:.03em;margin-bottom:2px}
+.note p:last-child{margin-bottom:0}
+
+figure{margin:18px 0 22px;max-width:820px}
+figure svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+figcaption{font-size:11.5px;color:var(--ink3);margin-top:7px;line-height:1.7}
+svg text{font-family:var(--font-ui)}
+svg text.mono{font-family:var(--font-num)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:14px;margin:8px 0 20px}
+.card{border:1px solid var(--line);border-radius:6px;padding:13px 15px 15px;background:var(--panel)}
+.card h4{margin:0 0 4px;font-family:var(--font-disp);font-weight:500;font-size:13.5px;color:var(--ink)}
+.card p{font-size:12.5px;color:var(--ink2);margin:0}
+.card svg{margin-top:8px;border-radius:4px}
+
+dl.gloss{margin:0;max-width:78ch}
+dl.gloss dt{font-weight:600;margin-top:14px;font-size:13.5px}
+dl.gloss dd{margin:2px 0 0;color:var(--ink2);font-size:13px}
+
+footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px solid var(--line2);margin-top:34px}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr)}
+  .toc{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--line);padding:18px 20px}
+  .toc ol{flex-direction:row;flex-wrap:wrap}
+  .toc a{grid-template-columns:auto auto;border:1px solid var(--line);background:var(--panel)}
+  .cover,section,footer.doc{padding-left:22px;padding-right:22px}
+}
+@media print{
+  body{background:#fff}
+  .wrap{display:block;box-shadow:none;max-width:none}
+  .toc,.tools{display:none!important}
+  .cover{padding:0 0 18px;background:none}
+  section{padding:16px 0 0;break-inside:auto}
+  h2{break-after:avoid}
+  figure,table,.note,.card{break-inside:avoid}
+  a{color:inherit}
+}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <div class="mark"><span class="ic"></span><b>工程表ワークベンチ</b></div>
+  <p class="sub">USER MANUAL / v1.0</p>
+  <ol>
+    <li><a href="#s01"><em>01</em><span>5 分ではじめる</span></a></li>
+    <li><a href="#s02"><em>02</em><span>画面の見かた</span></a></li>
+    <li><a href="#s03"><em>03</em><span>タスクを入力する</span></a></li>
+    <li><a href="#s04"><em>04</em><span>階層（WBS）と集計タスク</span></a></li>
+    <li><a href="#s05"><em>05</em><span>依存関係とラグ</span></a></li>
+    <li><a href="#s06"><em>06</em><span>スケジュールの計算ルール</span></a></li>
+    <li><a href="#s07"><em>07</em><span>ガントチャートの操作</span></a></li>
+    <li><a href="#s08"><em>08</em><span>リソースとコスト</span></a></li>
+    <li><a href="#s09"><em>09</em><span>5 つのビュー</span></a></li>
+    <li><a href="#s10"><em>10</em><span>印刷（範囲の自動抽出）</span></a></li>
+    <li><a href="#s11"><em>11</em><span>保存・共有・バックアップ</span></a></li>
+    <li><a href="#s12"><em>12</em><span>ショートカット一覧</span></a></li>
+    <li><a href="#s13"><em>13</em><span>用語集</span></a></li>
+    <li><a href="#s14"><em>14</em><span>仕様・制限と困ったとき</span></a></li>
+  </ol>
+  <div class="tools">
+    <button class="btn" id="btnTheme">◐ 配色</button>
+    <button class="btn" id="btnPrint">🖨 印刷 / PDF</button>
+  </div>
+</nav>
+
+<main>
+<header class="cover">
+  <p class="eyebrow">KOTEI WORKBENCH — 取扱説明書</p>
+  <h1>工程表ワークベンチ<br>取扱説明書</h1>
+  <p class="lead">WBS・ガントチャート・クリティカルパス計算・リソース負荷・印刷までを 1 つの HTML ファイルで完結させた工程管理ソフトの操作手引きです。インストールもインターネット接続も不要で、ファイルをダブルクリックすればそのまま動きます。</p>
+  <div class="facts">
+    <div><span class="k">ファイル</span><span class="v">kotei-workbench.html</span></div>
+    <div><span class="k">必要なもの</span><span class="v">最近のブラウザのみ</span></div>
+    <div><span class="k">データの保存先</span><span class="v">お使いの端末の中だけ</span></div>
+    <div><span class="k">出力</span><span class="v">JSON / CSV / 印刷・PDF</span></div>
+  </div>
+</header>
+
+<section id="s01">
+  <h2><em>01</em>5 分ではじめる</h2>
+  <p class="sec-lead">はじめて開いたときは、サンプル工程「新社屋 内装リニューアル工事」が入っています。まずはこれを触って、動きを確かめてください。消してしまっても <span class="chip">プロジェクト</span> タブの「サンプル再読込」でいつでも戻せます。</p>
+  <ol class="steps">
+    <li><b>ファイルを開く</b><p><code>kotei-workbench.html</code> をダブルクリックします。ブラウザが起動して工程表が表示されます。サーバーもインストールも不要です。</p></li>
+    <li><b>タスクを選ぶ</b><p>左の表の行をクリックすると、その行が選択され、右のタスク情報パネルに詳細が出ます。ガントのバーをクリックしても同じです。</p></li>
+    <li><b>名前と期間を直す</b><p>選択中の行の「タスク名」をもう一度クリックすると、その場で書き換えられます。<kbd>Tab</kbd> で右の列（期間 → 開始 → 先行タスク → リソース → 進捗）へ移動、<kbd>Enter</kbd> で確定、<kbd>Esc</kbd> で取り消しです。</p></li>
+    <li><b>タスクを足してつなぐ</b><p><span class="chip">タスク</span> タブの「＋タスク」で行を追加し、<kbd>Alt</kbd>+<kbd>→</kbd> で 1 段下げると、上の行が自動的に集計タスク（大工程）になります。2 つの行を選んで「リンク」を押すと、終了 → 開始でつながり、日程が自動で並びます。</p></li>
+    <li><b>進み具合を入れる</b><p>行を選んでリボンの <span class="chip">0% 25% 50% 75% 100%</span> を押すか、ガントのバーの中にある小さな四角を左右にドラッグします。ステータスバーの全体進捗と、進捗レポートの S カーブに即座に反映されます。</p></li>
+    <li><b>必要な範囲だけ印刷する</b><p><kbd>Ctrl</kbd>+<kbd>P</kbd>（Mac は <kbd>⌘</kbd>+<kbd>P</kbd>）で印刷ダイアログを開き、「2 週間先行工程表」などを選ぶと、その期間にかかるタスクだけが自動で抜き出されます。→ <a href="#s10">10 章</a></p></li>
+    <li><b>保存する</b><p>編集内容はブラウザに自動保存されるので、閉じても次に開いたとき続きから使えます。別の PC に渡すときや世代を残すときは、タイトルバーの「保存」で <code>.json</code> を書き出します。→ <a href="#s11">11 章</a></p></li>
+  </ol>
+  <div class="note"><b>覚えておくと安心</b><p>操作を間違えても <kbd>Ctrl</kbd>+<kbd>Z</kbd> で戻せます（最大 80 回）。やり直しは <kbd>Ctrl</kbd>+<kbd>Y</kbd> です。</p></div>
+</section>
+
+<section id="s02">
+  <h2><em>02</em>画面の見かた</h2>
+  <p class="sec-lead">画面は 7 つの領域でできています。左の表（グリッド）と右のガントチャートは同じ行が横に並んでおり、縦スクロールは連動します。</p>
+  <figure>
+    <svg viewBox="0 0 760 396" role="img" aria-label="画面各部の名称を示した配置図">
+      <rect x="0" y="0" width="760" height="396" fill="none"/>
+      <rect x="14" y="14" width="732" height="30" rx="3" fill="var(--accent)"/>
+      <text x="26" y="33" font-size="11" fill="#EAF2FA">工程表ワークベンチ　／　プロジェクト名　／　元に戻す・保存・開く・CSV・印刷・配色</text>
+      <circle cx="738" cy="29" r="9" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="738" y="33" font-size="10" text-anchor="middle" class="mono" fill="var(--accent)">1</text>
+      <rect x="14" y="48" width="732" height="20" rx="2" fill="var(--panel3)" stroke="var(--line)"/>
+      <text x="26" y="62" font-size="10" fill="var(--ink2)">タスク　表示　リソース　プロジェクト</text>
+      <rect x="14" y="70" width="732" height="46" rx="2" fill="var(--panel)" stroke="var(--line)"/>
+      <text x="26" y="90" font-size="10" fill="var(--ink2)">＋タスク　◆マイルストーン　✕削除　⇤⇥レベル　↑↓移動　⛓リンク　進捗　タスク情報</text>
+      <text x="26" y="106" font-size="9" fill="var(--ink3)">リボン（選んだタブに応じてボタンが入れ替わる）</text>
+      <circle cx="738" cy="82" r="9" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="738" y="86" font-size="10" text-anchor="middle" class="mono" fill="var(--accent)">2</text>
+      <rect x="14" y="122" width="60" height="228" rx="2" fill="var(--panel2)" stroke="var(--line)"/>
+      <text x="44" y="146" font-size="9" text-anchor="middle" fill="var(--ink2)">ガント</text>
+      <text x="44" y="176" font-size="9" text-anchor="middle" fill="var(--ink2)">リソース</text>
+      <text x="44" y="206" font-size="9" text-anchor="middle" fill="var(--ink2)">負荷</text>
+      <text x="44" y="236" font-size="9" text-anchor="middle" fill="var(--ink2)">網図</text>
+      <text x="44" y="266" font-size="9" text-anchor="middle" fill="var(--ink2)">レポート</text>
+      <circle cx="44" cy="332" r="9" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="44" y="336" font-size="10" text-anchor="middle" class="mono" fill="var(--accent)">3</text>
+      <rect x="78" y="122" width="250" height="228" rx="2" fill="var(--panel)" stroke="var(--line)"/>
+      <rect x="78" y="122" width="250" height="22" fill="var(--panel3)"/>
+      <text x="88" y="137" font-size="9" fill="var(--ink2)">ID  WBS  タスク名  期間  開始  終了  先行  担当  進捗</text>
+      <g stroke="var(--line2)"><path d="M78 166H328M78 188H328M78 210H328M78 232H328M78 254H328M78 276H328M78 298H328M78 320H328"/></g>
+      <text x="88" y="160" font-size="9" fill="var(--ink)">1  着工準備</text>
+      <text x="94" y="182" font-size="9" fill="var(--ink2)">1.1  契約締結・着手届の提出</text>
+      <text x="94" y="204" font-size="9" fill="var(--ink2)">1.2  施工計画書の作成</text>
+      <circle cx="310" cy="332" r="9" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="310" y="336" font-size="10" text-anchor="middle" class="mono" fill="var(--accent)">4</text>
+      <rect x="330" y="122" width="6" height="228" fill="var(--panel2)" stroke="var(--line)"/>
+      <rect x="338" y="122" width="234" height="228" rx="2" fill="var(--panel)" stroke="var(--line)"/>
+      <rect x="338" y="122" width="234" height="22" fill="var(--panel3)"/>
+      <text x="346" y="137" font-size="9" fill="var(--ink2)">2026年9月　　　　10月</text>
+      <rect x="352" y="152" width="90" height="9" rx="1.5" fill="var(--summary)"/>
+      <rect x="358" y="174" width="52" height="11" rx="2" fill="var(--bar)"/>
+      <rect x="358" y="174" width="30" height="11" rx="2" fill="var(--bar-prog)"/>
+      <rect x="404" y="196" width="70" height="11" rx="2" fill="var(--crit)"/>
+      <path d="M410 218l6-6 6 6-6 6z" fill="var(--summary)"/>
+      <line x1="418" y1="122" x2="418" y2="350" stroke="var(--crit)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <circle cx="554" cy="332" r="9" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="554" y="336" font-size="10" text-anchor="middle" class="mono" fill="var(--accent)">5</text>
+      <rect x="574" y="122" width="172" height="228" rx="2" fill="var(--panel2)" stroke="var(--line)"/>
+      <text x="586" y="140" font-size="10" fill="var(--ink)">タスク情報</text>
+      <g stroke="var(--line)" fill="var(--panel)"><rect x="586" y="150" width="148" height="16" rx="2"/><rect x="586" y="172" width="148" height="16" rx="2"/><rect x="586" y="194" width="148" height="16" rx="2"/><rect x="586" y="216" width="148" height="34" rx="2"/><rect x="586" y="256" width="148" height="34" rx="2"/></g>
+      <text x="592" y="162" font-size="8.5" fill="var(--ink3)">タスク名／種別／モード</text>
+      <text x="592" y="184" font-size="8.5" fill="var(--ink3)">期間／進捗</text>
+      <text x="592" y="206" font-size="8.5" fill="var(--ink3)">開始／終了／制約</text>
+      <text x="592" y="228" font-size="8.5" fill="var(--ink3)">先行タスク</text>
+      <text x="592" y="268" font-size="8.5" fill="var(--ink3)">リソース割当</text>
+      <circle cx="728" cy="332" r="9" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="728" y="336" font-size="10" text-anchor="middle" class="mono" fill="var(--accent)">6</text>
+      <rect x="14" y="356" width="732" height="26" rx="2" fill="var(--panel2)" stroke="var(--line)"/>
+      <text x="26" y="373" font-size="9.5" fill="var(--ink2)">開始　完了　工期　全体進捗　タスク　クリティカル　遅延　過負荷リソース　総コスト</text>
+      <circle cx="722" cy="369" r="9" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="722" y="373" font-size="10" text-anchor="middle" class="mono" fill="var(--accent)">7</text>
+    </svg>
+    <figcaption>画面の配置。赤い縦破線は「今日」の位置、④と⑤の境目にある細い縦棒はドラッグで表とガントの幅を変えられる仕切りです。</figcaption>
+  </figure>
+  <div class="tw"><table>
+    <thead><tr><th class="n">番号</th><th>名称</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td class="k">タイトルバー</td><td>プロジェクト名の変更、元に戻す／やり直し、JSON の保存・読み込み、CSV 書き出し、印刷、配色の切り替え。</td></tr>
+      <tr><td class="n">2</td><td class="k">リボン</td><td>4 つのタブ（タスク／表示／リソース／プロジェクト）に操作をまとめたボタン列。</td></tr>
+      <tr><td class="n">3</td><td class="k">ビューレール</td><td>5 つの表示（ガント／リソースシート／リソースグラフ／ネットワーク図／進捗レポート）を切り替えます。→ <a href="#s09">9 章</a></td></tr>
+      <tr><td class="n">4</td><td class="k">グリッド（表）</td><td>WBS の一覧。セルを直接編集できます。→ <a href="#s03">3 章</a></td></tr>
+      <tr><td class="n">5</td><td class="k">ガントチャート</td><td>バーで日程を表示。ドラッグで移動・期間変更・進捗更新・依存関係の作成ができます。→ <a href="#s07">7 章</a></td></tr>
+      <tr><td class="n">6</td><td class="k">タスク情報</td><td>選択中タスクの全項目を編集。リボンの「タスク情報」で開閉します。</td></tr>
+      <tr><td class="n">7</td><td class="k">ステータスバー</td><td>工期・全体進捗・クリティカル件数・遅延件数・過負荷リソース・総コストを常時集計表示。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s03">
+  <h2><em>03</em>タスクを入力する</h2>
+  <p class="sec-lead">表のセルは直接書き換えられます。編集を始める方法は 3 つ。<b>選択中の行のセルをもう一度クリック</b>、<b>セルをダブルクリック</b>、または行を選んで <kbd>F2</kbd>（タスク名）です。</p>
+  <h3>編集できる列と入力のしかた</h3>
+  <div class="tw"><table>
+    <thead><tr><th>列</th><th>入力できるもの</th><th>書き方の例</th></tr></thead>
+    <tbody>
+      <tr><td class="k">タスク名</td><td>自由文</td><td class="n">既存内装解体（3〜5F）</td></tr>
+      <tr><td class="k">期間</td><td>稼働日数。<b>0 を入れるとマイルストーン</b>になり、1 以上に戻すと通常タスクに戻ります</td><td class="n">8　／　0</td></tr>
+      <tr><td class="k">開始</td><td>日付。カレンダーから選ぶか直接入力</td><td class="n">2026-09-17</td></tr>
+      <tr><td class="k">先行タスク</td><td>ID＋種類＋ラグ。カンマ区切りで複数可。種類を省くと FS</td><td class="n">8　／　8FS+2　／　6SS-1, 10</td></tr>
+      <tr><td class="k">リソース名</td><td>リソース名をカンマ区切り。角かっこで単位%を指定</td><td class="n">E内装, F塗装[50%]</td></tr>
+      <tr><td class="k">進捗</td><td>0〜100 の数値</td><td class="n">45</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><b>知らない名前を書くとリソースが増えます</b><p>「リソース名」欄に登録されていない名前を入れると、その名前のリソースが単価 0 円で自動的に作られます。単価はリソースシート（→ <a href="#s08">8 章</a>）で設定してください。</p></div>
+  <h3>行の追加・削除・並べ替え</h3>
+  <div class="tw"><table>
+    <thead><tr><th>やりたいこと</th><th>操作</th></tr></thead>
+    <tbody>
+      <tr><td class="k">タスクを挿入</td><td><span class="chip">タスク</span> → ＋タスク、または <kbd>Insert</kbd>。選択行の<b>下</b>に、同じ階層で入ります</td></tr>
+      <tr><td class="k">マイルストーンを挿入</td><td><span class="chip">タスク</span> → ◆マイルストーン（期間 0 日の節目。ひし形で表示）</td></tr>
+      <tr><td class="k">削除</td><td><kbd>Delete</kbd>。集計タスクを消すと<b>その配下もまとめて消えます</b></td></tr>
+      <tr><td class="k">複製</td><td>行を右クリック → 複製（先行タスクは引き継ぎません）</td></tr>
+      <tr><td class="k">上下に移動</td><td><kbd>Alt</kbd>+<kbd>↑</kbd> / <kbd>Alt</kbd>+<kbd>↓</kbd>。配下の行も一緒に動きます</td></tr>
+      <tr><td class="k">階層を変える</td><td><kbd>Alt</kbd>+<kbd>→</kbd> で下げる、<kbd>Alt</kbd>+<kbd>←</kbd> で上げる</td></tr>
+      <tr><td class="k">複数選択</td><td><kbd>Ctrl</kbd>+クリックで個別に追加、<kbd>Shift</kbd>+クリックで範囲選択</td></tr>
+    </tbody>
+  </table></div>
+  <p>行を右クリックすると、挿入・階層・移動・リンク・削除をまとめたメニューが出ます。ガントのバーやネットワーク図のボックスを右クリックしても同じメニューです。</p>
+</section>
+
+<section id="s04">
+  <h2><em>04</em>階層（WBS）と集計タスク</h2>
+  <p class="sec-lead">行を 1 段下げると、すぐ上の行が自動的に<b>集計タスク（大工程）</b>になります。集計タスクは自分で日程を持たず、配下の内容から計算されます。</p>
+  <div class="cards">
+    <div class="card"><h4>自動で計算される項目</h4><p>開始＝配下の最早開始、終了＝配下の最遅終了、期間＝その間の稼働日数、進捗＝配下の期間で重み付けした平均、コスト＝配下の合計。</p></div>
+    <div class="card"><h4>集計タスクにできないこと</h4><p>期間・開始日・進捗の直接入力、先行タスクの設定はできません（設定しても無視されます）。日程を動かしたいときは配下のタスクを操作します。</p></div>
+    <div class="card"><h4>折りたたみ</h4><p>タスク名の左の ▼ で開閉します。<span class="chip">表示</span> タブの「すべて展開／すべて折りたたみ」で一括操作。折りたたみ状態も保存されます。</p></div>
+  </div>
+  <p>WBS 番号（1、1.1、1.2、2 …）は階層から自動で振り直されます。行を移動したり階層を変えたりすると、その場で番号が付け替わります。</p>
+</section>
+
+<section id="s05">
+  <h2><em>05</em>依存関係とラグ</h2>
+  <p class="sec-lead">タスク同士のつながりは 4 種類。「先行タスク」列やタスク情報パネルで設定するほか、ガントのバー端に出る丸をドラッグしてもつなげます。</p>
+  <div class="cards">
+    <div class="card"><h4>FS（終了 → 開始）</h4><p>先行が終わってから開始。もっとも一般的で、種類を省略したときもこれになります。</p>
+      <svg viewBox="0 0 340 96" role="img" aria-label="FS 型：先行タスクの終了後に後続タスクが開始する図">
+        <rect x="30" y="22" width="120" height="16" rx="3" fill="var(--bar)"/><text x="34" y="18" font-size="9" fill="var(--ink3)">先行</text>
+        <rect x="185" y="58" width="120" height="16" rx="3" fill="var(--bar)"/><text x="189" y="54" font-size="9" fill="var(--ink3)">後続</text>
+        <path d="M150 30H165V66H180" fill="none" stroke="var(--ink2)" stroke-width="1.4"/>
+        <path d="M185 66l-6-3.6v7.2z" fill="var(--ink2)"/>
+        <line x1="150" y1="22" x2="150" y2="86" stroke="var(--line3)" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+    <div class="card"><h4>SS（開始 → 開始）</h4><p>先行が始まったら開始。並行して進める作業に使います（例：解体と産廃搬出）。</p>
+      <svg viewBox="0 0 340 96" role="img" aria-label="SS 型：先行タスクの開始と同時に後続タスクが開始する図">
+        <rect x="80" y="22" width="140" height="16" rx="3" fill="var(--bar)"/><text x="84" y="18" font-size="9" fill="var(--ink3)">先行</text>
+        <rect x="80" y="58" width="110" height="16" rx="3" fill="var(--bar)"/><text x="84" y="54" font-size="9" fill="var(--ink3)">後続</text>
+        <path d="M80 30H62V66H75" fill="none" stroke="var(--ink2)" stroke-width="1.4"/>
+        <path d="M80 66l-6-3.6v7.2z" fill="var(--ink2)"/>
+        <line x1="80" y1="14" x2="80" y2="86" stroke="var(--line3)" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+    <div class="card"><h4>FF（終了 → 終了）</h4><p>先行が終わるまで終われない。仕上げを同時に完了させたいときに使います。</p>
+      <svg viewBox="0 0 340 96" role="img" aria-label="FF 型：先行タスクの終了に合わせて後続タスクが終了する図">
+        <rect x="40" y="22" width="140" height="16" rx="3" fill="var(--bar)"/><text x="44" y="18" font-size="9" fill="var(--ink3)">先行</text>
+        <rect x="70" y="58" width="110" height="16" rx="3" fill="var(--bar)"/><text x="74" y="54" font-size="9" fill="var(--ink3)">後続</text>
+        <path d="M180 30H198V66H185" fill="none" stroke="var(--ink2)" stroke-width="1.4"/>
+        <path d="M180 66l6-3.6v7.2z" fill="var(--ink2)"/>
+        <line x1="180" y1="14" x2="180" y2="86" stroke="var(--line3)" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+    <div class="card"><h4>SF（開始 → 終了）</h4><p>先行が始まったら終われる。交代・引き継ぎの表現に使う特殊な型で、実務ではまれです。</p>
+      <svg viewBox="0 0 340 96" role="img" aria-label="SF 型：先行タスクの開始に合わせて後続タスクが終了する図">
+        <rect x="170" y="22" width="130" height="16" rx="3" fill="var(--bar)"/><text x="174" y="18" font-size="9" fill="var(--ink3)">先行</text>
+        <rect x="50" y="58" width="120" height="16" rx="3" fill="var(--bar)"/><text x="54" y="54" font-size="9" fill="var(--ink3)">後続</text>
+        <path d="M170 30H188V66H175" fill="none" stroke="var(--ink2)" stroke-width="1.4"/>
+        <path d="M170 66l6-3.6v7.2z" fill="var(--ink2)"/>
+        <line x1="170" y1="14" x2="170" y2="86" stroke="var(--line3)" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+  </div>
+  <h3>ラグ（前後のずらし）</h3>
+  <p>種類のうしろに <code>+2</code> や <code>-1</code> を書くと、稼働日単位でずらせます。<code>8FS+2</code> は「タスク 8 が終わった 2 稼働日後に開始」（養生・乾燥待ちなど）、<code>6SS+3</code> は「タスク 6 の開始 3 稼働日後に着手」の意味です。マイナスは前倒しです。</p>
+  <h3>つなぎ方・外し方</h3>
+  <ul>
+    <li><b>まとめてつなぐ</b>：2 つ以上の行を選んで <span class="chip">タスク</span> → リンク。上から順に FS でつながります。</li>
+    <li><b>ドラッグでつなぐ</b>：バーにマウスを乗せると左右に丸が出ます。先行タスクの<b>右の丸</b>から後続のバーへドラッグ。逆に左の丸から引くと、相手が先行になります。</li>
+    <li><b>外す</b>：行を選んで <span class="chip">タスク</span> → リンク解除。その行の先行と、その行を先行にしている関係の両方が消えます。</li>
+    <li><b>細かく直す</b>：タスク情報パネルの「先行タスク」表で、相手・種類・ラグを個別に変更できます。</li>
+  </ul>
+  <div class="note warn"><b>循環参照は作れません</b><p>A → B → A のように輪になる接続は、その場で拒否され「循環参照になるため接続できません」と表示されます。既存データの読み込みで輪が見つかった場合は、ステータスバーに警告が出て、該当タスクの名前の横に <span class="chip">!</span> が付きます。</p></div>
+</section>
+
+<section id="s06">
+  <h2><em>06</em>スケジュールの計算ルール</h2>
+  <p class="sec-lead">どこか 1 つを変えると、関係するタスクの日程・クリティカルパス・コストがすべて再計算されます。ここでは、その計算が何を根拠にしているかを説明します。</p>
+  <h3>稼働カレンダー</h3>
+  <p>期間はすべて<b>稼働日</b>で数えます。土日と休日リストにある日は飛ばして計算されるため、8 日間の作業は暦の上では 10 日以上かかります。<span class="chip">プロジェクト</span> → 稼働カレンダーで、稼働曜日と休日を編集できます。初期値は 2026 年の主な祝日と年末年始の会社休日です。</p>
+  <div class="note"><b>土曜を稼働日にするには</b><p>稼働カレンダーの「稼働曜日」で土にチェックを入れて「適用」。全タスクの終了日が前倒しで再計算されます。</p></div>
+  <h3>自動スケジュールと手動スケジュール</h3>
+  <div class="tw"><table>
+    <thead><tr><th>モード</th><th>ふるまい</th><th>使いどころ</th></tr></thead>
+    <tbody>
+      <tr><td class="k">⚙ 自動</td><td>先行タスクと制約から開始日を計算します。先行が動けば追従します</td><td>通常はこちら。工程の連鎖を保ちたいとき</td></tr>
+      <tr><td class="k">✋ 手動</td><td>入力した開始日をそのまま使い、先行タスクによる移動を受けません</td><td>日付が確定している検査・立会いなど</td></tr>
+    </tbody>
+  </table></div>
+  <h3>制約（開始日の縛り）</h3>
+  <p>バーをドラッグして動かしたり、開始日を直接入力したりすると、自動タスクには<b>「開始日以降」の制約</b>が自動で付きます。これは「この日より前には始めない」という意味で、先行タスクが早く終わっても、その日までは着手しません。制約はタスク情報パネルで変更・解除できます。</p>
+  <div class="tw"><table>
+    <thead><tr><th>制約</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td class="k">できるだけ早く</td><td>制約なし。先行タスク次第で前にも後ろにも動く（初期値）</td></tr>
+      <tr><td class="k">開始日以降</td><td>指定日より前には始めない</td></tr>
+      <tr><td class="k">開始日以前</td><td>指定日より後には始めない</td></tr>
+      <tr><td class="k">開始日固定</td><td>指定日に必ず開始する</td></tr>
+      <tr><td class="k">終了日固定</td><td>指定日に必ず終了する（開始日を逆算）</td></tr>
+      <tr><td class="k">終了日以前</td><td>指定日までに終わらせる</td></tr>
+    </tbody>
+  </table></div>
+  <p>先行タスクと制約が両立しないときは、タスク名の横に <span class="chip">!</span>（制約と競合）が表示されます。制約を緩めるか、先行関係を見直してください。</p>
+  <h3>クリティカルパスと余裕</h3>
+  <p>全タスクについて「最も遅く始めても全体の完了が遅れない日」を逆算し、予定日との差を<b>余裕（フロート）</b>として表示します。余裕が 0 日以下のタスクが<b>クリティカルパス</b>で、そこが 1 日遅れると竣工日がそのまま 1 日遅れます。</p>
+  <ul>
+    <li>クリティカルなタスクはバーが赤、表の ID 欄に赤い縦線が付きます。</li>
+    <li><span class="chip">表示</span> → 余裕時間 をオンにすると、バーの右に余裕分の破線が伸びます。</li>
+    <li>ステータスバーの「クリティカル ○件」で本数を確認できます。</li>
+  </ul>
+  <div class="note"><b>クリティカルが多すぎると感じたら</b><p>直列につないだ工程は全部クリティカルになります。並行できる作業を SS でつなぎ直すと、余裕が生まれてクリティカルが減ります。</p></div>
+</section>
+
+<section id="s07">
+  <h2><em>07</em>ガントチャートの操作</h2>
+  <p class="sec-lead">バーは 4 か所を持てます。マウスを乗せると操作できる部分が現れます。</p>
+  <figure>
+    <svg viewBox="0 0 720 210" role="img" aria-label="ガントのバーでドラッグできる 5 か所を示した図">
+      <rect x="260" y="86" width="300" height="26" rx="4" fill="var(--bar)" stroke="var(--bar-prog)"/>
+      <rect x="260" y="86" width="170" height="26" rx="4" fill="var(--bar-prog)"/>
+      <rect x="256" y="84" width="9" height="30" rx="2" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <rect x="555" y="84" width="9" height="30" rx="2" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <rect x="424" y="93" width="12" height="12" rx="2" fill="var(--panel)" stroke="var(--bar-prog)" stroke-width="1.5"/>
+      <circle cx="240" cy="99" r="7" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <circle cx="580" cy="99" r="7" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>
+      <g fill="none" stroke="var(--line3)" stroke-width="1">
+        <path d="M260 84V46H214"/>
+        <path d="M560 84V46h46"/>
+        <path d="M240 108v44h-40"/>
+        <path d="M400 112v66"/>
+        <path d="M430 112v40h90"/>
+      </g>
+      <text x="210" y="50" font-size="11.5" text-anchor="end" fill="var(--ink2)">左端＝開始日と期間を変える</text>
+      <text x="610" y="50" font-size="11.5" fill="var(--ink2)">右端＝期間を変える</text>
+      <text x="196" y="156" font-size="11.5" text-anchor="end" fill="var(--ink2)">左右の丸＝依存関係をつくる</text>
+      <text x="400" y="192" font-size="11.5" text-anchor="middle" fill="var(--ink2)">バー本体＝日程ごと移動</text>
+      <text x="524" y="156" font-size="11.5" fill="var(--ink2)">内側の四角＝進捗を更新</text>
+      <text x="264" y="132" font-size="10" class="mono" fill="var(--ink3)">濃い部分＝出来高（進捗）</text>
+    </svg>
+    <figcaption>バーの上でマウスを動かすと、進捗グリップ（内側の四角）と依存関係用の丸が現れます。ドラッグ中はカーソルの形が変わります。</figcaption>
+  </figure>
+  <div class="tw"><table>
+    <thead><tr><th>操作</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td class="k">バー本体をドラッグ</td><td>日程を前後に移動。自動タスクには「開始日以降」の制約が付きます</td></tr>
+      <tr><td class="k">右端をドラッグ</td><td>終了日を動かして期間を変更</td></tr>
+      <tr><td class="k">左端をドラッグ</td><td>開始日を動かして期間を変更（終了日は固定）</td></tr>
+      <tr><td class="k">内側の四角をドラッグ</td><td>進捗を 5% 刻みで更新</td></tr>
+      <tr><td class="k">左右の丸をドラッグ</td><td>他のバーへ落として依存関係を作成</td></tr>
+      <tr><td class="k">バーにマウスを乗せる</td><td>開始・終了・期間・進捗・余裕・担当・先行・コストをまとめて表示</td></tr>
+    </tbody>
+  </table></div>
+  <h3>表示の切り替え（表示タブ）</h3>
+  <div class="tw"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td class="k">タイムスケール</td><td>日／週／月／四半期。全体を俯瞰するなら月、日々の管理は日</td></tr>
+      <tr><td class="k">今日へ</td><td>今日の位置まで横スクロール。<span class="chip">タスク</span> の「バーへ移動」は選択タスクの位置へ</td></tr>
+      <tr><td class="k">クリティカルパス</td><td>赤い強調の入／切</td></tr>
+      <tr><td class="k">ベースライン</td><td>基準計画のバーをグレーで下に並べて表示（→ <a href="#s11">11 章</a>）</td></tr>
+      <tr><td class="k">余裕時間</td><td>余裕日数を破線で表示</td></tr>
+      <tr><td class="k">バーラベル</td><td>バーの右に担当と進捗を表示</td></tr>
+      <tr><td class="k">フィルター</td><td>すべて／クリティカルのみ／未完了／遅れ（今日基準）／マイルストーン／過負荷リソースを含む</td></tr>
+      <tr><td class="k">検索</td><td>タスク名・担当・メモを対象に絞り込み（<kbd>Ctrl</kbd>+<kbd>F</kbd>）</td></tr>
+    </tbody>
+  </table></div>
+  <p>フィルターや検索で絞り込んでいる間も、親の集計タスクは文脈として残ります。解除は「すべてのタスク」に戻し、検索欄を空にしてください。</p>
+</section>
+
+<section id="s08">
+  <h2><em>08</em>リソースとコスト</h2>
+  <p class="sec-lead">作業班・職種・担当者をリソースとして登録し、タスクに割り当てます。コストと過負荷は割当から自動計算されます。</p>
+  <h3>登録と割当</h3>
+  <ul>
+    <li><b>登録</b>：<span class="chip">リソース</span> → リソース追加、またはリソースシートで直接編集します。名前・略称・グループ・最大単位%・標準単価（円/日）を設定します。</li>
+    <li><b>割当</b>：表の「リソース名」列にカンマ区切りで入力するか、タスク情報パネルの「リソースを割り当て」から選びます。</li>
+    <li><b>単位%</b>：100% が専任、50% は半日相当。<code>F塗装[50%]</code> のように角かっこで指定します。</li>
+  </ul>
+  <h3>コストの計算式</h3>
+  <p><code>タスクのコスト ＝ 標準単価 × 単位% ÷ 100 × 期間（稼働日）</code> を割当ごとに合計します。集計タスクは配下の合計、ステータスバーの総コストは全タスクの合計です。単価を変えると即座に反映されます。</p>
+  <h3>過負荷（オーバーアロケーション）</h3>
+  <p>同じ日に同じリソースへ合計 100%（＝最大単位%）を超えて割り当てると<b>過負荷</b>です。並行作業に同じ班を重ねたときに起こります。</p>
+  <ul>
+    <li>リソースシートの行が赤くなり、「超過 ○日」と表示されます。</li>
+    <li>リソースグラフで、超過した日の棒だけが赤くなります。</li>
+    <li>ステータスバーの「過負荷リソース」に件数が出ます。<span class="chip">リソース</span> → 過負荷を検出 で、該当リソースと最大値を一覧できます。</li>
+  </ul>
+  <div class="note warn"><b>自動の平準化（レベリング）はありません</b><p>過負荷は検出までを行います。解消は、単位%を下げる・別のリソースに振り替える・開始日をずらす、のいずれかを手作業で行ってください。</p></div>
+</section>
+
+<section id="s09">
+  <h2><em>09</em>5 つのビュー</h2>
+  <p class="sec-lead">左端のビューレールで切り替えます。どのビューも同じデータを別の角度から見せているだけなので、片方で直せばもう片方にも反映されます。</p>
+  <div class="cards">
+    <div class="card"><h4>ガントチャート</h4><p>入力と日程調整の主画面。表とバーが左右に並びます。日々の編集はここで行います。</p></div>
+    <div class="card"><h4>リソースシート</h4><p>単価・最大単位・延べ稼働（人日）・コスト・ピーク%・過負荷の有無を一覧。名前や単価はその場で編集できます。</p></div>
+    <div class="card"><h4>リソースグラフ</h4><p>リソースごとの日別割当を棒グラフで表示。破線が最大単位、赤い縦破線が今日、赤い棒が超過日です。</p></div>
+    <div class="card"><h4>ネットワーク図</h4><p>依存関係を最長経路の順に並べた PERT 図。赤枠がクリティカル、二重枠がマイルストーン。ボックスをクリックで選択できます。</p></div>
+    <div class="card"><h4>進捗レポート</h4><p>全体進捗・計画比・残り日数・遅延件数・総コストのほか、S カーブ、大工程ごとの進捗、遅延タスク一覧を表示します。</p></div>
+  </div>
+  <h3>S カーブ（出来高曲線）の読み方</h3>
+  <p>青が<b>計画</b>、オレンジが<b>実績</b>の累積出来高です。稼働日あたりの作業量を積み上げ、全体を 100% としています。実績が計画の下にあれば遅れ、上にあれば前倒しです。差はレポート上部の「計画比（○ pt）」にも出ます。</p>
+  <div class="note"><b>実績カーブの求め方</b><p>過去の出来高は記録していないため、各タスクの現在の進捗％を、着手日から今日までの稼働日で按分して描いています。日々の実績を厳密に積み上げたものではない点にご留意ください。</p></div>
+</section>
+
+<section id="s10">
+  <h2><em>10</em>印刷（範囲の自動抽出）</h2>
+  <p class="sec-lead">画面をそのまま印刷するのではなく、<b>紙面用の工程表を組み直して</b>出力します。期間を選ぶだけで、その期間にかかるタスクだけが自動で抜き出されます。開き方は <kbd>Ctrl</kbd>+<kbd>P</kbd>、タイトルバーの「印刷」、または <span class="chip">プロジェクト</span> → 工程表を印刷。</p>
+  <h3>抽出する範囲</h3>
+  <div class="tw"><table>
+    <thead><tr><th>プリセット</th><th>期間の決まり方</th><th>使いどころ</th></tr></thead>
+    <tbody>
+      <tr><td class="k">今週の工程</td><td>月曜〜日曜</td><td>週間工程表。朝礼・週例会議用</td></tr>
+      <tr><td class="k">2 週間先行工程表</td><td>今日から 14 日</td><td>協力会社との調整、先行手配</td></tr>
+      <tr><td class="k">4 週間先行工程表</td><td>今日から 28 日</td><td>月次の先行計画</td></tr>
+      <tr><td class="k">今月の工程</td><td>月初〜月末</td><td>月間工程表。施主・元請への報告</td></tr>
+      <tr><td class="k">次のマイルストーンまで</td><td>今日〜直近の未到達マイルストーン</td><td>検査・引渡しに向けた追い込み</td></tr>
+      <tr><td class="k">残工程</td><td>未完了タスクの最早開始〜最遅終了</td><td>今後やることだけを 1 枚に</td></tr>
+      <tr><td class="k">クリティカルパスのみ</td><td>余裕 0 日以下のタスクから自動</td><td>遅らせられない工程の共有</td></tr>
+      <tr><td class="k">遅延タスクのみ</td><td>予定終了を過ぎた未完了から自動</td><td>是正会議の資料</td></tr>
+      <tr><td class="k">選択したタスク</td><td>選択行とその配下</td><td>特定工区・特定業者だけ抜粋</td></tr>
+      <tr><td class="k">全体工程表</td><td>着工〜竣工</td><td>全体版。A3 横がおすすめ</td></tr>
+      <tr><td class="k">日付を指定</td><td>開始日と終了日を手入力</td><td>任意の期間</td></tr>
+    </tbody>
+  </table></div>
+  <h3>抽出のきまり</h3>
+  <ul>
+    <li>期間に<b>かかっている</b>タスクを抜き出します（期間内に完全に収まっている必要はありません）。</li>
+    <li>抜き出したタスクの<b>親（大工程）の行は自動で補われます</b>。抜粋しても WBS の文脈が残ります。</li>
+    <li>バーは期間の端で切られ、範囲の外へ続くタスクは<b>端が破線</b>になります。</li>
+    <li>該当タスクが 0 件のときは「この条件に該当するタスクがありません」と表示されます（遅延がなければ正常です）。</li>
+  </ul>
+  <h3>用紙とレイアウト</h3>
+  <div class="tw"><table>
+    <thead><tr><th>設定</th><th>選べるもの</th></tr></thead>
+    <tbody>
+      <tr><td class="k">用紙</td><td>A4 横／A4 縦／A3 横／A3 縦（余白 10mm 固定）</td></tr>
+      <tr><td class="k">時間目盛</td><td>自動／日／週／月。自動は 1 日あたりの幅から判定します</td></tr>
+      <tr><td class="k">表の列</td><td>簡易 4 列／標準 6 列／詳細 8 列（詳細は「先行」「担当」が加わります）</td></tr>
+      <tr><td class="k">紙面に含める</td><td>範囲のサマリー／休日の網掛け／バー右の担当・進捗／基準計画／凡例／進捗レポートの別ページ添付</td></tr>
+    </tbody>
+  </table></div>
+  <p>ダイアログ下部には「用紙／期間／行数／推定ページ数」、右側の欄には「1 日あたり ○mm」が表示されます。縮小プレビューで仕上がりを確認してから「印刷 / PDF 出力」を押してください。行数が多いページは自動で分割され、見出し行は各ページの先頭で繰り返されます。</p>
+  <div class="note"><b>PDF で保存するには</b><p>印刷ダイアログでプリンターの代わりに「PDF に保存」（ブラウザによっては「Microsoft Print to PDF」）を選びます。用紙サイズはアプリ側で指定済みなので、ブラウザ側は「デフォルト」のままで構いません。「背景のグラフィック」を有効にすると、バーの色や休日の網掛けが印刷されます。</p></div>
+  <div class="note warn"><b>紙面に依存関係の矢印は描かれません</b><p>改ページをまたぐと矢印がずれるためです。関係を紙で確認したいときは、表の列を「詳細 8 列」にして「先行」列を出してください。</p></div>
+</section>
+
+<section id="s11">
+  <h2><em>11</em>保存・共有・バックアップ</h2>
+  <p class="sec-lead">このソフトはサーバーを持ちません。データはすべてお使いの端末の中にあります。</p>
+  <h3>自動保存</h3>
+  <p>編集するたびに、ブラウザの保存領域（localStorage・キー名 <code>kotei-workbench.v1</code>）へ自動保存されます。同じブラウザで同じファイルを開けば、続きから作業できます。</p>
+  <div class="note stop"><b>自動保存だけに頼らないでください</b><p>ブラウザの「閲覧履歴・サイトデータの削除」を実行すると、自動保存の内容も消えます。プライベートウィンドウでは保存されません。区切りのよいところで必ず JSON に書き出してください。</p></div>
+  <h3>JSON で保存・読み込み</h3>
+  <ul>
+    <li><b>保存</b>：タイトルバーの「保存」（<kbd>Ctrl</kbd>+<kbd>S</kbd>）。プロジェクト名のファイル名で <code>.json</code> が書き出されます。</li>
+    <li><b>読み込み</b>：「開く」から <code>.json</code> を選択。現在の内容は置き換わります（<kbd>Ctrl</kbd>+<kbd>Z</kbd> で戻せます）。</li>
+    <li><b>共有</b>：<code>kotei-workbench.html</code> と <code>.json</code> の 2 つを渡せば、相手の PC でも同じ工程表が開けます。</li>
+    <li><b>世代管理</b>：<code>20260908_内装工事.json</code> のように日付を付けて保存しておくと、あとで比較できます。</li>
+  </ul>
+  <h3>CSV で書き出す</h3>
+  <p>「CSV」ボタンで、ID・WBS・タスク名・期間・開始・終了・先行タスク・リソース・進捗・コスト・余裕・クリティカルの一覧を書き出します。Excel で開けるよう BOM 付き UTF-8 で出力します。<b>読み込みには対応していません</b>（取り込みは JSON のみ）。</p>
+  <h3>ベースライン（基準計画）</h3>
+  <p>着工時の計画を保存しておき、現状と比べる機能です。<span class="chip">プロジェクト</span> → ベースライン設定 で、そのときの全タスクの開始・終了を記録します。</p>
+  <ul>
+    <li><span class="chip">表示</span> → ベースライン をオンにすると、現在のバーの下にグレーの基準バーが並びます。</li>
+    <li>タスク情報パネルに「基準との差（＋○日）」が表示されます。</li>
+    <li>印刷の「基準計画」オプションで紙面にも出せます。</li>
+    <li>取り直すときは、もう一度「ベースライン設定」を押します（上書き）。解除は「ベースライン解除」。</li>
+  </ul>
+</section>
+
+<section id="s12">
+  <h2><em>12</em>ショートカット一覧</h2>
+  <p class="sec-lead">Mac をお使いの場合、<kbd>Ctrl</kbd> は <kbd>⌘</kbd> に読み替えてください。文字入力中は、確定・取り消し以外のショートカットは働きません。</p>
+  <div class="tw"><table>
+    <thead><tr><th>キー</th><th>動作</th><th>使える場面</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>元に戻す（最大 80 回）</td><td>常時</td></tr>
+      <tr><td class="k"><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>やり直し（<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> も可）</td><td>常時</td></tr>
+      <tr><td class="k"><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>JSON で保存</td><td>常時</td></tr>
+      <tr><td class="k"><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>印刷ダイアログを開く</td><td>常時</td></tr>
+      <tr><td class="k"><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>検索欄へ移動</td><td>常時</td></tr>
+      <tr><td class="k"><kbd>Insert</kbd></td><td>タスクを挿入</td><td>表・ガント</td></tr>
+      <tr><td class="k"><kbd>Delete</kbd></td><td>選択タスクを削除</td><td>表・ガント</td></tr>
+      <tr><td class="k"><kbd>F2</kbd></td><td>タスク名を編集</td><td>表</td></tr>
+      <tr><td class="k"><kbd>↑</kbd> / <kbd>↓</kbd></td><td>選択行を移動</td><td>表・ガント</td></tr>
+      <tr><td class="k"><kbd>Alt</kbd>+<kbd>→</kbd> / <kbd>←</kbd></td><td>階層を下げる／上げる</td><td>表・ガント</td></tr>
+      <tr><td class="k"><kbd>Alt</kbd>+<kbd>↑</kbd> / <kbd>↓</kbd></td><td>行を上へ／下へ移動</td><td>表・ガント</td></tr>
+      <tr><td class="k"><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>次／前の編集できる列へ</td><td>セル編集中</td></tr>
+      <tr><td class="k"><kbd>Enter</kbd></td><td>入力を確定</td><td>セル編集中</td></tr>
+      <tr><td class="k"><kbd>Esc</kbd></td><td>入力を取り消す</td><td>セル編集中</td></tr>
+      <tr><td class="k"><kbd>Ctrl</kbd>+クリック</td><td>選択に追加／解除</td><td>表・ガント</td></tr>
+      <tr><td class="k"><kbd>Shift</kbd>+クリック</td><td>範囲を選択</td><td>表・ガント</td></tr>
+      <tr><td class="k">右クリック</td><td>コンテキストメニュー</td><td>表・ガント・ネットワーク図</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s13">
+  <h2><em>13</em>用語集</h2>
+  <dl class="gloss">
+    <dt>WBS（作業分解構成）</dt><dd>工事を大工程 → 中工程 → 作業へと分解した階層。このソフトでは行の階層がそのまま WBS 番号（1、1.1、1.1.1 …）になります。</dd>
+    <dt>集計タスク（サマリータスク）</dt><dd>配下のタスクを束ねる行。日程・期間・進捗・コストは配下から自動計算され、直接は編集できません。</dd>
+    <dt>マイルストーン</dt><dd>期間 0 日の節目。検査日・引渡し日など、期間を持たない到達点をひし形で表します。</dd>
+    <dt>稼働日</dt><dd>土日と休日を除いた作業できる日。このソフトの「期間」はすべて稼働日で数えます。</dd>
+    <dt>先行タスク</dt><dd>そのタスクより先に進む必要があるタスク。FS・SS・FF・SF の 4 種類とラグで関係を表します。</dd>
+    <dt>ラグ</dt><dd>依存関係にはさむ待ち時間（稼働日）。<code>+2</code> は 2 日後ろ、<code>-1</code> は 1 日前倒し。乾燥待ち・養生期間などに使います。</dd>
+    <dt>クリティカルパス</dt><dd>そこが遅れると全体の完了日が遅れる一連のタスク。余裕が 0 日以下のタスクが該当し、赤で表示されます。</dd>
+    <dt>余裕（フロート／スラック）</dt><dd>全体の完了日を遅らせずに、そのタスクを何日遅らせられるか。</dd>
+    <dt>制約</dt><dd>「この日以降でないと始められない」など、日付に対する縛り。バーをドラッグすると自動で「開始日以降」が付きます。</dd>
+    <dt>ベースライン（基準計画）</dt><dd>着工時など、ある時点の計画を保存したもの。現状と並べて表示すると、どれだけずれたかが分かります。</dd>
+    <dt>単位%</dt><dd>そのタスクにリソースをどれだけ充てるか。100% が専任、50% は半分。1 日に合計 100%（最大単位）を超えると過負荷です。</dd>
+    <dt>過負荷（オーバーアロケーション）</dt><dd>同じ日に同じリソースを重ねて割り当てすぎている状態。リソースグラフで赤く表示されます。</dd>
+    <dt>S カーブ（出来高曲線）</dt><dd>累積の作業量を時系列で描いた曲線。計画と実績を重ねて、進み具合の差を見ます。</dd>
+    <dt>ネットワーク図（PERT 図）</dt><dd>タスクをボックス、依存関係を矢印で表した図。作業の流れと分岐を確認するのに使います。</dd>
+  </dl>
+</section>
+
+<section id="s14">
+  <h2><em>14</em>仕様・制限と困ったとき</h2>
+  <h3>動作環境</h3>
+  <ul>
+    <li>Chrome・Edge・Safari・Firefox の最近のバージョン（HTML ファイルをそのまま開けば動作します）。</li>
+    <li>インターネット接続は不要です。オンラインのときだけ書体を取得しますが、オフラインでも端末の書体で問題なく動きます。</li>
+    <li>印刷の用紙サイズ指定は Chrome / Edge でもっとも正確です。</li>
+  </ul>
+  <h3>できないこと（仕様上の制限）</h3>
+  <div class="tw"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td class="k">同時編集</td><td>サーバーを持たないため、複数人での同時編集はできません。JSON を受け渡してください</td></tr>
+      <tr><td class="k">紙面の依存矢印</td><td>画面には描きますが、印刷には出しません（改ページでずれるため）</td></tr>
+      <tr><td class="k">リソース平準化</td><td>過負荷の検出まで。自動での山崩しは行いません</td></tr>
+      <tr><td class="k">時間単位の管理</td><td>期間は日単位です。時間・シフト単位の管理はできません</td></tr>
+      <tr><td class="k">カレンダー</td><td>プロジェクト共通の 1 つのみ。リソースごとの休日設定はできません</td></tr>
+      <tr><td class="k">コスト</td><td>「単価 × 単位% × 稼働日」の人件費のみ。材料費・固定費の項目はありません</td></tr>
+      <tr><td class="k">CSV</td><td>書き出し専用です。取り込みは JSON のみ対応</td></tr>
+      <tr><td class="k">.mpp ファイル</td><td>Microsoft Project のファイルは読み込めません</td></tr>
+      <tr><td class="k">SF 型の依存</td><td>後退計算（余裕の算出）は近似です。実務でまれな型のため、精度が必要な場合は FS・SS・FF で表現してください</td></tr>
+    </tbody>
+  </table></div>
+  <h3>困ったとき</h3>
+  <div class="tw"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td class="k">前回の内容が消えた</td><td>ブラウザの閲覧データを削除した、別のブラウザで開いた、プライベートウィンドウを使った、のいずれかです。書き出しておいた JSON から「開く」で復元してください</td></tr>
+      <tr><td class="k">開始日を変えても動かない</td><td>手動スケジュールになっているか、制約が付いています。タスク情報パネルでモードを「自動」に、制約を「できるだけ早く」に戻してください</td></tr>
+      <tr><td class="k">期間を 5 日にしたのに終了日が 5 日後にならない</td><td>仕様どおりです。土日・休日を飛ばして数えるため、暦の上では長くなります</td></tr>
+      <tr><td class="k">リンクできない</td><td>集計タスクは接続できません。また、輪になる接続（循環参照）は拒否されます</td></tr>
+      <tr><td class="k">印刷が真っ白になる</td><td>抽出範囲に該当タスクがない可能性があります。プリセットを「全体工程表」にして確認してください。バーの色が出ないときは、ブラウザの印刷設定で「背景のグラフィック」を有効にします</td></tr>
+      <tr><td class="k">保存ボタンで何も起きない</td><td>ブラウザのダウンロード確認を見落としていないか確認してください。ブラウザ内に埋め込んで表示している場合は、保存の確認ダイアログが出ます</td></tr>
+      <tr><td class="k">クリティカルパスが全部赤い</td><td>工程を直列につないでいるためです。並行できる作業を SS でつなぎ直すと余裕が生まれます</td></tr>
+      <tr><td class="k">書体がいつもと違う</td><td>オフラインで書体を取得できていない状態です。動作に影響はありません</td></tr>
+      <tr><td class="k">最初からやり直したい</td><td><span class="chip">プロジェクト</span> → サンプル再読込。確認のうえサンプル工程に戻ります（<kbd>Ctrl</kbd>+<kbd>Z</kbd> で取り消せます）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer class="doc">
+  <p>工程表ワークベンチ 取扱説明書 v1.0 — この説明書自体も 1 つの HTML ファイルです。左下の「印刷 / PDF」から冊子として出力できます。</p>
+</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var tb=document.getElementById("btnTheme");
+  if(tb) tb.addEventListener("click",function(){
+    var cur=root.getAttribute("data-theme");
+    var next=cur==="dark"?"light":(cur==="light"?"":"dark");
+    if(next) root.setAttribute("data-theme",next); else root.removeAttribute("data-theme");
+    tb.textContent=next==="dark"?"◐ ダーク":(next==="light"?"◐ ライト":"◐ 配色");
+  });
+  var pb=document.getElementById("btnPrint");
+  if(pb) pb.addEventListener("click",function(){ window.print(); });
+  var links=Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var map={}; links.forEach(function(a){ map[a.getAttribute("href").slice(1)]=a; });
+  var secs=Array.prototype.slice.call(document.querySelectorAll("section[id]"));
+  if(!("IntersectionObserver" in window)||!secs.length) return;
+  var seen={};
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ seen[e.target.id]=e.isIntersecting?e.intersectionRatio:0; });
+    var best=null,bv=0;
+    secs.forEach(function(s){ var v=seen[s.id]||0; if(v>bv){ bv=v; best=s.id; } });
+    if(!best) return;
+    links.forEach(function(a){ a.classList.remove("on"); });
+    if(map[best]) map[best].classList.add("on");
+  },{rootMargin:"-8% 0px -70% 0px",threshold:[0,.15,.4,.75,1]});
+  secs.forEach(function(s){ io.observe(s); });
+})();
+</script>
