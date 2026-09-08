@@ -1,0 +1,2706 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>60歳からの退職・年金・税金・社会保険 実務ガイド</title>
+<style>
+:root{
+  --paper:#f8f6f1; --card:#ffffff; --ink:#1b2230; --ink2:#3a4353; --muted:#6b7383;
+  --rule:#e4dfd4; --rule2:#efebe3;
+  --accent:#1f5f8b; --accent-soft:#e8f0f6;
+  --terra:#b0592a; --terra-soft:#faeee6;
+  --good:#2c7a58; --good-soft:#e6f2ec;
+  --warn:#a5762a; --warn-soft:#fbf2e0;
+  --danger:#a93a3a; --danger-soft:#faeaea;
+  --grid:#e9e4da;
+  --shadow:0 1px 2px rgba(27,34,48,.05),0 6px 20px rgba(27,34,48,.06);
+  --mono:"SFMono-Regular",Consolas,"Roboto Mono","Noto Sans Mono CJK JP",monospace;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Yu Gothic","Noto Sans JP","Meiryo",system-ui,sans-serif;
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","MS PMincho",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#14181f; --card:#1b2029; --ink:#e8e6e1; --ink2:#c8cbd2; --muted:#98a0ad;
+    --rule:#2e3540; --rule2:#252b34; --grid:#2b323c;
+    --accent:#6fb3dd; --accent-soft:#1c2c38;
+    --terra:#e08d5c; --terra-soft:#332319;
+    --good:#63bd94; --good-soft:#152a22;
+    --warn:#d7ab5c; --warn-soft:#2e2718;
+    --danger:#e07a7a; --danger-soft:#331d1d;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14181f; --card:#1b2029; --ink:#e8e6e1; --ink2:#c8cbd2; --muted:#98a0ad;
+  --rule:#2e3540; --rule2:#252b34; --grid:#2b323c;
+  --accent:#6fb3dd; --accent-soft:#1c2c38;
+  --terra:#e08d5c; --terra-soft:#332319;
+  --good:#63bd94; --good-soft:#152a22;
+  --warn:#d7ab5c; --warn-soft:#2e2718;
+  --danger:#e07a7a; --danger-soft:#331d1d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.75;-webkit-text-size-adjust:100%;
+  font-feature-settings:"palt" 1;}
+img{max-width:100%}
+
+/* ---------- layout ---------- */
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);}
+.topbar-in{max-width:1400px;margin:0 auto;padding:9px 20px;display:flex;align-items:center;gap:14px;}
+.brand{font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:.02em;white-space:nowrap}
+.brand span{color:var(--accent)}
+.topbar .spacer{flex:1}
+.tbtn{border:1px solid var(--rule);background:var(--card);color:var(--ink2);border-radius:7px;
+  padding:5px 11px;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+.wrap{max-width:1400px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:236px minmax(0,1fr);gap:38px;align-items:start}
+nav.toc{position:sticky;top:56px;max-height:calc(100vh - 72px);overflow-y:auto;padding:22px 0 40px;font-size:13px}
+nav.toc h4{font-size:10.5px;letter-spacing:.13em;color:var(--muted);margin:0 0 8px;font-weight:700}
+nav.toc a{display:block;padding:5px 10px;color:var(--ink2);text-decoration:none;border-left:2px solid transparent;border-radius:0 5px 5px 0;line-height:1.45}
+nav.toc a:hover{background:var(--rule2);color:var(--accent)}
+nav.toc a.on{border-left-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:600}
+nav.toc .sep{height:1px;background:var(--rule);margin:12px 10px}
+main{padding:0 0 100px;min-width:0}
+@media(max-width:700px){
+  .topbar-in{overflow-x:auto;gap:8px;padding:8px 12px;scrollbar-width:none}
+  .topbar-in::-webkit-scrollbar{display:none}
+  .brand{font-size:13px}
+  .tbtn{padding:5px 9px;font-size:12px}
+  .hero{padding:28px 0 20px}
+}
+@media(max-width:980px){
+  .wrap{grid-template-columns:1fr;gap:0;padding:0 14px}
+  nav.toc{position:static;max-height:none;padding:12px 0;border-bottom:1px solid var(--rule);
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px}
+  nav.toc h4,nav.toc .sep{display:none}
+  body{font-size:14.5px}
+}
+
+/* ---------- hero ---------- */
+.hero{padding:44px 0 28px;border-bottom:2px solid var(--ink);margin-bottom:34px}
+.hero .eyebrow{font-size:11px;letter-spacing:.22em;color:var(--terra);font-weight:700;margin-bottom:12px}
+.hero h1{font-family:var(--serif);font-size:clamp(27px,4.6vw,44px);line-height:1.28;margin:0 0 14px;letter-spacing:.01em;font-weight:700}
+.hero p.lead{font-size:15.5px;color:var(--ink2);max-width:66ch;margin:0 0 18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px;font-size:11.5px;color:var(--muted)}
+.hero .meta b{display:inline-block;background:var(--rule2);border:1px solid var(--rule);padding:3px 9px;border-radius:99px;font-weight:600;color:var(--ink2)}
+
+/* ---------- sections ---------- */
+section{margin:0 0 54px;scroll-margin-top:64px}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--ink);padding-bottom:7px;margin-bottom:20px}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--terra);font-weight:700;letter-spacing:.05em}
+.sec-head h2{font-family:var(--serif);font-size:clamp(19px,2.6vw,25px);margin:0;font-weight:700;letter-spacing:.01em;flex:1}
+h3{font-size:16px;margin:30px 0 10px;font-weight:700;color:var(--ink);
+  padding-left:11px;border-left:3px solid var(--accent);line-height:1.5}
+h4{font-size:13.5px;margin:20px 0 7px;font-weight:700;color:var(--ink2)}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 13px;padding-left:1.35em}
+li{margin-bottom:5px}
+a{color:var(--accent)}
+strong{font-weight:700}
+.hl{background:linear-gradient(transparent 62%,var(--warn-soft) 62%);font-weight:700;padding:0 1px}
+code{font-family:var(--mono);font-size:.88em;background:var(--rule2);padding:1px 5px;border-radius:4px;border:1px solid var(--rule)}
+
+/* ---------- cards / callouts ---------- */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:11px;padding:18px 20px;margin:16px 0;box-shadow:var(--shadow)}
+.card>:first-child{margin-top:0}.card>:last-child{margin-bottom:0}
+.note{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 9px 9px 0;padding:13px 17px;margin:15px 0;font-size:14px}
+.note.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.note.danger{border-left-color:var(--danger);background:var(--danger-soft)}
+.note.good{border-left-color:var(--good);background:var(--good-soft)}
+.note .t{font-weight:700;font-size:12px;letter-spacing:.06em;display:block;margin-bottom:5px;text-transform:uppercase}
+.note.warn .t{color:var(--warn)} .note.danger .t{color:var(--danger)}
+.note.good .t{color:var(--good)} .note .t{color:var(--accent)}
+.note>:last-child{margin-bottom:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+
+/* ---------- tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13.2px;min-width:440px}
+th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--rule2);vertical-align:top;line-height:1.55}
+thead th{background:var(--rule2);font-weight:700;font-size:11.5px;letter-spacing:.05em;color:var(--ink2);
+  border-bottom:1.5px solid var(--rule);white-space:nowrap}
+.tbl-wrap.scroll{max-height:420px;overflow-y:auto}
+.tbl-wrap.scroll thead th{position:sticky;top:0;z-index:1}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--rule2)}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:12.6px;white-space:nowrap}
+caption{caption-side:top;text-align:left;font-size:12px;color:var(--muted);padding:9px 11px 5px;font-weight:600}
+
+/* ---------- calculator ---------- */
+.calc{background:var(--card);border:1.5px solid var(--accent);border-radius:13px;margin:22px 0;overflow:hidden;box-shadow:var(--shadow)}
+.calc-head{background:var(--accent);color:#fff;padding:9px 17px;font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+.calc-head .ico{font-size:15px}
+.calc-head .tag{margin-left:auto;font-size:10.5px;opacity:.85;font-weight:600;letter-spacing:.06em}
+.calc-body{padding:17px 19px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px 16px;margin-bottom:15px}
+.f{display:flex;flex-direction:column;gap:3px;min-width:0}
+.f label{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.4}
+.f label .u{color:var(--ink2);font-weight:400}
+.f input,.f select{font-family:var(--mono);font-size:14px;padding:7px 9px;border:1px solid var(--rule);
+  border-radius:7px;background:var(--paper);color:var(--ink);width:100%;min-width:0}
+.f select{font-family:var(--sans);font-size:13.2px}
+.f input:focus,.f select:focus{outline:2px solid var(--accent);outline-offset:-1px;background:var(--card)}
+.f input[type=range]{padding:0;background:none;border:none}
+.f .hint{font-size:10.5px;color:var(--muted);line-height:1.4}
+fieldset{border:1px dashed var(--rule);border-radius:9px;padding:12px 14px;margin:0 0 14px}
+legend{font-size:11px;font-weight:700;color:var(--terra);letter-spacing:.09em;padding:0 6px}
+
+.out{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;margin-top:4px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px}
+.kpi{background:var(--card);border:1px solid var(--rule);border-radius:9px;padding:10px 12px}
+.kpi .k{font-size:10.5px;color:var(--muted);font-weight:600;letter-spacing:.04em;margin-bottom:2px;line-height:1.35}
+.kpi .v{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--ink);line-height:1.2;letter-spacing:-.02em}
+.kpi .v small{font-size:11px;font-weight:600;color:var(--muted);font-family:var(--sans);margin-left:2px}
+.kpi.acc{border-color:var(--accent);background:var(--accent-soft)} .kpi.acc .v{color:var(--accent)}
+.kpi.good{border-color:var(--good);background:var(--good-soft)} .kpi.good .v{color:var(--good)}
+.kpi.warn{border-color:var(--warn);background:var(--warn-soft)} .kpi.warn .v{color:var(--warn)}
+.kpi.dang{border-color:var(--danger);background:var(--danger-soft)} .kpi.dang .v{color:var(--danger)}
+.breakdown{margin-top:12px;font-size:12.6px}
+.breakdown .row{display:flex;justify-content:space-between;gap:12px;padding:4.5px 0;border-bottom:1px dotted var(--rule)}
+.breakdown .row:last-child{border-bottom:none}
+.breakdown .row span:first-child{color:var(--ink2)}
+.breakdown .row span:last-child{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.breakdown .row.tot{border-top:1.5px solid var(--ink);border-bottom:none;margin-top:4px;padding-top:7px;font-weight:700}
+.breakdown .row.sub span:first-child{padding-left:14px;color:var(--muted)}
+
+.pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.04em;white-space:nowrap}
+.pill.a{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent)}
+.pill.g{background:var(--good-soft);color:var(--good);border:1px solid var(--good)}
+.pill.w{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn)}
+.pill.d{background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger)}
+.pill.m{background:var(--rule2);color:var(--muted);border:1px solid var(--rule)}
+
+/* ---------- figures ---------- */
+figure{margin:18px 0;background:var(--card);border:1px solid var(--rule);border-radius:11px;padding:15px 16px 11px;overflow-x:auto;box-shadow:var(--shadow)}
+figure svg{display:block;max-width:100%;height:auto;min-width:0}
+figcaption{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.55;border-top:1px solid var(--rule2);padding-top:7px}
+figcaption b{color:var(--ink2)}
+.legend{display:flex;flex-wrap:wrap;gap:11px;font-size:11.5px;color:var(--ink2);margin-top:9px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px}
+
+/* ---------- profile bar ---------- */
+#profile{border:1.5px solid var(--terra);border-radius:13px;background:var(--card);margin:0 0 34px;box-shadow:var(--shadow);overflow:hidden}
+#profile .ph{background:var(--terra);color:#fff;padding:10px 18px;font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:10px;cursor:pointer}
+#profile .ph .tag{margin-left:auto;font-size:10.5px;opacity:.9;font-weight:600}
+#profile .pb{padding:17px 19px}
+.chk{display:flex;align-items:flex-start;gap:8px;font-size:13px;padding:3px 0;line-height:1.6}
+.chk input{margin-top:5px;flex-shrink:0;width:15px;height:15px;accent-color:var(--accent)}
+.chk span{flex:1}
+.chk.done span{color:var(--muted);text-decoration:line-through}
+
+.steps{counter-reset:s;list-style:none;padding:0;margin:14px 0}
+.steps li{counter-increment:s;position:relative;padding:0 0 14px 40px;border-left:2px solid var(--rule);margin-left:13px}
+.steps li:last-child{border-left-color:transparent;padding-bottom:0}
+.steps li::before{content:counter(s);position:absolute;left:-14px;top:-1px;width:26px;height:26px;border-radius:50%;
+  background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;font-family:var(--mono)}
+.steps li b{display:block;margin-bottom:2px}
+
+details{border:1px solid var(--rule);border-radius:9px;margin:11px 0;background:var(--card)}
+details summary{padding:10px 15px;cursor:pointer;font-weight:700;font-size:13.5px;list-style:none;display:flex;align-items:center;gap:8px}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"▸";color:var(--accent);transition:transform .15s;display:inline-block;font-size:11px}
+details[open] summary::before{transform:rotate(90deg)}
+details .dc{padding:0 15px 13px;font-size:13.5px;border-top:1px solid var(--rule2);padding-top:11px}
+details .dc>:last-child{margin-bottom:0}
+
+.foot{border-top:2px solid var(--ink);padding-top:18px;margin-top:50px;font-size:12px;color:var(--muted);line-height:1.7}
+
+@media print{
+  .topbar,nav.toc,.tbtn{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;font-size:10.5pt}
+  section{page-break-inside:avoid}
+  .calc,.card,figure{box-shadow:none;break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">60歳からの<span>お金の地図</span></div>
+    <div class="spacer"></div>
+    <button class="tbtn" onclick="saveProfile()">入力を保存</button>
+    <button class="tbtn" onclick="loadSample()">サンプル入力</button>
+    <button class="tbtn" onclick="window.print()">印刷 / PDF</button>
+    <button class="tbtn" onclick="toggleTheme()">配色</button>
+  </div>
+</div>
+
+<div class="wrap">
+<nav class="toc" id="toc">
+  <h4>目次</h4>
+  <a href="#s0">■ あなたの前提条件を入力</a>
+  <div class="sep"></div>
+  <a href="#s1">1. 全体像と年齢カレンダー</a>
+  <a href="#s2">2. 公的年金の基本</a>
+  <a href="#s3">3. 繰上げ・繰下げ判定</a>
+  <a href="#s4">4. 働きながらの年金(在職老齢年金)</a>
+  <a href="#s5">5. 雇用保険をフル活用する</a>
+  <a href="#s6">6. 退職金と退職所得課税</a>
+  <a href="#s7">7. iDeCo・企業型DCの出口戦略</a>
+  <a href="#s8">8. 退職後の健康保険 4択</a>
+  <a href="#s9">9. 介護保険・高額療養費・75歳</a>
+  <a href="#s10">10. 退職後の所得税・住民税</a>
+  <a href="#s11">11. 確定申告と年末調整</a>
+  <a href="#s12">12. 配偶者・遺族の論点</a>
+  <a href="#s13">13. 統合キャッシュフロー試算</a>
+  <div class="sep"></div>
+  <a href="#s14">14. 落とし穴 15連発</a>
+  <a href="#s15">15. 手続きチェックリスト</a>
+  <a href="#s16">16. 前提数値一覧・出典・免責</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="eyebrow">FP実務用 インタラクティブ・ガイドブック</div>
+  <h1>60歳からの退職・年金・税金・社会保険<br>押さえるべき論点を、数字で確かめる</h1>
+  <p class="lead">長くサラリーマンを続けてきた方が60歳前後で直面する「制度の分岐点」を、時系列で一枚に整理しました。すべての章に計算機が付いており、実際の年金額・税額・保険料を入力しながら顧客と一緒に確認できます。ファイル1つで動作し、通信もサーバ送信も一切行いません。</p>
+  <div class="meta">
+    <b>単一HTML / オフライン動作</b><b>入力データは端末内のみ</b><b>印刷・PDF化対応</b>
+    <b>制度前提:令和7年度(2025年度)ベース</b>
+  </div>
+</div>
+
+<div class="note warn">
+  <span class="t">最初にお読みください</span>
+  本ガイドの数値は<b>令和7年度(2025年度)を基準にした概算</b>です。年金額・保険料率・雇用保険の上限額・自治体の国保料率などは毎年改定されます。第16章「前提数値一覧」ですべての前提値を画面上から書き換えられるようにしてありますので、<b>顧客提示前に必ず最新値へ更新</b>してください。実額は日本年金機構「ねんきんネット」、加入健保組合、居住自治体、税務署の確認が必要です。
+</div>
+
+<!-- ============ PROFILE ============ -->
+<section id="s0">
+<div id="profile">
+  <div class="ph" onclick="var b=document.getElementById('pbody');b.style.display=b.style.display==='none'?'block':'none'">
+    <span>▣</span><span>あなた(顧客)の前提条件</span>
+    <span class="tag">ここで一度入力すれば、以下すべての計算機に反映されます ▾</span>
+  </div>
+  <div class="pb" id="pbody">
+    <fieldset>
+      <legend>本人</legend>
+      <div class="fields">
+        <div class="f"><label>生年(西暦)</label><input type="number" id="p_birthY" value="1966" step="1"><div class="hint" id="p_ageNote">—</div></div>
+        <div class="f"><label>生月</label><input type="number" id="p_birthM" value="6" min="1" max="12"></div>
+        <div class="f"><label>生日</label><input type="number" id="p_birthD" value="15" min="1" max="31"><div class="hint">4月1日/4月2日の境目判定に使用</div></div>
+        <div class="f"><label>性別 <span class="u">(特別支給の老齢厚生年金の判定に使用)</span></label>
+          <select id="p_sex"><option value="M">男性</option><option value="F">女性</option></select></div>
+        <div class="f"><label>退職(予定)年齢</label><input type="number" id="p_retireAge" value="60" min="55" max="75"></div>
+        <div class="f"><label>厚生年金の加入(勤続)年数 <span class="u">年</span></label><input type="number" id="p_years" value="38" min="0" max="55"></div>
+        <div class="f"><label>退職時の月給(税引前) <span class="u">万円</span></label><input type="number" id="p_salaryM" value="55" step="0.1"></div>
+        <div class="f"><label>直近1年の賞与合計 <span class="u">万円</span></label><input type="number" id="p_bonusY" value="180" step="1"></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>年金見込額(ねんきん定期便・ねんきんネットの65歳時点の数字を転記)</legend>
+      <div class="fields">
+        <div class="f"><label>老齢基礎年金(年額) <span class="u">万円</span></label><input type="number" id="p_kiso" value="79" step="0.1"><div class="hint">満額83.17万円(令和7年度・67歳以下)</div></div>
+        <div class="f"><label>老齢厚生年金・報酬比例部分(年額) <span class="u">万円</span></label><input type="number" id="p_kosei" value="118" step="0.1"><div class="hint">在職老齢年金の判定はこの額のみで行います</div></div>
+        <div class="f"><label>経過的加算(年額) <span class="u">万円</span></label><input type="number" id="p_keika" value="2" step="0.1"><div class="hint">定額部分-基礎年金の差額。少額だが繰下げ対象</div></div>
+        <div class="f"><label>配偶者加給年金 <span class="u">万円/年</span></label><input type="number" id="p_kakyu" value="41.5" step="0.1"><div class="hint">厚年20年以上＋65歳未満の配偶者がいる場合</div></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>退職金・企業年金</legend>
+      <div class="fields">
+        <div class="f"><label>退職一時金 <span class="u">万円</span></label><input type="number" id="p_taishoku" value="2000" step="10"></div>
+        <div class="f"><label>iDeCo / 企業型DC 残高 <span class="u">万円</span></label><input type="number" id="p_dc" value="600" step="10"></div>
+        <div class="f"><label>DC等の加入年数 <span class="u">年</span></label><input type="number" id="p_dcYears" value="15" min="0" max="50"></div>
+        <div class="f"><label>役員としての在任 <span class="u">年(役員でなければ0)</span></label><input type="number" id="p_yakuinYears" value="0" min="0" max="50"></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>60歳以降の働き方・世帯</legend>
+      <div class="fields">
+        <div class="f"><label>再雇用後の月給 <span class="u">万円</span></label><input type="number" id="p_salaryM2" value="30" step="0.1"></div>
+        <div class="f"><label>再雇用後の年間賞与 <span class="u">万円</span></label><input type="number" id="p_bonusY2" value="30" step="1"></div>
+        <div class="f"><label>就労終了予定年齢</label><input type="number" id="p_workEnd" value="65" min="60" max="75"></div>
+        <div class="f"><label>配偶者</label><select id="p_spouse"><option value="1">あり</option><option value="0">なし</option></select></div>
+        <div class="f"><label>配偶者の生年(西暦)</label><input type="number" id="p_spouseY" value="1969" step="1"></div>
+        <div class="f"><label>配偶者の年金(年額) <span class="u">万円</span></label><input type="number" id="p_spousePen" value="90" step="1"></div>
+        <div class="f"><label>都道府県(協会けんぽ料率)</label>
+          <select id="p_pref">
+            <option value="10.02">東京都 10.02%</option><option value="10.36">大阪府 10.36%</option>
+            <option value="10.03">神奈川県 10.03%</option><option value="9.92">埼玉県 9.92%</option>
+            <option value="9.98">千葉県 9.98%</option><option value="10.03">愛知県 10.03%</option>
+            <option value="10.23">兵庫県 10.23%</option><option value="10.31">福岡県 10.31%</option>
+            <option value="10.00">その他(全国平均10.00%)</option>
+          </select><div class="hint">令和7年度の目安。要確認</div></div>
+      </div>
+    </fieldset>
+    <div class="note good" style="margin-bottom:0">
+      <span class="t">保存について</span>
+      入力値はこの端末のブラウザ内(localStorage)にのみ保存されます。上部「入力を保存」で保存、次回同じファイルを開くと自動復元します。<b>顧客情報を外部へ送信することはありません。</b>顧客ごとに使い分ける場合は、ファイルを複製して別名で保存してください。
+    </div>
+  </div>
+</div>
+</section>
+
+<style>
+/* SVG utility classes */
+.sv-t{font-family:var(--sans);font-size:11px;fill:var(--ink2)}
+.sv-ts{font-family:var(--sans);font-size:9.5px;fill:var(--muted)}
+.sv-tb{font-family:var(--sans);font-size:11.5px;font-weight:700;fill:var(--ink)}
+.sv-ax{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+.sv-axb{font-family:var(--mono);font-size:11.5px;font-weight:700;fill:var(--ink)}
+.sv-w{font-family:var(--sans);font-size:10.5px;fill:#fff;font-weight:600}
+.sv-grid{stroke:var(--grid);stroke-width:1}
+.sv-axis{stroke:var(--ink2);stroke-width:1.2}
+.sv-lane{fill:var(--rule2)}
+.sv-chip-a{fill:var(--accent)} .sv-chip-t{fill:var(--terra)}
+.sv-chip-g{fill:var(--good)} .sv-chip-w{fill:var(--warn)} .sv-chip-d{fill:var(--danger)}
+.sv-box{fill:var(--card);stroke:var(--rule);stroke-width:1}
+</style>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+<div class="sec-head"><span class="sec-num">01</span><h2>全体像 ― 60歳から75歳までに起きること</h2></div>
+
+<p>60歳以降の制度は「年齢」がトリガーになって次々に切り替わります。<strong>60・61〜64・65・70・75</strong>が節目で、そこを跨ぐたびに受け取れるお金と負担が変わります。まず全体を1枚で把握してください。</p>
+
+<figure>
+<svg viewBox="0 0 1000 430" role="img" aria-label="60歳から75歳までの制度タイムライン">
+  <rect x="0" y="0" width="1000" height="430" fill="none"/>
+  <!-- lanes -->
+  <rect class="sv-lane" x="105" y="52" width="880" height="76" rx="6"/>
+  <rect class="sv-lane" x="105" y="140" width="880" height="76" rx="6"/>
+  <rect class="sv-lane" x="105" y="228" width="880" height="76" rx="6"/>
+  <rect class="sv-lane" x="105" y="316" width="880" height="76" rx="6"/>
+  <!-- age grid -->
+  <g>
+    <line class="sv-grid" x1="110" y1="46" x2="110" y2="398"/>
+    <line class="sv-grid" x1="162" y1="46" x2="162" y2="398"/>
+    <line class="sv-grid" x1="215" y1="46" x2="215" y2="398"/>
+    <line class="sv-grid" x1="267" y1="46" x2="267" y2="398"/>
+    <line class="sv-grid" x1="320" y1="46" x2="320" y2="398"/>
+    <line class="sv-axis" x1="372" y1="40" x2="372" y2="404"/>
+    <line class="sv-grid" x1="425" y1="46" x2="425" y2="398"/>
+    <line class="sv-grid" x1="477" y1="46" x2="477" y2="398"/>
+    <line class="sv-grid" x1="530" y1="46" x2="530" y2="398"/>
+    <line class="sv-grid" x1="582" y1="46" x2="582" y2="398"/>
+    <line class="sv-axis" x1="635" y1="40" x2="635" y2="404"/>
+    <line class="sv-grid" x1="687" y1="46" x2="687" y2="398"/>
+    <line class="sv-grid" x1="740" y1="46" x2="740" y2="398"/>
+    <line class="sv-grid" x1="792" y1="46" x2="792" y2="398"/>
+    <line class="sv-grid" x1="845" y1="46" x2="845" y2="398"/>
+    <line class="sv-axis" x1="897" y1="40" x2="897" y2="404"/>
+    <line class="sv-grid" x1="950" y1="46" x2="950" y2="398"/>
+  </g>
+  <text class="sv-axb" x="110" y="34" text-anchor="middle">60</text>
+  <text class="sv-ax"  x="215" y="34" text-anchor="middle">62</text>
+  <text class="sv-ax"  x="320" y="34" text-anchor="middle">64</text>
+  <text class="sv-axb" x="372" y="34" text-anchor="middle">65</text>
+  <text class="sv-ax"  x="477" y="34" text-anchor="middle">67</text>
+  <text class="sv-ax"  x="582" y="34" text-anchor="middle">69</text>
+  <text class="sv-axb" x="635" y="34" text-anchor="middle">70</text>
+  <text class="sv-ax"  x="740" y="34" text-anchor="middle">72</text>
+  <text class="sv-ax"  x="845" y="34" text-anchor="middle">74</text>
+  <text class="sv-axb" x="897" y="34" text-anchor="middle">75</text>
+  <text class="sv-ax"  x="950" y="34" text-anchor="middle">76歳</text>
+  <text class="sv-ts"  x="18" y="20">年齢 →</text>
+
+  <!-- lane labels -->
+  <text class="sv-tb" x="14" y="84">公的年金</text>
+  <text class="sv-tb" x="14" y="172">雇用・給付</text>
+  <text class="sv-tb" x="14" y="260">医療・介護</text>
+  <text class="sv-tb" x="14" y="348">税・手続き</text>
+
+  <!-- lane 1 : pension -->
+  <rect class="sv-chip-t" x="110" y="58" width="262" height="24" rx="12" opacity=".92"/>
+  <text class="sv-w" x="124" y="74">繰上げ受給(1か月 −0.4%／最大 −24%)</text>
+  <rect class="sv-chip-a" x="215" y="88" width="157" height="24" rx="12" opacity=".92"/>
+  <text class="sv-w" x="228" y="104">特別支給の老齢厚生年金</text>
+  <rect class="sv-chip-g" x="425" y="58" width="472" height="24" rx="12" opacity=".92"/>
+  <text class="sv-w" x="440" y="74">繰下げ受給(1か月 +0.7%／75歳まで最大 +84%)</text>
+  <rect class="sv-chip-a" x="372" y="88" width="210" height="24" rx="12" opacity=".8"/>
+  <text class="sv-w" x="384" y="104">加給年金(配偶者65歳まで)</text>
+  <circle cx="372" cy="70" r="7" fill="var(--danger)"/>
+  <text class="sv-tb" x="372" y="126" text-anchor="middle" style="fill:var(--danger)">65歳 本来の受給開始</text>
+
+  <!-- lane 2 : employment -->
+  <rect class="sv-chip-t" x="110" y="146" width="262" height="24" rx="12" opacity=".92"/>
+  <text class="sv-w" x="124" y="162">高年齢雇用継続給付(賃金が75%未満に低下)</text>
+  <rect class="sv-chip-a" x="110" y="176" width="262" height="24" rx="12" opacity=".8"/>
+  <text class="sv-w" x="124" y="192">基本手当(失業給付・最大150〜240日)</text>
+  <rect class="sv-chip-g" x="372" y="176" width="613" height="24" rx="12" opacity=".8"/>
+  <text class="sv-w" x="386" y="192">高年齢求職者給付金(一時金 30日 or 50日分)／年金と併給できる</text>
+  <rect class="sv-chip-w" x="110" y="206" width="525" height="8" rx="4" opacity=".85"/>
+  <text class="sv-ts" x="640" y="213">← 厚生年金に加入できるのは70歳まで</text>
+
+  <!-- lane 3 : health -->
+  <rect class="sv-chip-a" x="110" y="234" width="210" height="24" rx="12" opacity=".9"/>
+  <text class="sv-w" x="124" y="250">任意継続(退職から最大2年)</text>
+  <rect class="sv-chip-t" x="110" y="264" width="787" height="24" rx="12" opacity=".55"/>
+  <text class="sv-w" x="124" y="280" style="fill:var(--ink)">国民健康保険／家族の被扶養者／再就職先の健保</text>
+  <line class="sv-axis" x1="372" y1="292" x2="372" y2="300" stroke="var(--good)"/>
+  <text class="sv-ts" x="376" y="300" style="fill:var(--good);font-weight:700">65歳 介護保険 第1号(年金天引き)</text>
+  <rect class="sv-chip-d" x="897" y="234" width="88" height="54" rx="8" opacity=".92"/>
+  <text class="sv-w" x="905" y="253">75歳〜</text>
+  <text class="sv-w" x="905" y="268">後期高齢者</text>
+  <text class="sv-w" x="905" y="283">医療制度</text>
+  <text class="sv-ts" x="640" y="300">70歳〜 窓口負担 2割(現役並みは3割)</text>
+
+  <!-- lane 4 : tax -->
+  <rect class="sv-chip-d" x="110" y="322" width="105" height="24" rx="12" opacity=".92"/>
+  <text class="sv-w" x="120" y="338">住民税の重い年</text>
+  <text class="sv-ts" x="222" y="338">退職翌年は「前年の高い所得」に課税。手取り激減の最大要因</text>
+  <rect class="sv-chip-g" x="372" y="352" width="613" height="24" rx="12" opacity=".85"/>
+  <text class="sv-w" x="386" y="368">公的年金等控除が110万円に拡大(65歳〜)／年金からの特別徴収が始まる</text>
+  <rect class="sv-chip-a" x="110" y="352" width="262" height="24" rx="12" opacity=".8"/>
+  <text class="sv-w" x="124" y="368">国民年金の任意加入(480月に満たない人)</text>
+</svg>
+<figcaption><b>読み方:</b>横軸が年齢。4つのレーンは同時進行する。<b>60歳</b>で雇用保険の給付と繰上げ受給の選択肢が開き、<b>65歳</b>で年金・介護・税制が一斉に切り替わる。<b>70歳</b>で厚生年金の加入が終わり、<b>75歳</b>で繰下げの上限と後期高齢者医療が来る。図中の年金額・給付額は本ガイド第2〜7章の計算機で個別に算出できる。</figcaption>
+</figure>
+
+<h3>あなたの「年齢 × 西暦」カレンダー</h3>
+<p>プロフィールに入力した生年月から、節目の年齢が何年何月に来るかを自動計算します。手続きは「誕生日の3か月前」に案内が届くものが多いため、逆算して準備を始めてください。</p>
+<div class="calc">
+  <div class="calc-head"><span class="ico">▤</span><span>個人別・制度カレンダー</span><span class="tag">自動計算</span></div>
+  <div class="calc-body"><div id="out_calendar"></div></div>
+</div>
+
+<h3>60歳以降の「収入の柱」は4本ある</h3>
+<div class="grid2">
+  <div class="card">
+    <h4 style="margin-top:0"><span class="pill a">柱1</span> 給与</h4>
+    <p style="margin-bottom:0">再雇用・再就職・独立。<strong>額そのものより「社会保険に入るか」「年金と調整されるか」の影響が大きい</strong>。60歳以降の給与は在職老齢年金・高年齢雇用継続給付・健康保険の全部に効いてくる。</p>
+  </div>
+  <div class="card">
+    <h4 style="margin-top:0"><span class="pill g">柱2</span> 公的年金</h4>
+    <p style="margin-bottom:0">終身。受給開始年齢の選択(60〜75歳)が生涯収入を最も大きく動かす。<strong>繰下げは「増えた年金に税・社保もかかる」点まで見て判断</strong>する。</p>
+  </div>
+  <div class="card">
+    <h4 style="margin-top:0"><span class="pill w">柱3</span> 退職金・企業年金・DC</h4>
+    <p style="margin-bottom:0">一度きり。<strong>受け取り方(一時金/年金/併用)と受け取る年で手取りが数百万円変わる</strong>。iDeCoとの受給順序ルールが2026年1月に改正済み。</p>
+  </div>
+  <div class="card">
+    <h4 style="margin-top:0"><span class="pill d">柱4</span> 雇用保険の給付</h4>
+    <p style="margin-bottom:0">最大1〜2年。基本手当・高年齢求職者給付金・高年齢雇用継続給付。<strong>65歳の誕生日をまたぐタイミングで受け取れる額が変わる</strong>ため、退職日の設計が効く。</p>
+  </div>
+</div>
+
+<div class="note danger">
+  <span class="t">FPが最初に確認すべき3点</span>
+  <ol style="margin-bottom:0">
+    <li><b>ねんきん定期便(50歳以上)の「65歳時点の見込額」</b>を実額で押さえる。ここが全計算の起点。</li>
+    <li><b>退職金規程の支給額と、勤続年数・役員在任年数</b>。退職所得控除の計算に直結する。</li>
+    <li><b>退職の「日付」</b>。月末退職か月末前日退職か、65歳の誕生日の前か後かで、社会保険料1か月分・雇用保険の給付日数・在職定時改定が変わる。</li>
+  </ol>
+</div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+<div class="sec-head"><span class="sec-num">02</span><h2>公的年金の基本 ― 何が、いくら、いつから</h2></div>
+
+<figure>
+<svg viewBox="0 0 1000 300" role="img" aria-label="公的年金の3階建て構造">
+  <!-- 3rd floor -->
+  <rect class="sv-chip-g" x="140" y="26" width="330" height="56" rx="7" opacity=".9"/>
+  <text class="sv-w" x="160" y="49" style="font-size:12px">3階:私的年金</text>
+  <text class="sv-w" x="160" y="67" style="font-size:10px">iDeCo／企業型DC／確定給付企業年金／退職金</text>
+  <!-- 2nd floor -->
+  <rect class="sv-chip-a" x="140" y="90" width="500" height="66" rx="7" opacity=".92"/>
+  <text class="sv-w" x="160" y="114" style="font-size:12px">2階:老齢厚生年金(報酬比例部分)</text>
+  <text class="sv-w" x="160" y="132" style="font-size:10px">平均標準報酬額 × 給付乗率 × 加入月数。会社員だけが持つ部分</text>
+  <text class="sv-w" x="160" y="148" style="font-size:10px">＋ 経過的加算 ＋ 配偶者加給年金</text>
+  <!-- 1st floor -->
+  <rect class="sv-chip-t" x="140" y="164" width="740" height="62" rx="7" opacity=".9"/>
+  <text class="sv-w" x="160" y="188" style="font-size:12px">1階:老齢基礎年金(国民年金)</text>
+  <text class="sv-w" x="160" y="206" style="font-size:10px">満額 831,700円/年(令和7年度・67歳以下)× 保険料納付月数 ÷ 480月</text>
+  <text class="sv-w" x="160" y="221" style="font-size:10px">20歳〜60歳の40年(480月)がフルカウント。60歳以降は任意加入で埋められる</text>
+  <!-- ground -->
+  <line class="sv-axis" x1="120" y1="236" x2="900" y2="236"/>
+  <text class="sv-tb" x="120" y="256">会社員(第2号被保険者)</text>
+  <text class="sv-ts" x="660" y="256">自営業・専業主婦(夫)は1階のみ／3階のみ任意</text>
+  <!-- side labels -->
+  <text class="sv-ts" x="480" y="60">← ここは自分で作る部分</text>
+  <text class="sv-ts" x="652" y="128">← 在職老齢年金で調整されるのはココだけ</text>
+  <text class="sv-ts" x="892" y="199">← 繰上げ・繰下げは1階2階セットが原則</text>
+  <text class="sv-tb" x="14" y="130" style="font-size:12px">終身</text>
+  <text class="sv-ts" x="14" y="148">(死ぬまで)</text>
+  <text class="sv-tb" x="14" y="52" style="font-size:12px">有期</text>
+  <text class="sv-ts" x="14" y="70">(一時金/年金)</text>
+</svg>
+<figcaption><b>在職老齢年金で支給停止の対象になるのは2階の報酬比例部分だけ</b>。1階の基礎年金・経過的加算は、いくら稼いでも止まらない。逆に<b>加給年金は本体が全額止まると連動して止まる</b>。</figcaption>
+</figure>
+
+<h3>2-1. 特別支給の老齢厚生年金 ― 「もらい忘れ」の温床</h3>
+<p>65歳より前に受け取れる、生年月日で決まる経過措置の年金です。<strong>請求しないと支給されず、5年で時効消滅</strong>します。繰下げの対象外なので、対象者は必ず受け取ってください。</p>
+<div class="tbl-wrap">
+<table><caption>特別支給の老齢厚生年金(報酬比例部分)の支給開始年齢</caption>
+<thead><tr><th>男性の生年月日</th><th>女性(会社員)の生年月日</th><th class="num">支給開始年齢</th></tr></thead>
+<tbody>
+<tr><td>昭和28年4月2日〜昭和30年4月1日<br><span style="color:var(--muted)">1953.4.2〜1955.4.1</span></td><td>昭和33年4月2日〜昭和35年4月1日<br><span style="color:var(--muted)">1958.4.2〜1960.4.1</span></td><td class="num">61歳</td></tr>
+<tr><td>昭和30年4月2日〜昭和32年4月1日<br><span style="color:var(--muted)">1955.4.2〜1957.4.1</span></td><td>昭和35年4月2日〜昭和37年4月1日<br><span style="color:var(--muted)">1960.4.2〜1962.4.1</span></td><td class="num">62歳</td></tr>
+<tr><td>昭和32年4月2日〜昭和34年4月1日<br><span style="color:var(--muted)">1957.4.2〜1959.4.1</span></td><td>昭和37年4月2日〜昭和39年4月1日<br><span style="color:var(--muted)">1962.4.2〜1964.4.1</span></td><td class="num">63歳</td></tr>
+<tr><td>昭和34年4月2日〜昭和36年4月1日<br><span style="color:var(--muted)">1959.4.2〜1961.4.1</span></td><td>昭和39年4月2日〜昭和41年4月1日<br><span style="color:var(--muted)">1964.4.2〜1966.4.1</span></td><td class="num">64歳</td></tr>
+<tr><td><b>昭和36年4月2日以降</b><br><span style="color:var(--muted)">1961.4.2〜</span></td><td><b>昭和41年4月2日以降</b><br><span style="color:var(--muted)">1966.4.2〜</span></td><td class="num"><b>なし(65歳から)</b></td></tr>
+</tbody></table>
+</div>
+<div class="note warn"><span class="t">注意</span>厚生年金の加入期間が1年以上あることが要件です。女性は男性より5年遅れのスケジュール(第1号厚生年金被保険者=会社員の場合)。公務員(共済)の女性は男性と同じ表を使います。<b>あなたの該当有無は上の個人別カレンダーで自動判定しています。</b></div>
+
+<h3>2-2. 加給年金と振替加算 ― 「家族手当」は先に終わる</h3>
+<div class="grid2">
+<div class="card"><h4 style="margin-top:0">加給年金(本人に付く)</h4>
+<ul style="margin-bottom:0">
+<li>厚生年金の加入期間が<strong>20年以上</strong></li>
+<li>本人が65歳到達時、<strong>生計維持している65歳未満の配偶者</strong>がいる</li>
+<li>配偶者の年収が<strong>850万円未満</strong>(将来的にも)</li>
+<li>年額 約41.6万円(令和7年度・特別加算込み)</li>
+<li class="hl">配偶者が65歳になると打ち切り</li>
+</ul></div>
+<div class="card"><h4 style="margin-top:0">振替加算(配偶者に付く)</h4>
+<ul style="margin-bottom:0">
+<li>加給年金が終わると、配偶者の老齢基礎年金に上乗せ</li>
+<li>配偶者が<strong>昭和41年4月1日以前</strong>生まれであることが必要</li>
+<li class="hl">昭和41年4月2日以降生まれの配偶者には振替加算が付かない</li>
+<li>金額は配偶者の生年により逓減(数千円〜十数万円)</li>
+</ul></div>
+</div>
+<div class="note danger"><span class="t">繰下げとの致命的な相性</span>
+<b>老齢厚生年金を繰り下げている間、加給年金は支給されません(消滅し、後から遡って受け取ることもできません)。</b>配偶者が年下で加給年金の期間が長いケースでは、「基礎年金だけ繰下げ、厚生年金は65歳から受給」という<b>片方繰下げ</b>が有力な選択肢になります。第3章の計算機で加給年金の逸失額を確認してください。</div>
+
+<h3>2-3. 60歳以降も年金を「増やす」3つの手段</h3>
+<div class="calc">
+  <div class="calc-head"><span class="ico">▲</span><span>年金の増額シミュレーター(任意加入・厚生年金継続加入)</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>国民年金の納付済月数 <span class="u">月(最大480)</span></label><input type="number" id="c2_months" value="456" min="0" max="480"></div>
+      <div class="f"><label>60歳以降に任意加入する月数 <span class="u">月</span></label><input type="number" id="c2_ninI" value="24" min="0" max="60"></div>
+      <div class="f"><label>60歳以降に厚生年金へ加入する年数 <span class="u">年</span></label><input type="number" id="c2_koseiY" value="5" min="0" max="15"></div>
+      <div class="f"><label>その間の平均月収(標準報酬相当) <span class="u">万円</span></label><input type="number" id="c2_hoshu" value="30" step="0.5"></div>
+      <div class="f"><label>付加年金に加入する月数 <span class="u">月(任意加入者のみ)</span></label><input type="number" id="c2_fuka" value="0" min="0" max="60"></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_c2_kpi"></div><div class="breakdown" id="out_c2_bd"></div></div>
+  </div>
+</div>
+<div class="grid3">
+<div class="card"><h4 style="margin-top:0">① 国民年金の任意加入</h4><p style="margin-bottom:0">納付月数が480月に満たない人は<strong>60歳〜65歳に任意加入</strong>できる。1か月あたり年金は約1,733円/年増え、保険料は月約17,510円(令和7年度)。<strong>約10年で元が取れる</strong>。厚生年金に加入している間は不可。</p></div>
+<div class="card"><h4 style="margin-top:0">② 厚生年金に70歳まで加入</h4><p style="margin-bottom:0">再雇用で社会保険に入り続ければ、その分だけ報酬比例部分が増える。<strong>65歳以降は「在職定時改定」で毎年10月に年金額が改定</strong>され、増えた分がすぐ反映される(以前は退職まで反映されなかった)。</p></div>
+<div class="card"><h4 style="margin-top:0">③ 付加年金・国民年金基金</h4><p style="margin-bottom:0">任意加入中は<strong>付加保険料(月400円)</strong>を上乗せでき、「200円×納付月数」が終身で増える。<strong>2年で元が取れる</strong>最強のコスパ。ただし国民年金基金との併用は不可。</p></div>
+</div>
+
+<div class="note"><span class="t">見落としがちな請求先</span>
+企業年金連合会に眠る「<b>中途脱退者の年金</b>」が非常に多い。転職経験がある顧客には必ず<b>企業年金連合会の年金記録確認</b>を案内すること。また、厚生年金基金の代行部分・確定給付企業年金の移換分も同様。年金請求書の「他の年金制度の加入歴」欄は空欄にしない。</div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+<div class="sec-head"><span class="sec-num">03</span><h2>繰上げ・繰下げ ― 生涯収入を最も大きく動かす決断</h2></div>
+
+<div class="grid2">
+<div class="card"><h4 style="margin-top:0" ><span class="pill d">繰上げ</span> 60歳〜64歳11か月</h4>
+<ul style="margin-bottom:0">
+<li>減額率 <strong>1か月あたり 0.4%</strong>(昭和37年4月2日以降生まれ)<br><span style="color:var(--muted);font-size:12.5px">昭和37年4月1日以前生まれは 0.5%</span></li>
+<li>60歳0か月まで繰上げると <strong>−24%</strong>(旧率なら−30%)</li>
+<li class="hl">減額は一生続く。取り消し不可</li>
+<li><strong>基礎年金と厚生年金は同時にしか繰上げできない</strong></li>
+<li>障害年金・寡婦年金が受けられなくなる等の副作用あり</li>
+</ul></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill g">繰下げ</span> 66歳〜75歳</h4>
+<ul style="margin-bottom:0">
+<li>増額率 <strong>1か月あたり 0.7%</strong></li>
+<li>75歳まで繰り下げると <strong>+84%</strong></li>
+<li class="hl">基礎年金だけ／厚生年金だけの片方繰下げが可能</li>
+<li>繰下げ待機中に亡くなると、未支給年金は<strong>65歳から本来額での5年分まで</strong></li>
+<li>70歳以降に「繰下げせず一括請求」を選ぶと、<strong>直近5年分</strong>を本来額で受け取れる(特例的な繰下げみなし増額)</li>
+</ul></div>
+</div>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">◈</span><span>受給開始年齢シミュレーター(損益分岐点つき)</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>受給開始年齢 <span class="u">歳</span></label><input type="number" id="c3_startY" value="70" min="60" max="75"></div>
+      <div class="f"><label>受給開始月 <span class="u">(0〜11か月)</span></label><input type="number" id="c3_startM" value="0" min="0" max="11"></div>
+      <div class="f"><label>繰下げの対象</label><select id="c3_scope">
+        <option value="both">基礎＋厚生 まとめて</option>
+        <option value="kiso">基礎年金のみ(厚生は65歳から)</option>
+        <option value="kosei">厚生年金のみ(基礎は65歳から)</option>
+      </select></div>
+      <div class="f"><label>加給年金の受給期間 <span class="u">年(65歳〜配偶者65歳まで)</span></label><input type="number" id="c3_kakyuY" value="3" min="0" max="20" step="0.5"></div>
+      <div class="f"><label>比較する寿命 <span class="u">歳</span></label><input type="number" id="c3_life" value="90" min="66" max="105"></div>
+      <div class="f"><label>手取りベースで見る(税・社保の概算控除)</label><select id="c3_net"><option value="0">額面で比較</option><option value="1">手取り概算で比較</option></select></div>
+    </div>
+    <div class="out">
+      <div class="kpis" id="out_c3_kpi"></div>
+      <div id="out_c3_chart" style="margin-top:16px"></div>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>65歳から受給(基準)</span>
+        <span><i style="background:var(--terra)"></i>選択した受給開始</span>
+        <span><i style="background:var(--danger)"></i>損益分岐点</span>
+      </div>
+      <div class="breakdown" id="out_c3_bd"></div>
+    </div>
+  </div>
+</div>
+
+<h3>年齢別の増減率 早見表</h3>
+<div class="tbl-wrap">
+<table><caption>受給率(昭和37年4月2日以降生まれ・0.4%/月)と、あなたの年額</caption>
+<thead><tr><th class="num">開始年齢</th><th class="num">受給率</th><th class="num">年額(額面)</th><th class="num">65歳受給を追い越す年齢</th><th>コメント</th></tr></thead>
+<tbody id="out_c3_table"></tbody></table>
+</div>
+
+<div class="note danger"><span class="t">繰下げの「見えないコスト」4点</span>
+<ol style="margin-bottom:0">
+<li><b>加給年金が消える</b> ― 厚生年金を繰り下げている間は支給されない(年約41.6万円 × 待機年数)。</li>
+<li><b>税・社会保険料が増える</b> ― 額面が1.84倍になれば、所得税・住民税・国民健康保険料・介護保険料も増える。<b>手取りベースの増加率は額面の増加率より必ず小さい</b>。医療費の窓口負担が1割→2割→3割に上がる分岐も要注意。</li>
+<li><b>早世リスク</b> ― 待機中に死亡すると遺族は本来額の未支給年金(最大5年分)しか受け取れず、増額分は失われる。</li>
+<li><b>遺族厚生年金は増えない</b> ― 遺族厚生年金の計算は繰下げ前の本来額がベース。「妻に残す」目的なら繰下げは効かない。</li>
+</ol></div>
+<div class="note good"><span class="t">実務での落としどころ</span>
+<b>①65歳から受給しつつ、健康なら70歳まで働いて在職定時改定で増やす ②厚生年金は65歳から受け、基礎年金だけ繰り下げる ③加給年金が終わってから厚生年金を繰り下げる</b> ― この3パターンが最も再現性が高い。「全部75歳まで繰下げ」は、他に十分な資産があり、長寿家系で、かつ税・社保増を許容できる顧客に限る。</div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+<div class="sec-head"><span class="sec-num">04</span><h2>働きながら年金をもらう ― 在職老齢年金</h2></div>
+
+<p>60歳以降も厚生年金に加入して働くと、<strong>給与と老齢厚生年金(報酬比例部分)の合計が一定額を超えた分の半分が支給停止</strong>になります。令和7年度の基準額は<strong>月51万円</strong>です。</p>
+
+<figure>
+<svg viewBox="0 0 1000 250" role="img" aria-label="在職老齢年金の仕組み">
+  <text class="sv-tb" x="14" y="26">在職老齢年金の計算(月額ベース)</text>
+  <!-- formula bar -->
+  <rect class="sv-box" x="20" y="40" width="960" height="52" rx="8"/>
+  <text class="sv-t" x="40" y="62" style="font-size:12.5px;font-weight:700">支給停止額 =(<tspan style="fill:var(--accent)">基本月額</tspan> ＋ <tspan style="fill:var(--terra)">総報酬月額相当額</tspan> − <tspan style="fill:var(--danger)">51万円</tspan>)÷ 2</text>
+  <text class="sv-ts" x="40" y="80">基本月額 = 老齢厚生年金(報酬比例部分)の年額 ÷ 12 ／ 総報酬月額相当額 = 標準報酬月額 ＋ 直近1年の標準賞与額 ÷ 12</text>
+  <!-- case A -->
+  <text class="sv-tb" x="20" y="118">例A:合計が51万円以下 → 全額支給</text>
+  <rect class="sv-chip-a" x="20" y="126" width="150" height="26" rx="5" opacity=".9"/>
+  <text class="sv-w" x="34" y="144">年金 10万</text>
+  <rect class="sv-chip-t" x="172" y="126" width="330" height="26" rx="5" opacity=".9"/>
+  <text class="sv-w" x="186" y="144">給与(総報酬月額相当額) 30万</text>
+  <line x1="504" y1="116" x2="504" y2="162" stroke="var(--danger)" stroke-width="2" stroke-dasharray="4 3"/>
+  <text class="sv-ts" x="512" y="132" style="fill:var(--danger);font-weight:700">51万円ライン</text>
+  <text class="sv-ts" x="512" y="148">合計40万 → 支給停止なし</text>
+  <!-- case B -->
+  <text class="sv-tb" x="20" y="184">例B:合計が51万円超 → 超過分の半分が停止</text>
+  <rect class="sv-chip-a" x="20" y="192" width="150" height="26" rx="5" opacity=".35"/>
+  <rect class="sv-chip-a" x="20" y="192" width="80" height="26" rx="5" opacity=".9"/>
+  <text class="sv-w" x="30" y="210">支給 5.5万</text>
+  <text class="sv-ts" x="106" y="210" style="fill:var(--danger)">停止4.5万</text>
+  <rect class="sv-chip-t" x="172" y="192" width="440" height="26" rx="5" opacity=".9"/>
+  <text class="sv-w" x="186" y="210">給与(総報酬月額相当額) 50万</text>
+  <line x1="504" y1="182" x2="504" y2="228" stroke="var(--danger)" stroke-width="2" stroke-dasharray="4 3"/>
+  <text class="sv-ts" x="622" y="204">合計60万 →(60−51)÷2 = 4.5万円が毎月停止</text>
+  <text class="sv-ts" x="20" y="240">※ 老齢基礎年金・経過的加算は対象外(全額もらえる)。支給停止で本体が0になると加給年金も止まる。</text>
+</svg>
+<figcaption>停止されるのは<b>報酬比例部分のみ</b>。基礎年金は影響を受けない。停止された年金は<b>後から返ってこない(繰下げ待機と違い、増額もされない)</b>点が重要。</figcaption>
+</figure>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">⚖</span><span>在職老齢年金 支給停止シミュレーター</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>老齢厚生年金・報酬比例部分 <span class="u">万円/年</span></label><input type="number" id="c4_kosei" value="118" step="0.1"></div>
+      <div class="f"><label>標準報酬月額 <span class="u">万円</span></label><input type="number" id="c4_hoshu" value="30" step="0.5"></div>
+      <div class="f"><label>直近1年の賞与合計 <span class="u">万円</span></label><input type="number" id="c4_bonus" value="30" step="1"></div>
+      <div class="f"><label>支給停止調整額 <span class="u">万円/月</span></label><input type="number" id="c4_line" value="51" step="0.1"><div class="hint">令和7年度 51万円。毎年度改定</div></div>
+      <div class="f"><label>老齢基礎年金＋経過的加算 <span class="u">万円/年</span></label><input type="number" id="c4_kiso" value="81" step="0.1"></div>
+      <div class="f"><label>加給年金 <span class="u">万円/年</span></label><input type="number" id="c4_kakyu" value="41.5" step="0.1"></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_c4_kpi"></div><div id="out_c4_chart" style="margin-top:14px"></div><div class="breakdown" id="out_c4_bd"></div></div>
+  </div>
+</div>
+
+<h3>「いくらまでなら止まらないか」の逆算</h3>
+<div class="card" id="out_c4_reverse"></div>
+
+<div class="note warn"><span class="t">2026年4月からの引上げに注意</span>
+在職老齢年金の支給停止調整額は<b>令和8年(2026年)4月から62万円へ引き上げ</b>られる方向で法改正が進んでいます(令和7年年金制度改正)。適用時期・金額は必ず最新の情報で確認し、上の計算機の「支給停止調整額」欄を書き換えてください。<b>引上げによって、これまで停止されていた層が全額受給できるようになる</b>ため、再雇用時の給与設計の前提が変わります。</div>
+
+<div class="note"><span class="t">在職定時改定(65歳以降)</span>
+65歳以降も厚生年金に加入して働く場合、<b>毎年9月1日を基準日として、10月分から年金額が改定</b>されます。以前は退職するまで反映されませんでしたが、令和4年4月から働きながら毎年増えるようになりました。<b>70歳到達月で厚生年金の加入は終了</b>し、以後は保険料負担がなくなる一方、年金は増えません(在職老齢年金の支給停止判定は70歳以降も続きます)。</div>
+
+<div class="note danger"><span class="t">給与を下げると何が起きるか(トレードオフ)</span>
+再雇用で給与を下げると、①在職老齢年金の停止が減る ②高年齢雇用継続給付がもらえる ③社会保険料が下がる ― 一方で ④将来の厚生年金の増加が小さくなる ⑤傷病手当金・失業給付の基礎となる賃金も下がる。<b>「年金＋給与＋給付金」の合計手取りが最大になる給与水準</b>を第13章の統合試算で確認してください。</div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+<div class="sec-head"><span class="sec-num">05</span><h2>雇用保険をフル活用する ― 65歳の壁を設計する</h2></div>
+
+<figure>
+<svg viewBox="0 0 1000 300" role="img" aria-label="65歳前後で変わる雇用保険の給付">
+  <line class="sv-axis" x1="500" y1="20" x2="500" y2="284" stroke-dasharray="6 4" stroke="var(--danger)" stroke-width="2"/>
+  <text class="sv-tb" x="500" y="16" text-anchor="middle" style="fill:var(--danger)">65歳の誕生日の前日</text>
+  <text class="sv-tb" x="120" y="42">〜64歳で退職した場合</text>
+  <text class="sv-tb" x="620" y="42">65歳以降に退職した場合</text>
+
+  <rect class="sv-chip-a" x="40" y="56" width="440" height="70" rx="8" opacity=".92"/>
+  <text class="sv-w" x="58" y="80" style="font-size:12.5px">基本手当(失業給付)</text>
+  <text class="sv-w" x="58" y="98" style="font-size:10px">日額 × 給付日数(90〜240日)を分割で受給</text>
+  <text class="sv-w" x="58" y="114" style="font-size:10px">4週に1度の失業認定が必要。長く働いた人ほど日数が長い</text>
+
+  <rect class="sv-chip-g" x="520" y="56" width="440" height="70" rx="8" opacity=".92"/>
+  <text class="sv-w" x="538" y="80" style="font-size:12.5px">高年齢求職者給付金</text>
+  <text class="sv-w" x="538" y="98" style="font-size:10px">日額 × 30日分(被保険者期間1年未満)/ 50日分(1年以上)</text>
+  <text class="sv-w" x="538" y="114" style="font-size:10px">一時金で一括支給。何度でも受給できる</text>
+
+  <rect class="sv-chip-d" x="40" y="140" width="440" height="56" rx="8" opacity=".9"/>
+  <text class="sv-w" x="58" y="163" style="font-size:12px">特別支給の老齢厚生年金は全額支給停止</text>
+  <text class="sv-w" x="58" y="181" style="font-size:10px">基本手当と年金は同時に受け取れない(併給調整)</text>
+
+  <rect class="sv-chip-g" x="520" y="140" width="440" height="56" rx="8" opacity=".9"/>
+  <text class="sv-w" x="538" y="163" style="font-size:12px">老齢年金と全額併給できる</text>
+  <text class="sv-w" x="538" y="181" style="font-size:10px">年金は止まらない。ここが65歳以降の最大のメリット</text>
+
+  <rect class="sv-box" x="40" y="210" width="920" height="66" rx="8"/>
+  <text class="sv-tb" x="58" y="232">どちらが得か ― 「総額」対「年金との併給」</text>
+  <text class="sv-t" x="58" y="252" style="font-size:11px">給付日数は 64歳退職(最大150〜240日) ≫ 65歳以降(最大50日)。しかし64歳で受け取ると特別支給の老齢厚生年金が止まる。</text>
+  <text class="sv-t" x="58" y="268" style="font-size:11px">特別支給の年金がない世代(男性S36.4.2以降/女性S41.4.2以降)は、年金停止のデメリットがないため <tspan style="font-weight:700">64歳退職＋基本手当</tspan> が有利になりやすい。</text>
+</svg>
+<figcaption>退職日の設計が数十万円を左右する。<b>「65歳の誕生日の前々日」までに退職すれば64歳扱い</b>(年齢は誕生日の前日に加算されるため)。ただし65歳到達日以降まで在職すると高年齢求職者給付金＋年金の併給が可能。<b>どちらが有利かは下の計算機で比較</b>。</figcaption>
+</figure>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">◇</span><span>基本手当 vs 高年齢求職者給付金 比較</span><span class="tag">概算</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>離職前6か月の賃金月額(平均・賞与除く) <span class="u">万円</span></label><input type="number" id="c5_wage" value="35" step="0.5"></div>
+      <div class="f"><label>雇用保険の被保険者期間 <span class="u">年</span></label><input type="number" id="c5_years" value="38" min="0" max="55"></div>
+      <div class="f"><label>離職理由</label><select id="c5_reason"><option value="self">自己都合・定年退職(一般の受給資格者)</option><option value="comp">会社都合・雇止め(特定受給資格者等)</option></select></div>
+      <div class="f"><label>止まる年金(特別支給の老齢厚生年金) <span class="u">万円/年</span></label><input type="number" id="c5_pension" value="0" step="0.1"><div class="hint">64歳以下で受給中の場合のみ。なければ0</div></div>
+      <div class="f"><label>賃金日額の上限(60〜64歳) <span class="u">円</span></label><input type="number" id="c5_capW" value="16210" step="1"></div>
+      <div class="f"><label>基本手当日額の上限(60〜64歳) <span class="u">円</span></label><input type="number" id="c5_capD" value="7294" step="1"><div class="hint">毎年8月1日改定。要確認</div></div>
+      <div class="f"><label>基本手当日額の上限(65歳以上) <span class="u">円</span></label><input type="number" id="c5_capD65" value="7065" step="1"><div class="hint">65歳以上は賃金日額の区分が異なる。ハローワークで要確認</div></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_c5_kpi"></div><div class="breakdown" id="out_c5_bd"></div></div>
+  </div>
+</div>
+
+<h3>5-2. 高年齢雇用継続基本給付金 ― 賃金が75%未満に下がったとき</h3>
+<p>60歳到達時の賃金に比べ、60歳以後の賃金が<strong>75%未満</strong>に下がった場合、65歳になるまで賃金の一定割合が支給されます。<strong>非課税</strong>である点が大きな魅力です。</p>
+<div class="note danger"><span class="t">2025年4月からの縮小に注意</span>
+<b>2025年(令和7年)4月1日以降に60歳になる人は、最大給付率が15%→10%に引き下げ</b>られました(2030年度に廃止予定)。2025年3月31日までに60歳に達していた人は、経過措置で15%のままです。下の計算機は生年月日から自動判定します。</div>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">▼</span><span>高年齢雇用継続基本給付金 計算機</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>60歳到達時の賃金月額 <span class="u">万円</span></label><input type="number" id="c6_before" value="55" step="0.1"></div>
+      <div class="f"><label>60歳以後の賃金月額 <span class="u">万円</span></label><input type="number" id="c6_after" value="30" step="0.1"></div>
+      <div class="f"><label>最大給付率</label><select id="c6_rate"><option value="auto">生年月日から自動判定</option><option value="15">15%(2025年3月31日までに60歳)</option><option value="10">10%(2025年4月1日以降に60歳)</option></select></div>
+      <div class="f"><label>支給限度額 <span class="u">円/月</span></label><input type="number" id="c6_limit" value="375700" step="100"><div class="hint">毎年8月1日改定。要確認</div></div>
+      <div class="f"><label>最低限度額 <span class="u">円/月</span></label><input type="number" id="c6_min" value="2295" step="1"></div>
+      <div class="f"><label>受給予定月数 <span class="u">月(65歳まで)</span></label><input type="number" id="c6_months" value="60" min="0" max="60"></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_c6_kpi"></div><div id="out_c6_chart" style="margin-top:14px"></div><div class="breakdown" id="out_c6_bd"></div></div>
+  </div>
+</div>
+
+<div class="note warn"><span class="t">在職老齢年金との「二重の調整」</span>
+高年齢雇用継続給付を受けている間、<b>特別支給の老齢厚生年金は標準報酬月額の最大4%(給付率10%世代は最大2%)がさらに支給停止</b>されます。給付金をもらうと年金が減る、という関係です。65歳未満で年金を受給している人は、この分を差し引いて実質メリットを判断してください。</div>
+
+<div class="note good"><span class="t">実務ポイント:失業給付との選択</span>
+高年齢雇用継続給付と基本手当は<b>同時には受給できません</b>。「退職して基本手当をもらう」か「再雇用で働き続けて高年齢雇用継続給付をもらう」かの二者択一です。総額で比較すると、勤続20年以上・会社都合なら基本手当が有利、長期間(5年間)働き続けるなら高年齢雇用継続給付＋給与が有利になりやすい。</div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+<div class="sec-head"><span class="sec-num">06</span><h2>退職金と退職所得課税 ― 日本一優遇された所得</h2></div>
+
+<p>退職金は<strong>①退職所得控除を引き、②残りを1/2にし、③他の所得と分離して課税</strong>という三重の優遇を受けます。多くの会社員にとって<strong>生涯で最も税優遇の大きい受取</strong>であり、ここを間違えないことがFPの仕事の中核です。</p>
+
+<figure>
+<svg viewBox="0 0 1000 320" role="img" aria-label="退職所得控除額の勤続年数別グラフ">
+  <text class="sv-tb" x="14" y="20">退職所得控除額 ― 勤続20年で「傾き」が変わる</text>
+  <line class="sv-axis" x1="70" y1="270" x2="960" y2="270"/>
+  <line class="sv-axis" x1="70" y1="40" x2="70" y2="270"/>
+  <!-- y gridlines: 0,500,1000,1500,2000,2500万 -->
+  <g>
+    <line class="sv-grid" x1="70" y1="224" x2="960" y2="224"/><text class="sv-ax" x="62" y="228" text-anchor="end">500</text>
+    <line class="sv-grid" x1="70" y1="178" x2="960" y2="178"/><text class="sv-ax" x="62" y="182" text-anchor="end">1,000</text>
+    <line class="sv-grid" x1="70" y1="132" x2="960" y2="132"/><text class="sv-ax" x="62" y="136" text-anchor="end">1,500</text>
+    <line class="sv-grid" x1="70" y1="86"  x2="960" y2="86"/><text class="sv-ax" x="62" y="90" text-anchor="end">2,000</text>
+    <line class="sv-grid" x1="70" y1="40"  x2="960" y2="40"/><text class="sv-ax" x="62" y="44" text-anchor="end">2,500</text>
+    <text class="sv-ax" x="62" y="274" text-anchor="end">0</text>
+    <text class="sv-ts" x="14" y="34">万円</text>
+  </g>
+  <!-- x labels: 0..45 years, x=70 + y*19.7 -->
+  <g>
+    <text class="sv-ax" x="70" y="288" text-anchor="middle">0</text>
+    <text class="sv-ax" x="267" y="288" text-anchor="middle">10</text>
+    <text class="sv-axb" x="464" y="288" text-anchor="middle">20</text>
+    <text class="sv-ax" x="661" y="288" text-anchor="middle">30</text>
+    <text class="sv-ax" x="858" y="288" text-anchor="middle">40</text>
+    <text class="sv-ts" x="900" y="304">勤続年数(年)</text>
+  </g>
+  <!-- 40万/年 segment: 0→20年 (0→800万). y=270-(v/2500)*230 -->
+  <polyline points="70,270 464,196.4" fill="none" stroke="var(--accent)" stroke-width="3"/>
+  <!-- 70万/年 segment: 20→45年 (800→2550万) -->
+  <polyline points="464,196.4 956,35.4" fill="none" stroke="var(--terra)" stroke-width="3"/>
+  <line class="sv-grid" x1="464" y1="196.4" x2="464" y2="270" stroke-dasharray="4 3" stroke="var(--terra)"/>
+  <circle cx="464" cy="196.4" r="5" fill="var(--terra)"/>
+  <text class="sv-t" x="150" y="240" style="fill:var(--accent);font-weight:700">40万円 × 勤続年数</text>
+  <text class="sv-t" x="150" y="256" style="fill:var(--accent)">(最低80万円)</text>
+  <text class="sv-t" x="600" y="120" style="fill:var(--terra);font-weight:700">800万円 ＋ 70万円 ×(勤続年数 − 20年)</text>
+  <text class="sv-ts" x="474" y="212" style="fill:var(--terra);font-weight:700">20年で800万円</text>
+  <!-- markers -->
+  <circle cx="825" cy="72.1" r="4.5" fill="var(--good)"/>
+  <text class="sv-ts" x="700" y="66" style="fill:var(--good);font-weight:700">勤続38年 → 控除2,060万円</text>
+  <text class="sv-ts" x="80" y="60">※勤続年数は1年未満切上げ。1日でも超えれば1年加算 → 退職日を1日ずらすと控除が70万円増えることがある</text>
+</svg>
+<figcaption><b>勤続20年を境に、控除の増え方が年40万円→年70万円に跳ね上がる</b>。また勤続年数は「1年未満切上げ」なので、たとえば勤続37年1か月なら38年としてカウントされる。<b>退職日を月末に1日ずらすだけで控除が70万円増えるケースがある</b>ため、必ず入社日と退職予定日を確認すること。</figcaption>
+</figure>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">¥</span><span>退職金の手取り計算機(所得税・復興特別所得税・住民税)</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>退職一時金 <span class="u">万円</span></label><input type="number" id="c7_amount" value="2000" step="10"></div>
+      <div class="f"><label>勤続年数 <span class="u">年(1年未満切上げ後)</span></label><input type="number" id="c7_years" value="38" min="1" max="55"></div>
+      <div class="f"><label>退職の事由</label><select id="c7_type">
+        <option value="normal">通常の退職・定年</option>
+        <option value="disability">障害者になったことによる退職(+100万円)</option>
+      </select></div>
+      <div class="f"><label>身分</label><select id="c7_role">
+        <option value="emp">従業員</option>
+        <option value="exec">役員等(役員としての勤続5年以下)</option>
+      </select></div>
+      <div class="f"><label>「退職所得の受給に関する申告書」</label><select id="c7_decl">
+        <option value="1">会社に提出した(通常)</option>
+        <option value="0">提出しなかった</option>
+      </select><div class="hint">未提出だと一律20.42%が源泉徴収される</div></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_c7_kpi"></div><div class="breakdown" id="out_c7_bd"></div></div>
+  </div>
+</div>
+
+<h3>6-1. 押さえるべき5つのルール</h3>
+<div class="tbl-wrap">
+<table><thead><tr><th style="width:180px">ルール</th><th>内容と実務上の意味</th></tr></thead>
+<tbody>
+<tr><td><b>1年未満切上げ</b></td><td>勤続年数に1日でも端数があれば1年に切り上げる。勤続20年0か月と20年1日では控除が70万円違う。<b>退職日の設定は必ず検証する</b>。</td></tr>
+<tr><td><b>1/2課税</b></td><td>(退職金−控除)×1/2 が課税退職所得。ただし<b>役員等で役員在任5年以下</b>の場合は1/2の適用なし。<b>従業員でも勤続5年以下(短期退職手当等)は、控除後300万円を超える部分に1/2の適用なし</b>。</td></tr>
+<tr><td><b>分離課税</b></td><td>給与・年金・不動産所得などと合算されない。<b>退職した年に他の所得がいくらあっても退職金の税額は変わらない</b>。逆に、退職所得は国保料・介護保険料・高額療養費の判定にも原則影響しない。</td></tr>
+<tr><td><b>申告書の提出</b></td><td>「退職所得の受給に関する申告書」を会社へ提出すれば、適正額が源泉徴収されて<b>原則確定申告不要</b>。未提出だと収入金額の<b>20.42%</b>が源泉徴収され、取り戻すには確定申告が必要。</td></tr>
+<tr><td><b>住民税は分離10%</b></td><td>課税退職所得 × 10%(市町村6%＋道府県4%)を退職時に特別徴収。<b>翌年の住民税には乗ってこない</b>。</td></tr>
+</tbody></table>
+</div>
+
+<div class="note good"><span class="t">退職金を確定申告すると得をするケース</span>
+退職所得は原則申告不要ですが、<b>①その年の所得が少なく、所得控除(基礎控除・社会保険料控除・医療費控除・生命保険料控除など)が引ききれない場合</b>、退職所得を申告に含めることで<b>控除の余りを退職所得にぶつけて還付を受けられる</b>ことがあります。年の途中で退職して給与が少ない年は、必ず試算してください。<br>ただし退職所得を申告に含めると<b>合計所得金額が増え、配偶者控除・扶養控除の判定や国保料に影響する場合がある</b>ため、世帯単位で有利不利を確認します。</div>
+
+<div class="note danger"><span class="t">退職金を年金形式(企業年金)で受け取る場合</span>
+確定給付企業年金などを<b>年金形式で受け取ると「雑所得(公的年金等)」</b>になり、退職所得控除ではなく<b>公的年金等控除</b>が適用され、さらに<b>国民健康保険料・介護保険料の算定対象になります</b>。一時金なら分離課税で社会保険料に響かない。<b>総額の額面だけで比較せず、税＋社会保険料の合計で比較</b>してください。第10章の計算機で年金形式にした場合の負担増を確認できます。</div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+<div class="sec-head"><span class="sec-num">07</span><h2>iDeCo・企業型DCの出口戦略 ― 「受け取る順番と年」で数百万円変わる</h2></div>
+
+<p>DC(確定拠出年金)の老齢給付金は、<strong>一時金なら退職所得、年金なら雑所得(公的年金等)</strong>。退職金と同じ年・近い年に一時金で受け取ると<strong>退職所得控除が重複調整され、控除が使えなくなる</strong>のが最大の論点です。</p>
+
+<figure>
+<svg viewBox="0 0 1000 330" role="img" aria-label="退職金とDC一時金の受給順序ルール">
+  <text class="sv-tb" x="14" y="20">退職所得控除の「重複調整ルール」 ― 何年空ければ控除をフルに使えるか</text>
+
+  <!-- Pattern A -->
+  <text class="sv-tb" x="14" y="52">A. DC一時金を先に受け取り → その後に会社の退職金</text>
+  <rect class="sv-chip-g" x="30" y="62" width="120" height="30" rx="6" opacity=".92"/>
+  <text class="sv-w" x="44" y="82">DC一時金</text>
+  <line class="sv-axis" x1="150" y1="77" x2="700" y2="77" stroke-dasharray="5 4"/>
+  <rect class="sv-chip-a" x="700" y="62" width="120" height="30" rx="6" opacity=".92"/>
+  <text class="sv-w" x="720" y="82">退職金</text>
+  <text class="sv-t" x="300" y="70" style="font-weight:700;fill:var(--danger)">10年超 空ければ 退職所得控除をフルに使える</text>
+  <text class="sv-ts" x="300" y="106">2026年1月1日以後の支払分から「前年以前9年内」に判定期間が拡大(改正前は4年内=通称5年ルール)</text>
+  <text class="sv-ts" x="838" y="82">← 例:60歳でDC、71歳で退職金</text>
+
+  <!-- Pattern B -->
+  <text class="sv-tb" x="14" y="144">B. 会社の退職金を先に受け取り → その後にDC一時金</text>
+  <rect class="sv-chip-a" x="30" y="154" width="120" height="30" rx="6" opacity=".92"/>
+  <text class="sv-w" x="50" y="174">退職金</text>
+  <line class="sv-axis" x1="150" y1="169" x2="700" y2="169" stroke-dasharray="5 4"/>
+  <rect class="sv-chip-g" x="700" y="154" width="120" height="30" rx="6" opacity=".92"/>
+  <text class="sv-w" x="714" y="174">DC一時金</text>
+  <text class="sv-t" x="300" y="162" style="font-weight:700;fill:var(--danger)">20年超 空けないと 控除が重複調整される</text>
+  <text class="sv-ts" x="300" y="198">「前年以前19年内」に他の退職手当等があると調整対象。60歳退職→75歳DC受取でも調整が入る</text>
+
+  <!-- Pattern C -->
+  <text class="sv-tb" x="14" y="236">C. 同じ年に両方を受け取る</text>
+  <rect class="sv-chip-a" x="30" y="246" width="120" height="30" rx="6" opacity=".92"/>
+  <text class="sv-w" x="50" y="266">退職金</text>
+  <rect class="sv-chip-g" x="152" y="246" width="120" height="30" rx="6" opacity=".92"/>
+  <text class="sv-w" x="166" y="266">DC一時金</text>
+  <text class="sv-t" x="300" y="256" style="font-weight:700">合算して1つの退職所得として計算。</text>
+  <text class="sv-ts" x="300" y="274">控除年数は「重複しない期間を通算」した年数。勤続38年・DC15年が全部重なるなら控除は38年分のみ。</text>
+  <rect class="sv-box" x="30" y="292" width="930" height="30" rx="6"/>
+  <text class="sv-ts" x="46" y="312">実務の結論:<tspan style="font-weight:700;fill:var(--accent)">「DCを先に(60〜64歳で)一時金受取 → 10年超空けて退職金」は現実的でないケースが多い。</tspan>その場合は <tspan style="font-weight:700">DCを年金形式で分割受取</tspan> または <tspan style="font-weight:700">同年に合算して受け取り、控除超過分だけ課税を受ける</tspan> のいずれかを比較する。</text>
+</svg>
+<figcaption>2025年度税制改正により、<b>2026年1月1日以後に支払われる退職手当等について「5年ルール」が「10年ルール」に</b>変更された。60歳でDCを一時金受取し、65歳で退職金 ― という従来の定番プランは<b>もう控除をフルに使えない</b>点が最重要の変更。</figcaption>
+</figure>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">◎</span><span>DC出口シミュレーター(4パターン同時比較)</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>会社の退職一時金 <span class="u">万円</span></label><input type="number" id="c8_tai" value="2000" step="10"></div>
+      <div class="f"><label>勤続年数 <span class="u">年</span></label><input type="number" id="c8_taiY" value="38" min="1" max="55"></div>
+      <div class="f"><label>DC(iDeCo/企業型)残高 <span class="u">万円</span></label><input type="number" id="c8_dc" value="600" step="10"></div>
+      <div class="f"><label>DC加入年数 <span class="u">年</span></label><input type="number" id="c8_dcY" value="15" min="1" max="50"></div>
+      <div class="f"><label>勤続期間とDC加入期間の重複年数 <span class="u">年</span></label><input type="number" id="c8_overlap" value="15" min="0" max="50"><div class="hint">企業型DCなら通常＝DC加入年数</div></div>
+      <div class="f"><label>DCを年金で受け取る場合の年数 <span class="u">年</span></label><input type="number" id="c8_nenY" value="10" min="5" max="20"></div>
+      <div class="f"><label>年金受取時の他の公的年金等収入 <span class="u">万円/年</span></label><input type="number" id="c8_otherPen" value="200" step="1"></div>
+      <div class="f"><label>年金受取時の年齢</label><select id="c8_age"><option value="65">65歳以上</option><option value="60">65歳未満</option></select></div>
+    </div>
+    <div class="out"><div id="out_c8_table"></div><div class="breakdown" id="out_c8_bd" style="margin-top:12px"></div></div>
+  </div>
+</div>
+
+<h3>7-1. 受け取り方の選択肢と課税の違い</h3>
+<div class="tbl-wrap">
+<table><thead><tr><th>受取方法</th><th>所得区分</th><th>使える控除</th><th>社会保険料への影響</th><th>受給可能年齢</th></tr></thead>
+<tbody>
+<tr><td><b>一時金</b>(一括)</td><td>退職所得(分離課税)</td><td>退職所得控除＋1/2</td><td class="pill g" style="display:table-cell">原則なし</td><td>60〜75歳の間で選択</td></tr>
+<tr><td><b>年金</b>(分割)</td><td>雑所得(公的年金等)</td><td>公的年金等控除</td><td class="pill d" style="display:table-cell">国保料・介護保険料の算定対象</td><td>5〜20年の有期など規約による</td></tr>
+<tr><td><b>併用</b>(一部一時金＋残り年金)</td><td>両方</td><td>両方(按分)</td><td>年金部分のみ対象</td><td>規約が認めている場合のみ</td></tr>
+</tbody></table>
+</div>
+
+<div class="note warn"><span class="t">受給開始年齢の上限は75歳</span>
+DCの老齢給付金は<b>60歳〜75歳の間に受給を開始</b>しなければなりません(2022年4月の改正で70歳→75歳に延長)。75歳までに請求しないと、一括で支給され、税制上不利になるおそれがあります。また、<b>60歳時点で通算加入者等期間が10年未満の場合、受給開始可能年齢が61〜65歳に後ろ倒し</b>になります。</div>
+
+<div class="note"><span class="t">口座管理手数料という見えないコスト</span>
+DCを年金形式で長期間受け取る場合、<b>給付の都度440円程度の振込手数料＋口座管理手数料(月66円程度)</b>がかかり続けます。10年・年4回受取なら手数料だけで数万円。<b>年金形式の税メリットが手数料を上回るか</b>を確認してください。</div>
+
+<div class="note good"><span class="t">「iDeCo加入の出口」実務チェック</span>
+<ol style="margin-bottom:0">
+<li>企業型DCの<b>資格喪失(退職)から6か月以内</b>にiDeCoへ移換手続きを。放置すると国民年金基金連合会に自動移換され、運用されず手数料だけ引かれ続ける。</li>
+<li>60歳以降もiDeCoに<b>掛金を拠出できるのは国民年金被保険者である間</b>(会社員として厚生年金加入中なら65歳まで可)。</li>
+<li>退職金の受取年が決まったら、<b>DCの受取年を逆算</b>して設計する。DCは受給開始時期を自分で選べる数少ないカード。</li>
+</ol></div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+<div class="sec-head"><span class="sec-num">08</span><h2>退職後の健康保険 ― 4択を必ず比較する</h2></div>
+
+<p>退職の翌日から健康保険が変わります。選択肢は4つ。<strong>保険料が年間で数十万円変わることがあり、しかも任意継続は原則「退職から20日以内」に申請しないと選べません</strong>。</p>
+
+<figure>
+<svg viewBox="0 0 1000 360" role="img" aria-label="退職後の健康保険 選択フローチャート">
+  <rect class="sv-chip-t" x="380" y="14" width="240" height="34" rx="8" opacity=".92"/>
+  <text class="sv-w" x="400" y="36" style="font-size:12px">退職(健康保険の資格喪失)</text>
+  <line class="sv-axis" x1="500" y1="48" x2="500" y2="70"/>
+
+  <rect class="sv-box" x="330" y="70" width="340" height="34" rx="8"/>
+  <text class="sv-tb" x="350" y="92">すぐ再就職する?(社会保険のある勤務先)</text>
+  <line class="sv-axis" x1="330" y1="87" x2="180" y2="87"/><line class="sv-axis" x1="180" y1="87" x2="180" y2="122"/>
+  <text class="sv-ts" x="240" y="82" style="fill:var(--good);font-weight:700">YES</text>
+  <rect class="sv-chip-g" x="60" y="122" width="240" height="52" rx="8" opacity=".92"/>
+  <text class="sv-w" x="78" y="143" style="font-size:12px">① 再就職先の健康保険</text>
+  <text class="sv-w" x="78" y="160" style="font-size:10px">労使折半。最も有利なことが多い</text>
+
+  <line class="sv-axis" x1="500" y1="104" x2="500" y2="126"/>
+  <text class="sv-ts" x="510" y="118" style="fill:var(--danger);font-weight:700">NO</text>
+  <rect class="sv-box" x="310" y="126" width="380" height="48" rx="8"/>
+  <text class="sv-tb" x="330" y="147">配偶者・子の健康保険の被扶養者になれる?</text>
+  <text class="sv-ts" x="330" y="164">年収180万円未満(60歳以上)かつ被保険者の年収の1/2未満</text>
+  <line class="sv-axis" x1="690" y1="150" x2="830" y2="150"/><line class="sv-axis" x1="830" y1="150" x2="830" y2="186"/>
+  <text class="sv-ts" x="740" y="144" style="fill:var(--good);font-weight:700">YES</text>
+  <rect class="sv-chip-g" x="700" y="186" width="260" height="52" rx="8" opacity=".92"/>
+  <text class="sv-w" x="718" y="207" style="font-size:12px">② 家族の被扶養者</text>
+  <text class="sv-w" x="718" y="224" style="font-size:10px">保険料 0円。最優先で検討する</text>
+
+  <line class="sv-axis" x1="500" y1="174" x2="500" y2="196"/>
+  <text class="sv-ts" x="510" y="188" style="fill:var(--danger);font-weight:700">NO</text>
+  <rect class="sv-box" x="290" y="196" width="420" height="48" rx="8"/>
+  <text class="sv-tb" x="310" y="217">任意継続と国民健康保険を「実額で」比較する</text>
+  <text class="sv-ts" x="310" y="234">任意継続の申請期限は退職日の翌日から20日以内(厳守)</text>
+  <line class="sv-axis" x1="400" y1="244" x2="400" y2="266"/><line class="sv-axis" x1="600" y1="244" x2="600" y2="266"/>
+
+  <rect class="sv-chip-a" x="220" y="266" width="330" height="76" rx="8" opacity=".92"/>
+  <text class="sv-w" x="240" y="288" style="font-size:12px">③ 任意継続被保険者(最大2年)</text>
+  <text class="sv-w" x="240" y="305" style="font-size:10px">保険料 = 標準報酬月額 × 料率(全額自己負担)</text>
+  <text class="sv-w" x="240" y="320" style="font-size:10px">標準報酬月額の上限あり(協会けんぽ30万円)</text>
+  <text class="sv-w" x="240" y="335" style="font-size:10px">扶養家族を保険料負担なしで入れられる</text>
+
+  <rect class="sv-chip-w" x="570" y="266" width="330" height="76" rx="8" opacity=".92"/>
+  <text class="sv-w" x="590" y="288" style="font-size:12px">④ 国民健康保険</text>
+  <text class="sv-w" x="590" y="305" style="font-size:10px">前年の所得を基に自治体が計算。初年度は高くなりがち</text>
+  <text class="sv-w" x="590" y="320" style="font-size:10px">扶養の概念がなく、世帯全員分の均等割がかかる</text>
+  <text class="sv-w" x="590" y="335" style="font-size:10px">非自発的失業者は所得を30%とみなす軽減あり</text>
+</svg>
+<figcaption><b>順番に潰していくのが定石</b>。②の被扶養者は保険料ゼロなので最優先。③④の比較は必ず実額で。<b>非自発的失業(会社都合)の場合、国保に「前年給与所得を30/100とみなす」軽減措置があり、これで国保が一気に有利になる</b>ことがある。</figcaption>
+</figure>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">✚</span><span>健康保険 4択 比較計算機(年額)</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <fieldset><legend>共通</legend>
+    <div class="fields">
+      <div class="f"><label>退職時の標準報酬月額 <span class="u">万円</span></label><input type="number" id="c9_hoshu" value="55" step="1"></div>
+      <div class="f"><label>前年の給与収入 <span class="u">万円</span></label><input type="number" id="c9_prevInc" value="780" step="10"></div>
+      <div class="f"><label>退職後の年金・その他収入 <span class="u">万円/年</span></label><input type="number" id="c9_newInc" value="0" step="10"></div>
+      <div class="f"><label>年齢</label><select id="c9_age"><option value="40">40〜64歳(介護保険第2号)</option><option value="65">65〜74歳(介護保険は別途)</option></select></div>
+      <div class="f"><label>被扶養者の人数 <span class="u">人</span></label><input type="number" id="c9_dep" value="1" min="0" max="8"></div>
+      <div class="f"><label>離職理由</label><select id="c9_reason"><option value="self">自己都合・定年</option><option value="comp">会社都合・非自発的失業(国保軽減対象)</option></select></div>
+    </div></fieldset>
+    <fieldset><legend>任意継続(協会けんぽ想定)</legend>
+    <div class="fields">
+      <div class="f"><label>健康保険料率 <span class="u">%</span></label><input type="number" id="c9_rate" value="10.02" step="0.01"></div>
+      <div class="f"><label>介護保険料率 <span class="u">%(40〜64歳)</span></label><input type="number" id="c9_kaigo" value="1.59" step="0.01"></div>
+      <div class="f"><label>標準報酬月額の上限 <span class="u">万円</span></label><input type="number" id="c9_cap" value="30" step="1"><div class="hint">協会けんぽ30万円。健保組合は異なる</div></div>
+    </div></fieldset>
+    <fieldset><legend>国民健康保険(お住まいの自治体の料率を市区町村サイトから転記)</legend>
+    <div class="fields">
+      <div class="f"><label>医療分 所得割 <span class="u">%</span></label><input type="number" id="c9_i1" value="7.71" step="0.01"></div>
+      <div class="f"><label>医療分 均等割 <span class="u">円/人</span></label><input type="number" id="c9_e1" value="49100" step="100"></div>
+      <div class="f"><label>後期支援分 所得割 <span class="u">%</span></label><input type="number" id="c9_i2" value="2.69" step="0.01"></div>
+      <div class="f"><label>後期支援分 均等割 <span class="u">円/人</span></label><input type="number" id="c9_e2" value="16500" step="100"></div>
+      <div class="f"><label>介護分 所得割 <span class="u">%(40〜64歳)</span></label><input type="number" id="c9_i3" value="2.25" step="0.01"></div>
+      <div class="f"><label>介護分 均等割 <span class="u">円/人</span></label><input type="number" id="c9_e3" value="16500" step="100"></div>
+    </div></fieldset>
+    <div class="out"><div id="out_c9_table"></div><div class="breakdown" id="out_c9_bd" style="margin-top:12px"></div></div>
+  </div>
+</div>
+
+<div class="note danger"><span class="t">任意継続の3つの実務ポイント</span>
+<ol style="margin-bottom:0">
+<li><b>申請期限は退職日の翌日から20日以内。</b>1日でも過ぎると選べない。退職前に必ず案内する。</li>
+<li><b>2年目は要注意。</b>1年目は前年の高い所得で国保が高く任意継続が有利でも、2年目は国保の所得割が下がり逆転することが多い。<b>令和4年1月から本人の申出で任意継続をいつでも脱退できる</b>ようになったので、「1年目は任意継続 → 2年目に国保へ切替」が定番。</li>
+<li><b>保険料の納付期限を1日でも過ぎると資格喪失</b>(納め忘れによる強制脱退)。口座振替を必ず設定する。</li>
+</ol></div>
+
+<div class="note good"><span class="t">被扶養者になれるかの判定(60歳以上)</span>
+年間収入が<b>180万円未満</b>(60歳未満は130万円未満)、かつ<b>同居なら被保険者の収入の1/2未満</b>(別居なら仕送り額未満)。<b>ここでいう年間収入には公的年金・失業給付・傷病手当金が含まれます</b>(所得税の扶養と基準が違う点に注意)。基本手当の日額が5,000円程度を超えると受給期間中は扶養から外れることが多い。年金月15万円なら年180万円で判定はぎりぎりアウト。<b>「基本手当の受給が終わってから扶養に入る」という時間差の作戦</b>も有効。</div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s9">
+<div class="sec-head"><span class="sec-num">09</span><h2>介護保険・高額療養費・75歳の壁</h2></div>
+
+<h3>9-1. 介護保険 ― 65歳で「天引き」に変わる</h3>
+<div class="grid2">
+<div class="card"><h4 style="margin-top:0">40〜64歳(第2号被保険者)</h4>
+<ul style="margin-bottom:0"><li>健康保険料と<strong>セットで徴収</strong>(在職中は労使折半)</li><li>任意継続では<strong>全額自己負担</strong></li><li>国保では「介護分」として上乗せ</li><li>給付は<strong>特定16疾病</strong>に限られる</li></ul></div>
+<div class="card"><h4 style="margin-top:0">65歳〜(第1号被保険者)</h4>
+<ul style="margin-bottom:0"><li>健康保険とは<strong>別建て</strong>で自治体が賦課</li><li>年金年額18万円以上なら<strong>年金から特別徴収(天引き)</strong></li><li>所得段階別の定額(標準9〜13段階、自治体で異なる)</li><li>原因を問わず要介護認定で給付</li></ul></div>
+</div>
+<div class="note warn"><span class="t">65歳到達年の「二重取り」に見える現象</span>
+65歳になった月から第1号の保険料が始まりますが、<b>健康保険側の介護保険料(第2号)は65歳到達月の前月分まで</b>。切替時期のズレで一時的に二重に払っているように見えることがありますが、期間は重複していません。<b>ただし退職と65歳到達が重なると、健保・国保・介護の請求が同時に来て資金繰りが厳しくなる</b>ので、事前に伝えておくこと。</div>
+
+<h3>9-2. 高額療養費 ― 医療費の上限を知っておく</h3>
+<div class="calc">
+  <div class="calc-head"><span class="ico">✛</span><span>高額療養費 自己負担限度額 計算機</span><span class="tag">1か月・同一医療機関</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>年齢区分</label><select id="ca_age"><option value="u70">70歳未満</option><option value="o70">70歳以上</option></select></div>
+      <div class="f"><label>所得区分</label><select id="ca_cls"></select></div>
+      <div class="f"><label>1か月の医療費(10割・総額) <span class="u">万円</span></label><input type="number" id="ca_cost" value="100" step="1"></div>
+      <div class="f"><label>直近12か月の該当回数</label><select id="ca_multi"><option value="0">3回目まで</option><option value="1">4回目以降(多数回該当)</option></select></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_ca_kpi"></div><div class="breakdown" id="out_ca_bd"></div></div>
+  </div>
+</div>
+<div class="note"><span class="t">押さえておく周辺論点</span>
+<ul style="margin-bottom:0">
+<li><b>限度額適用認定証／マイナ保険証</b>を使えば窓口で限度額までの支払いで済む(後から払い戻す手間が不要)。</li>
+<li><b>世帯合算</b> ― 同一世帯・同一の医療保険で21,000円以上の自己負担が複数あれば合算できる(70歳以上は金額制限なく合算)。</li>
+<li><b>多数回該当</b> ― 直近12か月に3回以上該当すると4回目から上限が下がる。<b>任意継続から国保へ変わると回数はリセット</b>される点に注意。</li>
+<li><b>高額介護合算療養費</b> ― 医療と介護の自己負担を年間で合算し、上限を超えた分が戻る制度。申請しないともらえない。</li>
+<li>差額ベッド代・食事代・先進医療は<b>対象外</b>。医療保険での備えを検討する根拠になる。</li>
+</ul></div>
+
+<h3>9-3. 70歳・75歳で変わること</h3>
+<div class="tbl-wrap">
+<table><thead><tr><th class="num">年齢</th><th>変わること</th><th>実務上の注意</th></tr></thead>
+<tbody>
+<tr><td class="num"><b>70歳</b></td><td>医療費の窓口負担が<b>2割</b>(現役並み所得者は3割)。厚生年金の加入が終了(保険料負担なし)。</td><td>「高齢受給者証」が届く。厚生年金の資格喪失届が必要。在職老齢年金の支給停止は70歳以降も続く。</td></tr>
+<tr><td class="num"><b>75歳</b></td><td>全員が<b>後期高齢者医療制度</b>へ自動移行。窓口負担は<b>1割</b>(一定以上所得者2割・現役並み3割)。保険料は<b>個人単位</b>で年金天引き。</td><td>それまでの健保・国保・被扶養者の資格は自動的に喪失。<b>被扶養者だった配偶者が75歳未満なら、その人は国保に単独加入することになり新たな保険料が発生する</b>。</td></tr>
+<tr><td class="num"><b>75歳</b></td><td>年金の<b>繰下げ受給の上限</b>。DCの受給開始期限。</td><td>75歳までに請求しないと繰下げ増額が頭打ち。請求忘れは時効(5年)のリスク。</td></tr>
+</tbody></table>
+</div>
+<div class="note danger"><span class="t">見落とし多発:配偶者の「75歳ショック」</span>
+夫が75歳で後期高齢者医療に移ると、<b>夫の健康保険の被扶養者だった妻(75歳未満)は同時に資格を失い、自分で国民健康保険に入る</b>ことになります。それまで保険料ゼロだった妻に、年間十数万円の国保料が新たに発生します。<b>75歳到達の2年前には必ずキャッシュフローに織り込んでおくこと。</b></div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s10">
+<div class="sec-head"><span class="sec-num">10</span><h2>退職後の所得税・住民税 ― 「翌年ショック」を先に見せる</h2></div>
+
+<div class="note danger"><span class="t">退職後1年目が最も苦しい理由</span>
+<b>住民税は前年の所得に対して翌年6月〜翌々年5月に課税されます。</b>収入が年金だけになった年に、現役時代の高い所得に対する住民税の請求が来る ― これが「翌年ショック」。さらに国民健康保険料も前年所得ベースなので同時に高額になります。<b>退職金の一部を「翌年の税・社保用」として別口座に確保しておくよう必ず助言</b>してください。</div>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">▦</span><span>住民税・国保料の「翌年ショック」試算</span><span class="tag">概算</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>退職した年の給与収入 <span class="u">万円</span></label><input type="number" id="cb_prevSal" value="500" step="10"></div>
+      <div class="f"><label>退職翌年の年金収入 <span class="u">万円</span></label><input type="number" id="cb_pen" value="200" step="10"></div>
+      <div class="f"><label>退職翌年の給与収入 <span class="u">万円</span></label><input type="number" id="cb_sal" value="0" step="10"></div>
+      <div class="f"><label>その年の社会保険料控除 <span class="u">万円</span></label><input type="number" id="cb_shaho" value="30" step="1"></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_cb_kpi"></div><div class="breakdown" id="out_cb_bd"></div></div>
+  </div>
+</div>
+
+<div class="note warn"><span class="t">退職時の住民税「一括徴収」の扱い</span>
+<ul style="margin-bottom:0">
+<li><b>1月1日〜5月31日に退職</b> → 5月分までの残額を<b>最後の給与・退職金から強制的に一括徴収</b>。手取りが大きく減る。</li>
+<li><b>6月1日〜12月31日に退職</b> → 一括徴収か普通徴収(自分で納付)を<b>選択できる</b>。退職金から一括徴収してもらうと、後で納付書に追われずに済む。</li>
+<li>再就職先が決まっていれば<b>特別徴収の継続</b>も可能。</li>
+</ul></div>
+
+<h3>10-1. 年金生活の税金 ― 公的年金等控除と基礎控除</h3>
+<div class="tbl-wrap">
+<table><caption>公的年金等控除額(公的年金等以外の合計所得金額が1,000万円以下の場合)</caption>
+<thead><tr><th class="num">公的年金等の収入</th><th class="num">65歳未満の控除額</th><th class="num">65歳以上の控除額</th></tr></thead>
+<tbody>
+<tr><td class="num">130万円未満</td><td class="num">60万円</td><td class="num" rowspan="2">110万円<br><span style="font-weight:400;color:var(--muted)">(330万円未満)</span></td></tr>
+<tr><td class="num">130万〜330万円未満</td><td class="num">収入×25%＋27.5万円</td></tr>
+<tr><td class="num">330万〜410万円未満</td><td class="num">収入×25%＋27.5万円</td><td class="num">収入×25%＋27.5万円</td></tr>
+<tr><td class="num">410万〜770万円未満</td><td class="num">収入×15%＋68.5万円</td><td class="num">収入×15%＋68.5万円</td></tr>
+<tr><td class="num">770万〜1,000万円未満</td><td class="num">収入×5%＋145.5万円</td><td class="num">収入×5%＋145.5万円</td></tr>
+<tr><td class="num">1,000万円以上</td><td class="num">195.5万円(上限)</td><td class="num">195.5万円(上限)</td></tr>
+</tbody></table>
+</div>
+<div class="note good"><span class="t">65歳の誕生日で控除が50万円増える</span>
+65歳以上になると、収入330万円未満の場合の控除が<b>60万円→110万円</b>になります。基礎控除(所得税58万円〜)と合わせると、<b>年金収入だけなら概ね年168万円程度までは所得税がかからない</b>計算になります(令和7年分・上乗せ特例を除く単純計算)。判定基準日は<b>その年の12月31日時点の年齢</b>です。</div>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">◧</span><span>年間の所得税・住民税・社会保険料 総合計算機</span><span class="tag">プロフィール連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>公的年金等の収入 <span class="u">万円/年</span></label><input type="number" id="cc_pen" value="240" step="1"></div>
+      <div class="f"><label>給与収入 <span class="u">万円/年</span></label><input type="number" id="cc_sal" value="0" step="10"></div>
+      <div class="f"><label>その他の所得(不動産・雑など) <span class="u">万円/年</span></label><input type="number" id="cc_other" value="0" step="1"></div>
+      <div class="f"><label>年齢</label><select id="cc_age"><option value="65">65歳以上</option><option value="60">65歳未満</option></select></div>
+      <div class="f"><label>社会保険料の支払額 <span class="u">万円/年</span></label><input type="number" id="cc_shaho" value="30" step="1"></div>
+      <div class="f"><label>生命保険料控除など その他控除 <span class="u">万円</span></label><input type="number" id="cc_etc" value="0" step="1"></div>
+      <div class="f"><label>配偶者控除</label><select id="cc_haigu"><option value="0">なし</option><option value="38">一般(38万円/住民税33万円)</option><option value="48">老人控除対象配偶者70歳以上(48万円/住民税38万円)</option></select></div>
+      <div class="f"><label>扶養控除の合計 <span class="u">万円</span></label><input type="number" id="cc_fuyo" value="0" step="1"></div>
+      <div class="f"><label>基礎控除の上乗せ特例(令和7・8年分)</label><select id="cc_kiso"><option value="1">適用する</option><option value="0">適用しない(58万円固定)</option></select></div>
+    </div>
+    <div class="out"><div class="kpis" id="out_cc_kpi"></div><div class="breakdown" id="out_cc_bd"></div></div>
+  </div>
+</div>
+
+<div class="tbl-wrap">
+<table><caption>所得税の速算表(復興特別所得税2.1%は別途上乗せ)</caption>
+<thead><tr><th class="num">課税所得金額</th><th class="num">税率</th><th class="num">控除額</th></tr></thead>
+<tbody>
+<tr><td class="num">1,000円〜1,949,000円</td><td class="num">5%</td><td class="num">0円</td></tr>
+<tr><td class="num">1,950,000円〜3,299,000円</td><td class="num">10%</td><td class="num">97,500円</td></tr>
+<tr><td class="num">3,300,000円〜6,949,000円</td><td class="num">20%</td><td class="num">427,500円</td></tr>
+<tr><td class="num">6,950,000円〜8,999,000円</td><td class="num">23%</td><td class="num">636,000円</td></tr>
+<tr><td class="num">9,000,000円〜17,999,000円</td><td class="num">33%</td><td class="num">1,536,000円</td></tr>
+<tr><td class="num">18,000,000円〜39,999,000円</td><td class="num">40%</td><td class="num">2,796,000円</td></tr>
+<tr><td class="num">40,000,000円〜</td><td class="num">45%</td><td class="num">4,796,000円</td></tr>
+</tbody></table>
+</div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s11">
+<div class="sec-head"><span class="sec-num">11</span><h2>確定申告と年末調整 ― 退職後にやること</h2></div>
+
+<h3>11-1. 「確定申告不要制度」に安心してはいけない</h3>
+<div class="card">
+<p><strong>公的年金等の収入が400万円以下、かつ、それ以外の所得が20万円以下</strong>なら所得税の確定申告は不要です。しかしこれは「しなくてよい」だけで、<span class="hl">申告したほうが得なケースが非常に多い</span>。</p>
+<div class="grid2">
+<div><h4>申告すると還付が受けられる主なケース</h4>
+<ul style="margin-bottom:0">
+<li>医療費控除(年10万円超、または所得の5%超)</li>
+<li>生命保険料控除・地震保険料控除</li>
+<li>社会保険料控除(国保・介護保険料を自分で納付した分)</li>
+<li>寄附金控除(ふるさと納税)※年金受給者はワンストップ特例が使える場合も</li>
+<li>扶養親族が増えた(親を扶養に入れた等)</li>
+<li>年の途中で退職し年末調整を受けていない</li>
+<li>退職所得の受給に関する申告書を出し忘れた(20.42%源泉分の取戻し)</li>
+</ul></div>
+<div><h4>申告不要でも「住民税の申告」は必要な場合がある</h4>
+<p style="margin-bottom:0">所得税の確定申告が不要でも、<strong>住民税の申告が必要なケース</strong>があります。特に「年金以外に少額の所得がある」「各種控除を住民税に反映させたい」場合。住民税額は国保料・介護保険料・高額療養費の区分にも連動するため、<strong>申告しないと保険料が高いまま</strong>になることがあります。<br>また、<strong>公的年金等の源泉徴収では配偶者控除等は反映されても、生命保険料控除や医療費控除は反映されません</strong>。</p></div>
+</div>
+</div>
+
+<h3>11-2. 年金からの源泉徴収 ― 「扶養親族等申告書」を必ず出す</h3>
+<div class="note warn"><span class="t">出し忘れると税率が上がる</span>
+毎年9〜10月頃に日本年金機構から「<b>公的年金等の受給者の扶養親族等申告書</b>」が届きます。<b>提出しないと各種控除が反映されず、源泉徴収税率が高くなります</b>(未提出でも確定申告で取り戻せますが手間)。65歳以上で年金収入158万円以上(65歳未満は108万円以上)の人が対象。<b>毎年届く郵便物の中で最重要のひとつ</b>として顧客に伝えてください。</div>
+
+<h3>11-3. 退職年の年末調整・確定申告フロー</h3>
+<ol class="steps">
+<li><b>年の途中で退職し、年内に再就職した</b><br>新しい勤務先に前職の源泉徴収票を提出 → 新勤務先で年末調整。確定申告は原則不要。</li>
+<li><b>年の途中で退職し、年内に再就職しなかった</b><br>年末調整を受けていないため、<b>翌年に確定申告をすると源泉徴収された所得税が還付される可能性が高い</b>。退職後に自分で払った国保料・国民年金保険料も社会保険料控除に入れられる。</li>
+<li><b>退職金を受け取った</b><br>「退職所得の受給に関する申告書」を提出していれば原則申告不要。ただし所得控除が余っている年は、<b>あえて申告に含めて還付を受ける</b>選択肢を検討。</li>
+<li><b>年金受給が始まった</b><br>年金の源泉徴収票(毎年1月頃送付)を保管。医療費控除等があれば確定申告。</li>
+</ol>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="s12">
+<div class="sec-head"><span class="sec-num">12</span><h2>配偶者・遺族の論点 ― 世帯で最適化する</h2></div>
+
+<h3>12-1. 配偶者が第3号被保険者だった場合</h3>
+<div class="note danger"><span class="t">夫の退職＝妻の第3号資格喪失</span>
+会社員の夫が退職すると、<b>扶養されていた配偶者(第3号被保険者)は自動的に資格を失い、60歳未満なら国民年金第1号被保険者として自分で保険料(月17,510円・令和7年度)を納める</b>ことになります。<b>手続きは配偶者自身が市区町村で行う必要があり、放置すると未納期間になって将来の年金が減ります。</b>夫が65歳になった時点でも同様に第3号でなくなります(夫が第2号でなくなるため)。</div>
+<div class="card">
+<h4 style="margin-top:0">妻(配偶者)側で確認する項目</h4>
+<ul style="margin-bottom:0">
+<li><b>年金の空白期間の有無</b> ― 学生時代の未納、結婚前後の切替漏れ。60歳以降の任意加入で埋められる。</li>
+<li><b>振替加算の対象か</b> ― 昭和41年4月1日以前生まれなら対象。以降なら付かない。</li>
+<li><b>健康保険</b> ― 夫の任意継続の被扶養者になるか、国保に入るか。任意継続なら<b>扶養家族は保険料の追加負担なし</b>なので有利になりやすい。</li>
+<li><b>自身の年金の繰上げ・繰下げ</b> ― 夫婦で受給開始をずらす戦略(片方は65歳から、片方は繰下げ)がリスク分散になる。</li>
+</ul>
+</div>
+
+<h3>12-2. 遺族年金 ― 残された側の収入を先に確認する</h3>
+<div class="tbl-wrap">
+<table><thead><tr><th>種類</th><th>受給できる人</th><th class="num">おおよその額</th><th>注意点</th></tr></thead>
+<tbody>
+<tr><td><b>遺族厚生年金</b></td><td>配偶者・子・父母等(優先順位あり)</td><td class="num">老齢厚生年金(報酬比例)の3/4</td><td><b>繰下げで増額していても、遺族厚生年金の計算は本来額ベース</b>。30歳未満で子のない妻は5年間の有期。</td></tr>
+<tr><td><b>遺族基礎年金</b></td><td>18歳到達年度末までの子がいる配偶者・子</td><td class="num">831,700円＋子の加算</td><td>子が要件。60代の夫婦では通常対象外。</td></tr>
+<tr><td><b>中高齢寡婦加算</b></td><td>夫の死亡時40〜64歳の妻(子がいない等)</td><td class="num">年 約62.4万円</td><td>妻が65歳になると終了し、自身の老齢基礎年金に切り替わる。</td></tr>
+<tr><td><b>寡婦年金・死亡一時金</b></td><td>第1号被保険者期間がある人の遺族</td><td class="num">夫の老齢基礎年金の3/4等</td><td><b>老齢基礎年金を繰上げ受給すると寡婦年金は受けられなくなる</b>。繰上げ判断時の重要な副作用。</td></tr>
+</tbody></table>
+</div>
+<div class="note warn"><span class="t">65歳以降の「併給調整」</span>
+妻自身に老齢厚生年金がある場合、65歳以降は<b>①自分の老齢厚生年金を全額受給し、②遺族厚生年金は差額のみ</b>という調整が入ります。「夫の遺族年金＋自分の年金が満額もらえる」わけではありません。<b>共働き世帯ほど、遺族年金の上乗せ効果が小さくなる</b>点を必ず説明してください。</div>
+<div class="note"><span class="t">遺族年金は非課税</span>
+遺族年金・障害年金は<b>所得税・住民税ともに非課税</b>です。国民健康保険料・介護保険料の算定にも含まれません(ただし高額療養費や後期高齢者医療の負担割合判定では自治体により扱いが異なる場合があるため要確認)。老齢年金との有利不利を比較する際の重要な差です。</div>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="s13">
+<div class="sec-head"><span class="sec-num">13</span><h2>統合キャッシュフロー試算 ― 60歳から95歳まで</h2></div>
+
+<p>ここまでの論点を1本のキャッシュフローに束ねます。給与・年金(在職老齢年金の調整後)・雇用保険の給付を積み上げ、税と社会保険料を引いて<strong>年ごとの手取り</strong>を出します。プロフィールと各章の入力がすべて反映されます。</p>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">▥</span><span>生涯キャッシュフロー(手取りベース)</span><span class="tag">全章連動</span></div>
+  <div class="calc-body">
+    <div class="fields">
+      <div class="f"><label>年金の受給開始年齢 <span class="u">歳</span></label><input type="number" id="cd_start" value="65" min="60" max="75"></div>
+      <div class="f"><label>就労終了年齢 <span class="u">歳</span></label><input type="number" id="cd_workEnd" value="65" min="60" max="75"></div>
+      <div class="f"><label>再雇用後の年収(賞与込) <span class="u">万円</span></label><input type="number" id="cd_income" value="390" step="10"></div>
+      <div class="f"><label>年間の生活費 <span class="u">万円</span></label><input type="number" id="cd_expense" value="300" step="10"></div>
+      <div class="f"><label>60歳時点の金融資産(退職金含む) <span class="u">万円</span></label><input type="number" id="cd_assets" value="3000" step="100"></div>
+      <div class="f"><label>試算終了年齢 <span class="u">歳</span></label><input type="number" id="cd_end" value="95" min="70" max="105"></div>
+      <div class="f"><label>配偶者の年金を合算する</label><select id="cd_spouse"><option value="1">する</option><option value="0">しない(本人のみ)</option></select></div>
+      <div class="f"><label>配偶者の年金開始年齢 <span class="u">歳</span></label><input type="number" id="cd_spouseStart" value="65" min="60" max="75"></div>
+    </div>
+    <div class="out">
+      <div class="kpis" id="out_cd_kpi"></div>
+      <div id="out_cd_chart" style="margin-top:16px"></div>
+      <div class="legend">
+        <span><i style="background:var(--terra)"></i>給与収入</span>
+        <span><i style="background:var(--accent)"></i>年金収入(調整後)</span>
+        <span><i style="background:var(--warn)"></i>雇用保険の給付</span>
+        <span><i style="background:var(--danger)"></i>税・社会保険料</span>
+        <span><i style="background:var(--good)"></i>金融資産残高(折れ線)</span>
+      </div>
+    </div>
+    <div class="tbl-wrap scroll" style="margin-top:14px">
+      <table><thead><tr>
+        <th class="num">年齢</th><th class="num">西暦</th><th class="num">給与</th><th class="num">年金</th>
+        <th class="num">雇用保険</th><th class="num">収入計</th><th class="num">税・社保</th><th class="num">手取り</th>
+        <th class="num">生活費</th><th class="num">収支</th><th class="num">資産残高</th>
+      </tr></thead><tbody id="out_cd_table"></tbody></table>
+    </div>
+  </div>
+</div>
+<div class="note"><span class="t">この表の前提</span>
+金額はすべて<b>名目値・万円単位</b>。物価上昇・年金のマクロ経済スライド・運用利回りは織り込んでいません(意図的に単純化しています)。税・社会保険料は本ガイドの概算ロジックによるもので、実額は自治体・健保により異なります。<b>顧客提示時は「傾向を掴むための概算」であることを明示</b>してください。</div>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="s14">
+<div class="sec-head"><span class="sec-num">14</span><h2>落とし穴 15連発 ― 実務でよく見る失敗</h2></div>
+<div class="grid2">
+<div class="card"><h4 style="margin-top:0"><span class="pill d">01</span> 任意継続の20日を過ぎた</h4><p style="margin-bottom:0">退職日の翌日から20日以内。1日でも遅れると選べず、高い国保に2年間縛られる。<b>退職の1か月前に必ずアナウンス。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">02</span> 特別支給の老齢厚生年金の請求忘れ</h4><p style="margin-bottom:0">繰下げ対象外なので待っても増えない。<b>5年で時効消滅</b>。該当世代は誕生日の3か月前に届く請求書を必ず出す。</p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">03</span> 「退職所得の受給に関する申告書」未提出</h4><p style="margin-bottom:0">一律20.42%が源泉徴収され、確定申告するまで戻らない。退職金2,000万円なら約408万円が先取りされる。</p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">04</span> 退職日を1日ずらせば控除が70万円増えた</h4><p style="margin-bottom:0">勤続年数は1年未満切上げ。入社日と退職日を必ず突き合わせる。<b>月末退職か月末前日退職かで社会保険料1か月分も変わる。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">05</span> 加給年金を捨てて繰下げ</h4><p style="margin-bottom:0">厚生年金を繰り下げている間、加給年金(年約41.6万円)は出ない。<b>配偶者が年下ほど損失が大きい。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">06</span> 繰下げの増額を「額面」でしか見ていない</h4><p style="margin-bottom:0">額面+84%でも、税・国保・介護保険料が増え、医療費の窓口負担割合まで上がることがある。<b>手取りで比較する。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">07</span> 住民税の翌年ショックを想定していない</h4><p style="margin-bottom:0">退職翌年に前年所得ベースの住民税＋国保料が来る。<b>退職金から「翌年の納税資金」を別口座に確保。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">08</span> 企業年金連合会の年金を請求していない</h4><p style="margin-bottom:0">転職経験者に非常に多い。厚生年金基金の中途脱退者は連合会に記録が移っている。<b>必ず記録照会を。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">09</span> 企業型DCの移換を6か月放置</h4><p style="margin-bottom:0">国民年金基金連合会に自動移換され、運用されないまま管理手数料だけ引かれ続ける。<b>受給開始年齢の判定にも不利。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">10</span> DCと退職金を「5年ルール」で設計していた</h4><p style="margin-bottom:0">2026年1月1日以後の支払分から<b>10年ルール</b>へ。60歳DC→65歳退職金という従来の定番は控除が重複調整される。</p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">11</span> 失業給付と特別支給の年金を両取りできると思っていた</h4><p style="margin-bottom:0">65歳未満は<b>併給不可</b>。基本手当を受けると年金が全額止まる。65歳以降なら高年齢求職者給付金と年金は併給できる。</p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">12</span> 配偶者の第3号→第1号の切替漏れ</h4><p style="margin-bottom:0">夫の退職・65歳到達で妻の第3号資格は消える。<b>未納期間になり将来の年金が減る。</b>手続きは市区町村。</p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">13</span> 扶養親族等申告書を出していない</h4><p style="margin-bottom:0">年金からの源泉徴収税率が上がる。毎年秋に届く郵便物。<b>「年金機構からの封筒は必ず開ける」を習慣化。</b></p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">14</span> 高額療養費・高額介護合算の申請をしていない</h4><p style="margin-bottom:0">申請主義。特に<b>高額介護合算療養費</b>は自分で申請しないと戻らない。多数回該当のカウントは保険者が変わるとリセット。</p></div>
+<div class="card"><h4 style="margin-top:0"><span class="pill d">15</span> 配偶者の「75歳ショック」を織り込んでいない</h4><p style="margin-bottom:0">本人が後期高齢者医療に移ると、被扶養者だった配偶者は国保に単独加入。<b>年十数万円の新たな負担が発生。</b></p></div>
+</div>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="s15">
+<div class="sec-head"><span class="sec-num">15</span><h2>手続きチェックリスト</h2></div>
+<p>顧客と一緒にチェックしながら進めてください。チェック状態はこの端末に保存されます。</p>
+
+<div class="card">
+<h4 style="margin-top:0">■ 退職の3〜6か月前</h4>
+<div id="ck1"></div>
+</div>
+<div class="card">
+<h4 style="margin-top:0">■ 退職の直前〜退職日</h4>
+<div id="ck2"></div>
+</div>
+<div class="card">
+<h4 style="margin-top:0">■ 退職後 14日〜20日以内(期限厳守)</h4>
+<div id="ck3"></div>
+</div>
+<div class="card">
+<h4 style="margin-top:0">■ 年金の受給開始前(誕生日の3か月前〜)</h4>
+<div id="ck4"></div>
+</div>
+<div class="card">
+<h4 style="margin-top:0">■ 毎年やること</h4>
+<div id="ck5"></div>
+</div>
+</section>
+
+<!-- ============ 16 ============ -->
+<section id="s16">
+<div class="sec-head"><span class="sec-num">16</span><h2>前提数値一覧・出典・免責</h2></div>
+<p>本ガイドの計算に使っている制度パラメータです。<strong>改定があった場合はここを書き換えれば全計算機に反映されます。</strong></p>
+
+<div class="calc">
+  <div class="calc-head"><span class="ico">⚙</span><span>制度パラメータ(令和7年度 / 2025年度ベース)</span><span class="tag">編集すると全章に反映</span></div>
+  <div class="calc-body">
+    <fieldset><legend>年金</legend>
+    <div class="fields">
+      <div class="f"><label>老齢基礎年金 満額 <span class="u">円/年</span></label><input type="number" id="g_kisoFull" value="831700" step="100"></div>
+      <div class="f"><label>繰上げ減額率 <span class="u">%/月</span></label><input type="number" id="g_downRate" value="0.4" step="0.1"></div>
+      <div class="f"><label>繰下げ増額率 <span class="u">%/月</span></label><input type="number" id="g_upRate" value="0.7" step="0.1"></div>
+      <div class="f"><label>在職老齢年金 支給停止調整額 <span class="u">万円/月</span></label><input type="number" id="g_zaishoku" value="51" step="0.1"></div>
+      <div class="f"><label>国民年金保険料 <span class="u">円/月</span></label><input type="number" id="g_kokunen" value="17510" step="10"></div>
+      <div class="f"><label>加給年金(特別加算込) <span class="u">円/年</span></label><input type="number" id="g_kakyu" value="415000" step="100"></div>
+    </div></fieldset>
+    <fieldset><legend>税</legend>
+    <div class="fields">
+      <div class="f"><label>基礎控除(所得税・原則) <span class="u">円</span></label><input type="number" id="g_kisoIT" value="580000" step="10000"></div>
+      <div class="f"><label>基礎控除(住民税) <span class="u">円</span></label><input type="number" id="g_kisoJT" value="430000" step="10000"></div>
+      <div class="f"><label>住民税 所得割率 <span class="u">%</span></label><input type="number" id="g_jumin" value="10" step="0.1"></div>
+      <div class="f"><label>住民税 均等割＋森林環境税 <span class="u">円</span></label><input type="number" id="g_kintou" value="5000" step="100"></div>
+      <div class="f"><label>復興特別所得税 <span class="u">%</span></label><input type="number" id="g_fukko" value="2.1" step="0.1"></div>
+    </div></fieldset>
+    <div class="note warn" style="margin-bottom:0"><span class="t">改定タイミングの目安</span>
+      <b>4月</b>:年金額・国民年金保険料・在職老齢年金の基準額 / <b>8月1日</b>:雇用保険の基本手当日額・高年齢雇用継続給付の限度額 / <b>3月分(4月納付)</b>:協会けんぽの健康保険料率・介護保険料率 / <b>6月</b>:住民税・国民健康保険料の年度更新 / <b>毎年度</b>:自治体の国保料率・介護保険料段階
+    </div>
+  </div>
+</div>
+
+<h3>一次情報の確認先</h3>
+<div class="tbl-wrap">
+<table><thead><tr><th>テーマ</th><th>確認先</th><th>確認すべき内容</th></tr></thead>
+<tbody>
+<tr><td>年金額・加入記録</td><td>日本年金機構「ねんきんネット」/ 年金事務所</td><td>65歳時点の見込額、加入月数、記録漏れ、特別支給の該当有無</td></tr>
+<tr><td>企業年金</td><td>企業年金連合会 / 勤務先の人事・年金基金</td><td>中途脱退者の年金記録、確定給付企業年金の受取方法</td></tr>
+<tr><td>雇用保険</td><td>ハローワーク</td><td>基本手当日額・給付日数・受給期間延長、高年齢雇用継続給付の可否</td></tr>
+<tr><td>健康保険</td><td>協会けんぽ / 健康保険組合 / 市区町村</td><td>任意継続の保険料額、国保料の試算、被扶養者の認定基準</td></tr>
+<tr><td>介護保険</td><td>市区町村の介護保険課</td><td>第1号保険料の所得段階と金額</td></tr>
+<tr><td>税金</td><td>国税庁タックスアンサー / 所轄税務署 / 市区町村</td><td>退職所得の計算、公的年金等控除、基礎控除の改正内容</td></tr>
+<tr><td>DC・iDeCo</td><td>運営管理機関 / 国民年金基金連合会</td><td>受給可能年齢、受取方法の選択肢、手数料</td></tr>
+</tbody></table>
+</div>
+
+<div class="note danger"><span class="t">免責事項</span>
+本ファイルはFP実務における<b>説明補助・概算試算用のツール</b>です。制度は毎年改正され、個別事情(健保組合の規約、自治体の料率、企業の退職金規程、過去の加入記録)によって実額は変わります。<b>本ツールの計算結果に基づく最終的な意思決定・税務判断については、日本年金機構・税務署・税理士・社会保険労務士など権限のある機関へ確認してください。</b>作成者・提供者は本ツールの利用により生じたいかなる損害についても責任を負いません。<br><br>
+また、本ツールに入力された顧客情報は<b>端末内のブラウザストレージにのみ保存され、外部へ送信されません</b>が、共用PCで使用する場合は使用後に「入力をクリア」を実行してください。
+</div>
+
+<div class="foot">
+  <p><b>60歳からの退職・年金・税金・社会保険 実務ガイド</b> ― 単一HTMLファイル / オフライン動作 / 制度前提:令和7年度(2025年度)</p>
+  <p>本ガイドは印刷して顧客用資料として配布することを想定しています。ブラウザの印刷機能でPDF化すると、ナビゲーションとボタンは自動的に非表示になります。制度改定時は第16章の「制度パラメータ」を更新してください。</p>
+  <p><button class="tbtn" onclick="clearProfile()">入力をクリア(共用PCでの使用後に実行)</button></p>
+</div>
+</section>
+
+</main>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   共通ヘルパー
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const N = id => { const e = $(id); if (!e) return 0; const v = parseFloat(e.value); return isFinite(v) ? v : 0; };
+const V = id => { const e = $(id); return e ? e.value : ""; };
+const MAN = 10000;                       // 万円 → 円
+const yen = v => Math.round(v).toLocaleString("ja-JP");
+const man = v => (v / MAN).toLocaleString("ja-JP", {maximumFractionDigits:1});
+const manR = v => Math.round(v / MAN).toLocaleString("ja-JP");
+const pct = v => (v * 100).toFixed(1);
+
+function kpi(k, v, unit, cls){
+  return '<div class="kpi ' + (cls||'') + '"><div class="k">' + k + '</div><div class="v">' + v +
+         (unit ? '<small>' + unit + '</small>' : '') + '</div></div>';
+}
+function row(a, b, cls){ return '<div class="row ' + (cls||'') + '"><span>' + a + '</span><span>' + b + '</span></div>'; }
+
+/* ============================================================
+   税・控除のライブラリ(すべて「円」単位)
+   ============================================================ */
+function salaryDed(inc){                 // 給与所得控除(令和7年分〜)
+  if (inc <= 0) return 0;
+  if (inc <= 650000) return inc;
+  if (inc <= 1900000) return 650000;
+  if (inc <= 3600000) return inc * 0.3 + 80000;
+  if (inc <= 6600000) return inc * 0.2 + 440000;
+  if (inc <= 8500000) return inc * 0.1 + 1100000;
+  return 1950000;
+}
+function pensionDed(inc, is65){          // 公的年金等控除(他所得1,000万円以下)
+  if (inc <= 0) return 0;
+  if (is65){
+    if (inc <= 3300000) return Math.min(1100000, inc);
+  } else {
+    if (inc <= 1300000) return Math.min(600000, inc);
+  }
+  if (inc <= 4100000) return inc * 0.25 + 275000;
+  if (inc <= 7700000) return inc * 0.15 + 685000;
+  if (inc <= 10000000) return inc * 0.05 + 1455000;
+  return 1955000;
+}
+function kisoDedIT(goukei, special){     // 基礎控除(所得税)
+  const base = N("g_kisoIT") || 580000;
+  if (!special){
+    if (goukei <= 23500000) return base;
+    if (goukei <= 24000000) return 480000;
+    if (goukei <= 24500000) return 320000;
+    if (goukei <= 25000000) return 160000;
+    return 0;
+  }
+  if (goukei <= 1320000) return 950000;  // 令和7・8年分の上乗せ特例
+  if (goukei <= 3360000) return 880000;
+  if (goukei <= 4890000) return 680000;
+  if (goukei <= 6550000) return 630000;
+  if (goukei <= 23500000) return base;
+  if (goukei <= 24000000) return 480000;
+  if (goukei <= 24500000) return 320000;
+  if (goukei <= 25000000) return 160000;
+  return 0;
+}
+function incomeTax(taxable){             // 所得税(復興特別所得税を除く)
+  let t = Math.floor(Math.max(0, taxable) / 1000) * 1000;
+  const B = [[1950000,.05,0],[3300000,.10,97500],[6950000,.20,427500],[9000000,.23,636000],
+             [18000000,.33,1536000],[40000000,.40,2796000],[Infinity,.45,4796000]];
+  for (const [c, r, d] of B) if (t <= c) return Math.max(0, t * r - d);
+  return 0;
+}
+function withFukko(tax){ return tax * (1 + (N("g_fukko") || 2.1) / 100); }
+
+function retireDed(years, disability){   // 退職所得控除
+  const y = Math.max(1, Math.ceil(years));
+  let d = y <= 20 ? 400000 * y : 8000000 + 700000 * (y - 20);
+  d = Math.max(d, 800000);
+  if (disability) d += 1000000;
+  return d;
+}
+function retireTaxable(amount, years, ded, role){ // 課税退職所得
+  const over = amount - ded;
+  if (over <= 0) return 0;
+  if (role === "exec") return Math.floor(over / 1000) * 1000;          // 1/2 適用なし
+  if (years <= 5){                                                     // 短期退職手当等
+    if (over <= 3000000) return Math.floor(over / 2 / 1000) * 1000;
+    return Math.floor((1500000 + (over - 3000000)) / 1000) * 1000;
+  }
+  return Math.floor(over / 2 / 1000) * 1000;
+}
+/* 総合課税の税額を一括計算 */
+function taxTotal(o){
+  // o: {pension, salary, other, is65, shaho, etc, haigu, fuyo, special}
+  const penInc = Math.max(0, o.pension - pensionDed(o.pension, o.is65));
+  const salInc = Math.max(0, o.salary - salaryDed(o.salary));
+  const goukei = penInc + salInc + (o.other || 0);
+  const haiguIT = o.haigu || 0;
+  const haiguJT = haiguIT === 480000 ? 380000 : (haiguIT === 380000 ? 330000 : 0);
+  const dedIT = kisoDedIT(goukei, o.special) + (o.shaho||0) + (o.etc||0) + haiguIT + (o.fuyo||0);
+  const dedJT = (N("g_kisoJT")||430000) + (o.shaho||0) + (o.etc||0) + haiguJT + (o.fuyo||0) * (33/38);
+  const taxableIT = Math.max(0, goukei - dedIT);
+  const taxableJT = Math.max(0, goukei - dedJT);
+  const it = withFukko(incomeTax(taxableIT));
+  const jtRate = (N("g_jumin")||10) / 100;
+  let jt = taxableJT > 0 ? taxableJT * jtRate + (N("g_kintou")||5000) : 0;
+  // 調整控除(課税所得200万円以下は人的控除差の5%、超は逓減)の簡便計算
+  if (taxableJT > 0){
+    const diff = 50000 + (haiguIT ? (haiguIT - haiguJT) : 0) + (o.fuyo ? (o.fuyo * 5/38) : 0);
+    const adj = taxableJT <= 2000000 ? Math.min(diff, taxableJT) * 0.05
+                                     : Math.max(diff - (taxableJT - 2000000), 50000) * 0.05;
+    jt = Math.max(N("g_kintou")||5000, jt - adj);
+  }
+  return {penInc, salInc, goukei, dedIT, dedJT, taxableIT, taxableJT, it, jt, total: it + jt};
+}
+
+/* ============================================================
+   SVG チャート
+   ============================================================ */
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+/* 目盛りを安全に生成(ステップが0や負にならないよう保証) */
+function ticks(lo, hi, n){
+  const out = [];
+  if (!isFinite(lo) || !isFinite(hi)) return [lo || 0];
+  if (hi <= lo) return [lo];
+  const step = (hi - lo) / Math.max(1, n);
+  if (!(step > 0)) return [lo, hi];
+  for (let v = lo; v <= hi + step / 2; v += step) out.push(Math.round(v * 100) / 100);
+  return out;
+}
+function lineChart(o){
+  const W = o.w || 900, H = o.h || 300, L = o.l || 62, R = 18, T = 16, B = 34;
+  const px = x => L + (x - o.xmin) / (o.xmax - o.xmin) * (W - L - R);
+  const py = y => H - B - (y - o.ymin) / (o.ymax - o.ymin || 1) * (H - T - B);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(o.alt||"グラフ") + '">';
+  (o.yticks||[]).forEach(t => {
+    s += '<line class="sv-grid" x1="' + L + '" y1="' + py(t) + '" x2="' + (W-R) + '" y2="' + py(t) + '"/>';
+    s += '<text class="sv-ax" x="' + (L-6) + '" y="' + (py(t)+4) + '" text-anchor="end">' + esc(o.yfmt ? o.yfmt(t) : t) + '</text>';
+  });
+  (o.xticks||[]).forEach(t => {
+    s += '<line class="sv-grid" x1="' + px(t) + '" y1="' + T + '" x2="' + px(t) + '" y2="' + (H-B) + '"/>';
+    s += '<text class="sv-ax" x="' + px(t) + '" y="' + (H-B+16) + '" text-anchor="middle">' + esc(t) + '</text>';
+  });
+  s += '<line class="sv-axis" x1="' + L + '" y1="' + (H-B) + '" x2="' + (W-R) + '" y2="' + (H-B) + '"/>';
+  s += '<line class="sv-axis" x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H-B) + '"/>';
+  (o.areas||[]).forEach(a => {
+    const pts = a.pts.map(p => px(p[0]) + ',' + py(p[1])).join(' ');
+    s += '<polygon points="' + px(a.pts[0][0]) + ',' + py(o.ymin) + ' ' + pts + ' ' + px(a.pts[a.pts.length-1][0]) + ',' + py(o.ymin) + '" fill="' + a.color + '" opacity="' + (a.op||0.12) + '"/>';
+  });
+  (o.series||[]).forEach(sr => {
+    const pts = sr.pts.map(p => px(p[0]) + ',' + py(p[1])).join(' ');
+    s += '<polyline points="' + pts + '" fill="none" stroke="' + sr.color + '" stroke-width="' + (sr.w||2.4) + '"' +
+         (sr.dash ? ' stroke-dasharray="' + sr.dash + '"' : '') + ' stroke-linejoin="round"/>';
+  });
+  (o.marks||[]).forEach(m => {
+    s += '<circle cx="' + px(m.x) + '" cy="' + py(m.y) + '" r="5" fill="' + m.color + '"/>';
+    if (m.label){
+      const anchor = px(m.x) > W * 0.65 ? 'end' : 'start';
+      const dx = anchor === 'end' ? -9 : 9;
+      s += '<text class="sv-tb" x="' + (px(m.x)+dx) + '" y="' + (py(m.y)-9) + '" text-anchor="' + anchor + '" style="fill:' + m.color + '">' + esc(m.label) + '</text>';
+    }
+  });
+  if (o.ylab) s += '<text class="sv-ts" x="6" y="12">' + esc(o.ylab) + '</text>';
+  if (o.xlab) s += '<text class="sv-ts" x="' + (W-R) + '" y="' + (H-2) + '" text-anchor="end">' + esc(o.xlab) + '</text>';
+  return s + '</svg>';
+}
+function stackChart(o){
+  const W = o.w || 900, H = o.h || 300, L = o.l || 62, R = 62, T = 16, B = 34;
+  const n = o.rows.length, bw = (W - L - R) / n;
+  const py = y => H - B - (y - 0) / (o.ymax || 1) * (H - T - B);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(o.alt||"グラフ") + '">';
+  (o.yticks||[]).forEach(t => {
+    s += '<line class="sv-grid" x1="' + L + '" y1="' + py(t) + '" x2="' + (W-R) + '" y2="' + py(t) + '"/>';
+    s += '<text class="sv-ax" x="' + (L-6) + '" y="' + (py(t)+4) + '" text-anchor="end">' + esc(o.yfmt ? o.yfmt(t) : t) + '</text>';
+  });
+  o.rows.forEach((r, i) => {
+    let acc = 0;
+    const x = L + i * bw + bw * 0.14, w = bw * 0.72;
+    r.vals.forEach((v, k) => {
+      if (v <= 0) return;
+      s += '<rect x="' + x + '" y="' + py(acc + v) + '" width="' + w + '" height="' + Math.max(0, py(acc) - py(acc + v)) +
+           '" fill="' + o.colors[k] + '" opacity=".9"/>';
+      acc += v;
+    });
+    if (r.neg > 0){
+      s += '<rect x="' + x + '" y="' + py(acc + r.neg) + '" width="' + w + '" height="' + Math.max(0, py(acc) - py(acc + r.neg)) +
+           '" fill="none" stroke="' + o.negColor + '" stroke-width="1.5" stroke-dasharray="3 2"/>';
+    }
+    if (i % (o.labelEvery||5) === 0)
+      s += '<text class="sv-ax" x="' + (x + w/2) + '" y="' + (H-B+16) + '" text-anchor="middle">' + esc(r.label) + '</text>';
+  });
+  if (o.line){
+    const py2 = y => H - B - (y - (o.line.min||0)) / ((o.line.max - (o.line.min||0)) || 1) * (H - T - B);
+    const pts = o.line.pts.map((v, i) => (L + i * bw + bw/2) + ',' + py2(v)).join(' ');
+    s += '<polyline points="' + pts + '" fill="none" stroke="' + o.line.color + '" stroke-width="2.4"/>';
+    (o.line.ticks||[]).forEach(t => {
+      s += '<text class="sv-ax" x="' + (W-R+6) + '" y="' + (py2(t)+4) + '" style="fill:' + o.line.color + '">' + esc(o.line.fmt ? o.line.fmt(t) : t) + '</text>';
+    });
+  }
+  s += '<line class="sv-axis" x1="' + L + '" y1="' + (H-B) + '" x2="' + (W-R) + '" y2="' + (H-B) + '"/>';
+  if (o.ylab) s += '<text class="sv-ts" x="6" y="12">' + esc(o.ylab) + '</text>';
+  if (o.rlab) s += '<text class="sv-ts" x="' + W + '" y="12" text-anchor="end" style="fill:' + (o.line?o.line.color:'') + '">' + esc(o.rlab) + '</text>';
+  return s + '</svg>';
+}
+function hbar(o){ // 横棒(在職老齢年金用)
+  const W = 900, H = o.h || 130, L = 8, R = 8;
+  const sc = v => v / o.max * (W - L - R);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(o.alt||"") + '">';
+  o.rows.forEach((r, i) => {
+    const y = 22 + i * 46;
+    s += '<text class="sv-tb" x="' + L + '" y="' + (y - 5) + '">' + esc(r.label) + '</text>';
+    let acc = 0;
+    r.segs.forEach(g => {
+      if (g.v <= 0) return;
+      s += '<rect x="' + (L + sc(acc)) + '" y="' + y + '" width="' + sc(g.v) + '" height="26" rx="4" fill="' + g.color + '" opacity="' + (g.op||0.9) + '"/>';
+      if (sc(g.v) > 66) s += '<text class="sv-w" x="' + (L + sc(acc) + 8) + '" y="' + (y + 18) + '">' + esc(g.label) + '</text>';
+      acc += g.v;
+    });
+  });
+  if (o.line !== undefined){
+    s += '<line x1="' + (L + sc(o.line)) + '" y1="8" x2="' + (L + sc(o.line)) + '" y2="' + (H - 18) + '" stroke="var(--danger)" stroke-width="2" stroke-dasharray="5 4"/>';
+    s += '<text class="sv-tb" x="' + (L + sc(o.line) + 6) + '" y="' + (H - 4) + '" style="fill:var(--danger)">' + esc(o.lineLabel||"") + '</text>';
+  }
+  return s + '</svg>';
+}
+</script>
+
+<script>
+/* ============================================================
+   プロフィール / 保存 / テーマ
+   ============================================================ */
+const IDS = [];
+function collectIds(){
+  IDS.length = 0;
+  document.querySelectorAll("input,select").forEach(e => { if (e.id) IDS.push(e.id); });
+}
+function saveProfile(){
+  try{
+    const d = {};
+    IDS.forEach(id => { const e = $(id); if (e) d[id] = e.type === "checkbox" ? e.checked : e.value; });
+    localStorage.setItem("fp60.v1", JSON.stringify(d));
+    flash("入力内容をこの端末に保存しました。");
+  }catch(e){ flash("保存できませんでした(ブラウザの設定をご確認ください)。"); }
+}
+function loadProfile(){
+  try{
+    const raw = localStorage.getItem("fp60.v1"); if (!raw) return;
+    const d = JSON.parse(raw);
+    Object.keys(d).forEach(id => { const e = $(id); if (!e) return; if (e.type === "checkbox") e.checked = d[id]; else e.value = d[id]; });
+  }catch(e){}
+}
+function clearProfile(){
+  try{ localStorage.removeItem("fp60.v1"); }catch(e){}
+  flash("保存データを削除しました。ページを再読み込みすると初期値に戻ります。");
+}
+function flash(msg){
+  let el = $("__flash");
+  if (!el){ el = document.createElement("div"); el.id = "__flash";
+    el.style.cssText = "position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:9px;font-size:13px;z-index:99;box-shadow:0 8px 26px rgba(0,0,0,.25)";
+    document.body.appendChild(el); }
+  el.textContent = msg; el.style.display = "block";
+  clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = "none"; }, 2600);
+}
+function toggleTheme(){
+  const r = document.documentElement;
+  const cur = r.getAttribute("data-theme");
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+  r.setAttribute("data-theme", dark ? "light" : "dark");
+}
+function loadSample(){
+  const S = {p_birthY:1966,p_birthM:6,p_birthD:15,p_sex:"M",p_retireAge:60,p_years:38,p_salaryM:55,p_bonusY:180,
+    p_kiso:79,p_kosei:118,p_keika:2,p_kakyu:41.5,p_taishoku:2000,p_dc:600,p_dcYears:15,p_yakuinYears:0,
+    p_salaryM2:30,p_bonusY2:30,p_workEnd:65,p_spouse:"1",p_spouseY:1969,p_spousePen:90};
+  Object.keys(S).forEach(k => { const e = $(k); if (e) e.value = S[k]; });
+  recalc(); flash("サンプル(男性1966年生・勤続38年・退職金2,000万円)を入力しました。");
+}
+
+/* 生年月日ユーティリティ */
+function birth(){ return {y:N("p_birthY"), m:N("p_birthM"), d:N("p_birthD")}; }
+function cmpDate(a, b){ return a.y !== b.y ? a.y - b.y : (a.m !== b.m ? a.m - b.m : a.d - b.d); }
+function ageOn(date){ const b = birth(); let a = date.getFullYear() - b.y;
+  if (date.getMonth()+1 < b.m || (date.getMonth()+1 === b.m && date.getDate() < b.d)) a--; return a; }
+function dateAtAge(age){ const b = birth(); return {y:b.y + age, m:b.m, d:b.d}; }
+function fmtD(o){ return o.y + "年" + o.m + "月"; }
+
+/* 特別支給の老齢厚生年金の開始年齢 */
+function tokubetsuAge(){
+  const b = birth(), sex = V("p_sex");
+  const male = [[{y:1953,m:4,d:2},{y:1955,m:4,d:1},61],[{y:1955,m:4,d:2},{y:1957,m:4,d:1},62],
+                [{y:1957,m:4,d:2},{y:1959,m:4,d:1},63],[{y:1959,m:4,d:2},{y:1961,m:4,d:1},64]];
+  const female = [[{y:1958,m:4,d:2},{y:1960,m:4,d:1},61],[{y:1960,m:4,d:2},{y:1962,m:4,d:1},62],
+                  [{y:1962,m:4,d:2},{y:1964,m:4,d:1},63],[{y:1964,m:4,d:2},{y:1966,m:4,d:1},64]];
+  const T = sex === "F" ? female : male;
+  for (const [s, e, a] of T) if (cmpDate(b, s) >= 0 && cmpDate(b, e) <= 0) return a;
+  return 0;
+}
+/* 繰上げ減額率(昭和37年4月2日以降生まれは0.4%) */
+function kuriageRate(){ return cmpDate(birth(), {y:1962,m:4,d:2}) >= 0 ? 0.4 : 0.5; }
+/* 高年齢雇用継続給付の最大給付率(2025年4月1日時点で60歳到達済みなら15%) */
+function koyoRate(){
+  const s = V("c6_rate");
+  if (s === "15") return 15;
+  if (s === "10") return 10;
+  const at60 = dateAtAge(60);              // 60歳の誕生日
+  return cmpDate(at60, {y:2025,m:4,d:1}) < 0 ? 15 : 10;
+}
+
+/* ============================================================
+   1. 個人別カレンダー
+   ============================================================ */
+function calcCalendar(){
+  const b = birth(), today = new Date();
+  const age = ageOn(today);
+  const tk = tokubetsuAge();
+  const hint = $("p_ageNote");
+  if (hint) hint.textContent = "現在 " + age + "歳／繰上げ減額率 " + kuriageRate() + "%/月" +
+    (tk ? "／特別支給あり(" + tk + "歳〜)" : "／特別支給なし");
+  const dr = $("g_downRate"); if (dr) dr.value = kuriageRate();
+
+  const ev = [];
+  ev.push([60, "国民年金の任意加入が可能に(480月未満の人)／年金の繰上げ受給が可能に／高年齢雇用継続給付の対象期間開始", "a"]);
+  if (tk) ev.push([tk, "★ 特別支給の老齢厚生年金の受給開始 ― 請求書を提出(繰下げ不可・5年で時効)", "d"]);
+  ev.push([64, "この年齢までに退職すれば基本手当(失業給付)の対象。65歳到達前後で給付が大きく変わる", "w"]);
+  ev.push([65, "★ 老齢基礎年金・老齢厚生年金の本来の受給開始／加給年金の開始／介護保険 第1号被保険者／公的年金等控除が110万円に／高年齢雇用継続給付の終了", "d"]);
+  ev.push([66, "繰下げ受給が可能になる最初の年齢(+8.4%〜)", "g"]);
+  ev.push([70, "厚生年金の加入が終了(保険料負担なし)／医療費の窓口負担が2割に／繰下げなら+84%の手前", "a"]);
+  ev.push([75, "★ 繰下げ受給の上限(+84%)／DC受給開始の期限／後期高齢者医療制度へ移行", "d"]);
+  const spY = N("p_spouseY");
+  if (V("p_spouse") === "1" && spY > 1900){
+    const spAt65 = spY + 65, myAge = spAt65 - b.y;
+    if (myAge > 60 && myAge < 90) ev.push([myAge, "配偶者が65歳到達 ― 加給年金が終了(以後は配偶者の振替加算へ)", "w"]);
+  }
+  ev.sort((x, y) => x[0] - y[0]);
+  let h = '<div class="tbl-wrap"><table><thead><tr><th class="num">年齢</th><th class="num">到達時期</th><th>起きること</th><th class="num">残り</th></tr></thead><tbody>';
+  ev.forEach(([a, t, c]) => {
+    const d = dateAtAge(a), left = a - age;
+    h += '<tr><td class="num"><b>' + a + '歳</b></td><td class="num">' + fmtD(d) + '</td><td>' +
+         '<span class="pill ' + c + '">' + (c === "d" ? "重要" : c === "w" ? "注意" : c === "g" ? "選択" : "節目") + '</span> ' + t + '</td>' +
+         '<td class="num">' + (left > 0 ? "あと" + left + "年" : left === 0 ? "今年" : "経過") + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  if (!tk) h += '<div class="note" style="margin-bottom:0"><span class="t">判定結果</span>入力された生年月日・性別では<b>特別支給の老齢厚生年金の対象外</b>です(受給開始は65歳から)。この世代は「64歳で退職して基本手当を受けても止まる年金がない」ため、退職日の設計で基本手当を取りにいく選択肢が有力になります。</div>';
+  else h += '<div class="note warn" style="margin-bottom:0"><span class="t">判定結果</span><b>' + tk + '歳から特別支給の老齢厚生年金を受給できます。</b>繰下げの対象外なので、請求を先延ばしにしても増えません。またこの年金を受給中に基本手当を受けると<b>年金が全額支給停止</b>になります。' + fmtD(dateAtAge(tk)) + '頃に日本年金機構から届く年金請求書を必ず提出してください。</div>';
+  $("out_calendar").innerHTML = h;
+}
+
+/* ============================================================
+   2. 年金の増額シミュレーター
+   ============================================================ */
+function calcC2(){
+  const full = N("g_kisoFull") || 831700;
+  const months = Math.min(480, N("c2_months"));
+  const nin = Math.min(N("c2_ninI"), 480 - months < 0 ? 0 : 480 - months);
+  const kokunen = N("g_kokunen") || 17510;
+  const base = full * months / 480;
+  const added = full * nin / 480;
+  const cost = kokunen * nin;
+  const payback = added > 0 ? cost / added : 0;
+
+  const kY = N("c2_koseiY"), hoshu = N("c2_hoshu") * MAN;
+  // 報酬比例部分の概算:平均標準報酬額 × 5.481/1000 × 加入月数
+  const koseiAdd = hoshu * (5.481 / 1000) * kY * 12;
+  const koseiCost = hoshu * 0.0915 * kY * 12;      // 厚生年金保険料 18.3% の本人負担 9.15%
+  const koseiPayback = koseiAdd > 0 ? koseiCost / koseiAdd : 0;
+
+  const fuka = N("c2_fuka");
+  const fukaAdd = 200 * fuka, fukaCost = 400 * fuka;
+
+  const totalAdd = added + koseiAdd + fukaAdd;
+  $("out_c2_kpi").innerHTML =
+    kpi("年金の増加額", man(totalAdd), "万円/年", "good") +
+    kpi("追加で払う保険料", man(cost + koseiCost + fukaCost), "万円", "warn") +
+    kpi("元が取れるまで", (totalAdd > 0 ? ((cost + koseiCost + fukaCost) / totalAdd).toFixed(1) : "—"), "年", "acc") +
+    kpi("20年受給した場合の増加", man(totalAdd * 20), "万円");
+  $("out_c2_bd").innerHTML =
+    row("① 国民年金の任意加入 " + nin + "か月", "+" + yen(added) + " 円/年") +
+    row("　 保険料 " + yen(kokunen) + "円 × " + nin + "か月", "▲" + yen(cost) + " 円", "sub") +
+    row("　 回収年数", (payback > 0 ? payback.toFixed(1) + " 年" : "—"), "sub") +
+    row("② 厚生年金に " + kY + "年 追加加入(月収" + N("c2_hoshu") + "万円)", "+" + yen(koseiAdd) + " 円/年") +
+    row("　 本人負担保険料(9.15%)", "▲" + yen(koseiCost) + " 円", "sub") +
+    row("　 回収年数", (koseiPayback > 0 ? koseiPayback.toFixed(1) + " 年" : "—"), "sub") +
+    row("③ 付加年金 " + fuka + "か月", "+" + yen(fukaAdd) + " 円/年") +
+    row("　 保険料 400円 × " + fuka + "か月", "▲" + yen(fukaCost) + " 円", "sub") +
+    row("　 回収年数", (fukaAdd > 0 ? (fukaCost / fukaAdd).toFixed(1) + " 年" : "—"), "sub") +
+    row("年金の増加額 合計(終身)", "+" + yen(totalAdd) + " 円/年", "tot");
+}
+</script>
+
+<script>
+/* ============================================================
+   3. 繰上げ・繰下げシミュレーター
+   ============================================================ */
+function rateAt(months){                 // 65歳基準の増減率
+  if (months < 0) return 1 - (N("g_downRate")||0.4) / 100 * (-months);
+  return 1 + (N("g_upRate")||0.7) / 100 * Math.min(120, months);
+}
+function netOf(gross){                   // 年金額面 → 手取り概算(税＋社会保険料)
+  const shaho = gross * 0.09;
+  const t = taxTotal({pension:gross, salary:0, other:0, is65:true, shaho:shaho, etc:0, haigu:0, fuyo:0, special:true});
+  return gross - shaho - t.total;
+}
+function calcC3(){
+  const kiso = N("p_kiso") * MAN;
+  const kosei = (N("p_kosei") + N("p_keika")) * MAN;
+  const kakyu = N("c3_kakyuY") * N("p_kakyu") * MAN;
+  const scope = V("c3_scope");
+  const startY = N("c3_startY"), startM = N("c3_startM");
+  const months = (startY - 65) * 12 + startM;
+  const start = startY + startM / 12;
+  const r = rateAt(months);
+  const life = N("c3_life");
+  const useNet = V("c3_net") === "1";
+
+  // 選択したパターンの各部分の開始年齢と年額
+  const kisoStart  = (scope === "kosei") ? 65 : start;
+  const koseiStart = (scope === "kiso")  ? 65 : start;
+  const kisoAmt  = kiso  * ((scope === "kosei") ? 1 : r);
+  const koseiAmt = kosei * ((scope === "kiso")  ? 1 : r);
+  // 加給年金:厚生年金を繰り下げている間は支給されない
+  const kakyuYearsLost = Math.max(0, Math.min(N("c3_kakyuY"), koseiStart - 65));
+  const kakyuGot = Math.max(0, N("c3_kakyuY") - kakyuYearsLost) * N("p_kakyu") * MAN;
+
+  const adj = v => useNet ? netOf(v) : v;
+  function cumSel(age){
+    let c = 0;
+    if (age > kisoStart)  c += adj(kisoAmt)  * (age - kisoStart);
+    if (age > koseiStart) c += adj(koseiAmt) * (age - koseiStart);
+    if (age > koseiStart) c += Math.min(kakyuGot, adj(N("p_kakyu")*MAN) * (age - koseiStart));
+    return c;
+  }
+  function cumBase(age){
+    if (age <= 65) return 0;
+    return adj(kiso) * (age - 65) + adj(kosei) * (age - 65) + Math.min(kakyu, adj(N("p_kakyu")*MAN) * (age - 65));
+  }
+  // 損益分岐点
+  let be = 0;
+  for (let a = Math.max(65, start) + 0.1; a <= 110; a += 0.1){
+    if ((months >= 0 && cumSel(a) >= cumBase(a)) || (months < 0 && cumBase(a) >= cumSel(a))){ be = a; break; }
+  }
+  const annual = kisoAmt + koseiAmt;
+  const base65 = kiso + kosei;
+  const diffLife = cumSel(life) - cumBase(life);
+
+  $("out_c3_kpi").innerHTML =
+    kpi("受給率", (r * 100).toFixed(1), "%", months >= 0 ? "good" : "dang") +
+    kpi("年金 年額(額面)", man(annual), "万円", "acc") +
+    kpi("65歳受給との差", (annual - base65 >= 0 ? "+" : "") + man(annual - base65), "万円/年") +
+    kpi("損益分岐年齢", be ? (Math.floor(be) + "歳" + Math.round((be % 1) * 12) + "か月") : "—", "", "warn") +
+    kpi(life + "歳までの累計差", (diffLife >= 0 ? "+" : "") + manR(diffLife), "万円", diffLife >= 0 ? "good" : "dang");
+
+  // グラフ
+  const pts1 = [], pts2 = [];
+  const top = Math.max(cumSel(life), cumBase(life));
+  for (let a = 60; a <= life; a += 0.5){ pts1.push([a, cumBase(a) / MAN]); pts2.push([a, cumSel(a) / MAN]); }
+  const ymax = Math.max(500, Math.ceil(top / MAN / 500) * 500);
+  const yt = ticks(0, ymax, 4);
+  const xt = []; for (let a = 60; a <= life; a += 5) xt.push(a);
+  $("out_c3_chart").innerHTML = lineChart({
+    w:900, h:290, xmin:60, xmax:life, ymin:0, ymax:ymax, xticks:xt, yticks:yt,
+    yfmt:v => Math.round(v).toLocaleString("ja-JP"),
+    ylab:"累計受給額(万円" + (useNet ? "・手取り概算" : "・額面") + ")", xlab:"年齢",
+    alt:"受給開始年齢別の累計受給額",
+    series:[{pts:pts1, color:"var(--accent)"}, {pts:pts2, color:"var(--terra)"}],
+    marks: be && be <= life ? [{x:be, y:cumBase(be)/MAN, color:"var(--danger)",
+      label:"損益分岐 " + Math.floor(be) + "歳" + Math.round((be % 1) * 12) + "か月"}] : []
+  });
+
+  let bd =
+    row("老齢基礎年金(" + kisoStart.toFixed(1).replace(".0","") + "歳〜)", yen(kisoAmt) + " 円/年") +
+    row("老齢厚生年金＋経過的加算(" + koseiStart.toFixed(1).replace(".0","") + "歳〜)", yen(koseiAmt) + " 円/年") +
+    row("加給年金 受取総額", yen(kakyuGot) + " 円") +
+    (kakyuYearsLost > 0 ? row("　 繰下げにより失う加給年金", "▲" + yen(kakyuYearsLost * N("p_kakyu") * MAN) + " 円", "sub") : "") +
+    row("65歳受給の年額(比較基準)", yen(base65) + " 円/年") +
+    row(life + "歳までの累計(選択したパターン)", yen(cumSel(life)) + " 円") +
+    row(life + "歳までの累計(65歳受給)", yen(cumBase(life)) + " 円") +
+    row("差額", (diffLife >= 0 ? "+" : "") + yen(diffLife) + " 円", "tot");
+  if (useNet) bd += '<div style="font-size:11.5px;color:var(--muted);margin-top:8px">※手取り概算は「年金収入のみ・社会保険料は年金額の9%・基礎控除の上乗せ特例あり」という単純な前提です。実額は自治体や世帯構成で変わります。</div>';
+  $("out_c3_bd").innerHTML = bd;
+
+  // 早見表
+  let rows = "";
+  for (let a = 60; a <= 75; a++){
+    const m = (a - 65) * 12, rr = rateAt(m), amt = base65 * rr;
+    const bx = Math.abs(rr - 1) < 1e-9 ? 0 : (rr * a - 65) / (rr - 1);
+    let cm = "";
+    if (a === 60) cm = "最大の繰上げ。減額は一生続く";
+    else if (a === 65) cm = "本来の受給開始(基準)";
+    else if (a === 70) cm = "+42%。定番の繰下げ";
+    else if (a === 75) cm = "上限。加給年金は10年分すべて失う";
+    else if (a < 65) cm = "繰上げ:寡婦年金・障害年金への影響に注意";
+    else cm = "繰下げ:加給年金 " + Math.min(N("c3_kakyuY"), a - 65).toFixed(0) + "年分を失う";
+    rows += '<tr' + (a === 65 ? ' style="background:var(--accent-soft)"' : '') + '><td class="num"><b>' + a + '歳</b></td>' +
+            '<td class="num">' + (rr * 100).toFixed(1) + '%</td>' +
+            '<td class="num">' + manR(amt) + ' 万円</td>' +
+            '<td class="num">' + (bx > 0 ? Math.floor(bx) + "歳" + Math.round((bx % 1) * 12) + "か月" : "—") + '</td>' +
+            '<td>' + cm + '</td></tr>';
+  }
+  $("out_c3_table").innerHTML = rows;
+}
+
+/* ============================================================
+   4. 在職老齢年金
+   ============================================================ */
+function calcC4(){
+  const kosei = N("c4_kosei") * MAN;
+  const kihonM = kosei / 12;
+  const soho = N("c4_hoshu") * MAN + N("c4_bonus") * MAN / 12;
+  const line = N("c4_line") * MAN;
+  const over = kihonM + soho - line;
+  const stopM = Math.max(0, Math.min(kihonM, over / 2));
+  const payM = kihonM - stopM;
+  const kiso = N("c4_kiso") * MAN;
+  const kakyu = N("c4_kakyu") * MAN;
+  const kakyuPay = payM > 0 ? kakyu : 0;
+  const totalY = payM * 12 + kiso + kakyuPay;
+  const salaryY = N("c4_hoshu") * 12 * MAN + N("c4_bonus") * MAN;
+
+  $("out_c4_kpi").innerHTML =
+    kpi("支給停止額", man(stopM * 12), "万円/年", stopM > 0 ? "dang" : "good") +
+    kpi("受け取れる厚生年金", man(payM * 12), "万円/年", "acc") +
+    kpi("年金の受取総額", man(totalY), "万円/年", "good") +
+    kpi("給与＋年金 合計", man(salaryY + totalY), "万円/年") +
+    kpi("停止率", (kihonM > 0 ? (stopM / kihonM * 100).toFixed(0) : 0), "%", stopM > 0 ? "warn" : "good");
+
+  $("out_c4_chart").innerHTML = hbar({
+    max: Math.max(line * 1.35, kihonM + soho + line * 0.1), h:126, alt:"在職老齢年金の判定",
+    line: line, lineLabel: "支給停止調整額 " + N("c4_line") + "万円/月",
+    rows: [
+      {label:"基本月額 ＋ 総報酬月額相当額 =(" + man(kihonM + soho) + "万円/月)", segs:[
+        {v:kihonM, color:"var(--accent)", label:"年金 " + man(kihonM) + "万"},
+        {v:soho, color:"var(--terra)", label:"給与 " + man(soho) + "万"}]},
+      {label:"調整後に実際に受け取れる年金(月額)", segs:[
+        {v:payM, color:"var(--good)", label:"支給 " + man(payM) + "万"},
+        {v:stopM, color:"var(--danger)", op:0.35, label:"停止 " + man(stopM) + "万"}]}
+    ]
+  });
+
+  $("out_c4_bd").innerHTML =
+    row("基本月額(報酬比例部分 ÷ 12)", yen(kihonM) + " 円") +
+    row("総報酬月額相当額(標準報酬月額＋賞与÷12)", yen(soho) + " 円") +
+    row("合計", yen(kihonM + soho) + " 円") +
+    row("支給停止調整額", "▲" + yen(line) + " 円") +
+    row("超過額", (over > 0 ? yen(over) : "0") + " 円") +
+    row("支給停止額(超過額 ÷ 2)", "▲" + yen(stopM) + " 円/月 = ▲" + yen(stopM * 12) + " 円/年") +
+    row("老齢厚生年金(調整後)", yen(payM * 12) + " 円/年") +
+    row("老齢基礎年金＋経過的加算(調整対象外)", yen(kiso) + " 円/年") +
+    row("加給年金" + (kakyuPay ? "" : "(本体が全額停止のため不支給)"), yen(kakyuPay) + " 円/年") +
+    row("年金 受取合計", yen(totalY) + " 円/年", "tot");
+
+  // 逆算
+  const limit = Math.max(0, line - kihonM);
+  const limitAnnual = limit * 12;
+  const fullStop = line + kihonM;
+  $("out_c4_reverse").innerHTML =
+    '<h4 style="margin-top:0">支給停止が始まらない上限</h4>' +
+    '<div class="kpis">' +
+      kpi("総報酬月額相当額の上限", man(limit), "万円/月", "good") +
+      kpi("年収に換算すると", man(limitAnnual), "万円/年", "good") +
+      kpi("年金が全額止まる水準", man(fullStop), "万円/月", "dang") +
+    '</div>' +
+    '<p style="margin:12px 0 0;font-size:13px">現在の報酬比例部分(年' + N("c4_kosei") + '万円)なら、<b>総報酬月額相当額が月' + man(limit) +
+    '万円(年収' + man(limitAnnual) + '万円)まで</b>は年金が1円も止まりません。' +
+    (over > 0 ? 'いまの給与水準は<b class="hl">この上限を月' + man(over) + '万円超えており、年間' + man(stopM*12) + '万円の年金が停止</b>しています。賞与の支給時期・金額の見直し、または報酬の一部を業務委託化するなどの検討余地があります。'
+              : '現在の給与水準では<b>支給停止は発生しません</b>。あと月' + man(limit - soho) + '万円までは増やせます。') +
+    '</p>';
+}
+</script>
+
+<script>
+/* ============================================================
+   5. 基本手当 vs 高年齢求職者給付金
+   ============================================================ */
+function dailyRate(w){                   // 賃金日額 → 給付率(60〜64歳の目安)
+  if (w <= 5110) return 0.80;
+  if (w >= 11300) return 0.45;
+  return 0.80 - (0.80 - 0.45) * (w - 5110) / (11300 - 5110);
+}
+function kihonDays(years, comp){
+  if (comp){
+    if (years < 1) return 90;
+    if (years < 5) return 150;
+    if (years < 10) return 180;
+    if (years < 20) return 210;
+    return 240;
+  }
+  if (years < 10) return 90;
+  if (years < 20) return 120;
+  return 150;
+}
+function calcC5(){
+  const wageM = N("c5_wage") * MAN;
+  const wageD = Math.min(wageM / 30, N("c5_capW"));
+  const rate = dailyRate(wageD);
+  const d64 = Math.min(wageD * rate, N("c5_capD"));
+  const d65 = Math.min(wageD * rate, N("c5_capD65"));
+  const years = N("c5_years"), comp = V("c5_reason") === "comp";
+  const days = kihonDays(years, comp);
+  const total64 = d64 * days;
+  const kouDays = years >= 1 ? 50 : 30;
+  const total65 = d65 * kouDays;
+  const penY = N("c5_pension") * MAN;
+  const stopMonths = Math.ceil(days / 30);
+  const penLost = penY / 12 * stopMonths;
+  const net64 = total64 - penLost;
+
+  $("out_c5_kpi").innerHTML =
+    kpi("基本手当 日額", yen(d64), "円", "acc") +
+    kpi("給付日数", days, "日") +
+    kpi("64歳までに退職:総額", manR(total64), "万円", "acc") +
+    kpi("　うち年金停止で目減り", (penLost > 0 ? "▲" + manR(penLost) : "0"), "万円", penLost > 0 ? "dang" : "") +
+    kpi("65歳以降に退職:総額", manR(total65), "万円", "good") +
+    kpi("有利なのは", (net64 >= total65 ? "64歳退職" : "65歳以降退職"), "", net64 >= total65 ? "acc" : "good");
+
+  $("out_c5_bd").innerHTML =
+    row("賃金日額(離職前6か月の賃金 ÷ 180)", yen(wageD) + " 円") +
+    row("給付率", (rate * 100).toFixed(1) + " %") +
+    row("【A】64歳以下で退職 ― 基本手当", "") +
+    row("　 基本手当日額 × 給付日数 " + days + "日", yen(total64) + " 円", "sub") +
+    row("　 特別支給の老齢厚生年金の停止(" + stopMonths + "か月分)", (penLost > 0 ? "▲" + yen(penLost) : "0") + " 円", "sub") +
+    row("　 実質の受取", yen(net64) + " 円", "sub") +
+    row("【B】65歳以降に退職 ― 高年齢求職者給付金", "") +
+    row("　 日額 × " + kouDays + "日分(一時金)", yen(total65) + " 円", "sub") +
+    row("　 老齢年金は止まらない", "±0 円", "sub") +
+    row("A − B の差", (net64 - total65 >= 0 ? "+" : "") + yen(net64 - total65) + " 円", "tot") +
+    '<div style="font-size:11.5px;color:var(--muted);margin-top:9px">※給付率・上限額は毎年8月1日に改定されます。給付日数は年齢・被保険者期間・離職理由で決まり、実際の判定はハローワークが行います。定年退職は「特定理由離職者」に該当せず一般の受給資格者ですが、<b>会社都合・雇止め・正当な理由のある自己都合</b>に該当すると給付日数が大きく伸びます。<br>※64歳で退職しても、<b>特別支給の老齢厚生年金がない世代</b>は年金停止のデメリットがないため、上表の「年金停止」を0にして比較してください。</div>';
+}
+
+/* ============================================================
+   5-2. 高年齢雇用継続基本給付金
+   ============================================================ */
+function koyoBenefit(before, after, maxRate, limit, minA){
+  if (before <= 0 || after <= 0) return 0;
+  if (after >= limit) return 0;
+  const low = after / before;
+  if (low >= 0.75) return 0;
+  let b;
+  if (low <= 0.61) b = after * maxRate / 100;
+  else if (maxRate === 15) b = -183/280 * after + 137.25/280 * before;
+  else b = -122/280 * after + 91.5/280 * before;
+  if (after + b > limit) b = limit - after;
+  if (b < minA) return 0;
+  return Math.max(0, b);
+}
+function calcC6(){
+  const before = N("c6_before") * MAN, after = N("c6_after") * MAN;
+  const maxRate = koyoRate(), limit = N("c6_limit"), minA = N("c6_min");
+  const b = koyoBenefit(before, after, maxRate, limit, minA);
+  const low = before > 0 ? after / before : 0;
+  const months = N("c6_months");
+  const nenkinStop = Math.min(after * (maxRate === 15 ? 0.06 : 0.04), b > 0 ? after * (maxRate === 15 ? 0.04 : 0.02) : 0);
+
+  $("out_c6_kpi").innerHTML =
+    kpi("賃金の低下率", (low * 100).toFixed(1), "%", low < 0.75 ? "good" : "warn") +
+    kpi("適用される最大給付率", maxRate, "%", maxRate === 15 ? "good" : "warn") +
+    kpi("給付金(月額)", yen(b), "円", b > 0 ? "good" : "dang") +
+    kpi("実質の給付率", (after > 0 ? (b / after * 100).toFixed(1) : 0), "%") +
+    kpi("賃金＋給付金", yen(after + b), "円/月", "acc") +
+    kpi(months + "か月の受給総額", manR(b * months), "万円", "good");
+
+  // グラフ:60歳以後の賃金と給付金の関係
+  if (before <= 0){
+    $("out_c6_chart").innerHTML = '<p style="color:var(--muted);font-size:12.5px;margin:8px 0">60歳到達時の賃金月額を入力するとグラフを表示します。</p>';
+  } else {
+    const pts = [], pts2 = [];
+    const step = before * 0.01;
+    for (let x = before * 0.3; x <= before * 0.9; x += step){
+      const bb = koyoBenefit(before, x, maxRate, limit, minA);
+      pts.push([x / MAN, bb / MAN * 10]);      // 万円 → 千円スケール
+      pts2.push([x / MAN, (x + bb) / MAN]);
+    }
+    const xmin = before * 0.3 / MAN, xmax = before * 0.9 / MAN;
+    const ymax = Math.max(10, Math.ceil(before * 0.9 / MAN / 10) * 10);
+    const yt = ticks(0, ymax, 4);
+    const xt = ticks(Math.round(xmin), Math.round(xmax), 6);
+    $("out_c6_chart").innerHTML = lineChart({
+      w:900, h:250, xmin:xmin, xmax:xmax, ymin:0, ymax:ymax, xticks:xt, yticks:yt,
+      ylab:"月額(万円)／給付金は10倍に拡大表示", xlab:"60歳以後の賃金(万円/月)",
+      alt:"賃金水準と給付金の関係",
+      series:[{pts:pts2, color:"var(--accent)"}, {pts:pts, color:"var(--good)", dash:"5 3"}],
+      marks:[{x:after/MAN, y:(after+b)/MAN, color:"var(--terra)", label:"現在の設定"}]
+    });
+  }
+
+  $("out_c6_bd").innerHTML =
+    row("60歳到達時の賃金月額", yen(before) + " 円") +
+    row("60歳以後の賃金月額", yen(after) + " 円") +
+    row("低下率", (low * 100).toFixed(2) + " %" + (low >= 0.75 ? "(75%以上のため対象外)" : "")) +
+    row("高年齢雇用継続基本給付金", yen(b) + " 円/月") +
+    row("　 給付金は非課税(所得税・住民税・社会保険料の対象外)", "", "sub") +
+    row("在職老齢年金への追加の支給停止(概算)", (nenkinStop > 0 ? "▲" + yen(nenkinStop) : "0") + " 円/月") +
+    row("　 標準報酬月額の最大" + (maxRate === 15 ? "4" : "2") + "%。65歳未満で年金受給中の場合のみ", "", "sub") +
+    row("実質の手取り増加", yen(Math.max(0, b - nenkinStop)) + " 円/月", "tot") +
+    '<div style="font-size:11.5px;color:var(--muted);margin-top:9px">※支給限度額・最低限度額・賃金月額の上下限は毎年8月1日に改定されます。<b>賃金月額(60歳到達時)にも上限・下限</b>があり、高額所得者は上限で頭打ちになります。実際の支給額はハローワークが決定します。</div>';
+}
+
+/* ============================================================
+   6. 退職所得
+   ============================================================ */
+function calcC7(){
+  const amt = N("c7_amount") * MAN;
+  const years = Math.max(1, Math.ceil(N("c7_years")));
+  const dis = V("c7_type") === "disability";
+  const role = V("c7_role");
+  const decl = V("c7_decl") === "1";
+  const ded = retireDed(years, dis);
+  const taxable = retireTaxable(amt, years, ded, role);
+  let it, jt, note = "";
+  if (decl){
+    it = withFukko(incomeTax(taxable));
+    jt = Math.floor(taxable * (N("g_jumin")||10) / 100 / 100) * 100;
+  } else {
+    it = amt * 0.2042;
+    jt = Math.floor(taxable * (N("g_jumin")||10) / 100 / 100) * 100;
+    note = '<div class="note danger" style="margin:12px 0 0"><span class="t">申告書 未提出</span>収入金額の<b>20.42%(' + yen(it) + '円)</b>が源泉徴収されます。適正額との差 <b>' +
+           yen(it - withFukko(incomeTax(taxable))) + '円</b>は、確定申告をすれば還付されます。</div>';
+  }
+  const net = amt - it - jt;
+  const rate = amt > 0 ? (it + jt) / amt * 100 : 0;
+  // 1年伸ばした場合
+  const ded2 = retireDed(years + 1, dis);
+  const tax2 = withFukko(incomeTax(retireTaxable(amt, years + 1, ded2, role))) + Math.floor(retireTaxable(amt, years + 1, ded2, role) * 0.1 / 100) * 100;
+
+  $("out_c7_kpi").innerHTML =
+    kpi("退職所得控除額", manR(ded), "万円", "good") +
+    kpi("課税退職所得", manR(taxable), "万円", taxable > 0 ? "warn" : "good") +
+    kpi("所得税＋復興特別", yen(it), "円", "dang") +
+    kpi("住民税", yen(jt), "円", "dang") +
+    kpi("手取り額", manR(net), "万円", "acc") +
+    kpi("実効税率", rate.toFixed(2), "%");
+
+  $("out_c7_bd").innerHTML =
+    row("退職一時金", yen(amt) + " 円") +
+    row("退職所得控除(勤続" + years + "年" + (dis ? "・障害退職+100万円" : "") + ")",
+        "▲" + yen(ded) + " 円") +
+    row("　 " + (years <= 20 ? "40万円 × " + years + "年" : "800万円 ＋ 70万円 ×(" + years + "年 − 20年)"), "", "sub") +
+    row("控除後の金額", yen(Math.max(0, amt - ded)) + " 円") +
+    row(role === "exec" ? "1/2 の適用なし(役員等勤続5年以下)" : (years <= 5 ? "1/2(300万円超部分は適用なし)" : "× 1/2"),
+        yen(taxable) + " 円") +
+    row("所得税(復興特別所得税2.1%込)", "▲" + yen(it) + " 円") +
+    row("住民税(分離課税10%・退職時に特別徴収)", "▲" + yen(jt) + " 円") +
+    row("手取り額", yen(net) + " 円", "tot") +
+    row("参考:勤続を1年延ばした場合の税額", yen(tax2) + " 円(" + (it + jt - tax2 >= 0 ? "▲" : "+") + yen(Math.abs(it + jt - tax2)) + "円)") +
+    note;
+}
+</script>
+
+<script>
+/* ============================================================
+   7. DC出口シミュレーター
+   ============================================================ */
+function retireTaxOf(amount, years, role){
+  const ded = retireDed(years, false);
+  const t = retireTaxable(amount, years, ded, role || "emp");
+  const it = withFukko(incomeTax(t));
+  const jt = Math.floor(t * (N("g_jumin")||10) / 100 / 100) * 100;
+  return {ded, taxable:t, it, jt, tax:it + jt};
+}
+function calcC8(){
+  const tai = N("c8_tai") * MAN, taiY = Math.ceil(N("c8_taiY"));
+  const dc = N("c8_dc") * MAN, dcY = Math.ceil(N("c8_dcY"));
+  const ov = Math.min(N("c8_overlap"), Math.min(taiY, dcY));
+  const combY = taiY + dcY - ov;              // 重複を除いた通算年数
+  const nenY = Math.max(1, N("c8_nenY"));
+  const otherPen = N("c8_otherPen") * MAN;
+  const is65 = V("c8_age") === "65";
+  const total = tai + dc;
+
+  // A:同じ年に合算して一時金
+  const A = retireTaxOf(total, combY);
+  // B:DCを先に受け取り10年超空けてから退職金(それぞれ独立に控除)
+  const b1 = retireTaxOf(dc, dcY), b2 = retireTaxOf(tai, taiY);
+  const B = {ded:b1.ded + b2.ded, taxable:b1.taxable + b2.taxable, tax:b1.tax + b2.tax};
+  // C:退職金は一時金、DCは年金でnenY年受取
+  const c1 = retireTaxOf(tai, taiY);
+  const perYear = dc / nenY;
+  const t0 = taxTotal({pension:otherPen, salary:0, other:0, is65:is65, shaho:otherPen*0.1, etc:0, haigu:0, fuyo:0, special:true});
+  const t1 = taxTotal({pension:otherPen + perYear, salary:0, other:0, is65:is65, shaho:(otherPen+perYear)*0.1, etc:0, haigu:0, fuyo:0, special:true});
+  const taxDelta = Math.max(0, t1.total - t0.total) * nenY;
+  const shahoDelta = perYear * 0.10 * nenY;    // 国保・介護保険料の増加(概算10%)
+  const C = {ded:c1.ded, taxable:c1.taxable, tax:c1.tax + taxDelta + shahoDelta};
+  // D:控除の枠内までDCを一時金、残りを年金(最適化案)
+  const roomD = Math.max(0, A.ded - tai);
+  const lumpD = Math.min(dc, roomD);
+  const restD = dc - lumpD;
+  const d1 = retireTaxOf(tai + lumpD, combY);
+  const perYearD = restD / nenY;
+  const td1 = restD > 0 ? taxTotal({pension:otherPen + perYearD, salary:0, other:0, is65:is65, shaho:(otherPen+perYearD)*0.1, etc:0, haigu:0, fuyo:0, special:true}) : t0;
+  const D = {ded:d1.ded, taxable:d1.taxable,
+             tax:d1.tax + Math.max(0, td1.total - t0.total) * nenY + perYearD * 0.10 * nenY,
+             lump:lumpD, rest:restD};
+
+  const rows = [
+    ["A", "同じ年に退職金＋DCを一時金で受け取る", A.ded, A.taxable, A.tax, "最も現実的。控除年数は重複を除いた通算 " + combY + "年"],
+    ["B", "DCを先に一時金 → 10年超空けて退職金", B.ded, B.taxable, B.tax, "控除をフルに使えるが、DC受取から11年後に退職する必要があり実行難度が高い"],
+    ["C", "退職金は一時金、DCは" + nenY + "年の年金受取", C.ded, C.taxable, C.tax, "年金部分に所得税・住民税＋国保料・介護保険料がかかる(概算10%で計上)"],
+    ["D", "退職金＋控除枠内までDCを一時金、残りを年金", D.ded, D.taxable, D.tax, "控除の余り " + manR(roomD) + "万円までDCを一時金化。残り " + manR(restD) + "万円を年金受取"]
+  ];
+  const best = rows.reduce((a, b) => b[4] < a[4] ? b : a);
+  let h = '<div class="tbl-wrap"><table><thead><tr><th>案</th><th>受け取り方</th><th class="num">退職所得控除</th><th class="num">課税所得</th><th class="num">税・社保の合計負担</th><th class="num">手取り</th><th>コメント</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    const isBest = r[0] === best[0];
+    h += '<tr' + (isBest ? ' style="background:var(--good-soft)"' : '') + '>' +
+      '<td><b>' + r[0] + '</b>' + (isBest ? ' <span class="pill g">有利</span>' : '') + '</td>' +
+      '<td>' + r[1] + '</td>' +
+      '<td class="num">' + manR(r[2]) + '万円</td>' +
+      '<td class="num">' + manR(r[3]) + '万円</td>' +
+      '<td class="num"><b>' + yen(r[4]) + '円</b></td>' +
+      '<td class="num">' + manR(total - r[4]) + '万円</td>' +
+      '<td style="font-size:12px">' + r[5] + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  $("out_c8_table").innerHTML = h;
+
+  const worst = rows.reduce((a, b) => b[4] > a[4] ? b : a);
+  $("out_c8_bd").innerHTML =
+    row("退職金＋DCの合計", yen(total) + " 円") +
+    row("勤続年数 " + taiY + "年 / DC加入 " + dcY + "年 / 重複 " + ov + "年 → 通算 " + combY + "年", "") +
+    row("通算年数での退職所得控除", yen(A.ded) + " 円") +
+    row("控除の余り(退職金を引いた残り)", yen(roomD) + " 円") +
+    row("最も有利な案", "案 " + best[0] + "(負担 " + yen(best[4]) + " 円)") +
+    row("最も不利な案との差", yen(worst[4] - best[4]) + " 円", "tot") +
+    '<div style="font-size:11.5px;color:var(--muted);margin-top:9px">※案Bは<b>2026年1月1日以後に支払われる退職手当等について「前年以前9年内」で判定(10年ルール)</b>される前提です。DCの受給開始期限は75歳、退職金の受取時期は会社の規程に縛られるため、実務では案A・C・Dの比較が中心になります。<br>※案C・Dの社会保険料増は年間10%で概算しています。実際は自治体の国保料率・介護保険料段階によって変わります。<b>後期高齢者医療(75歳以降)の負担割合判定にも影響</b>し得ます。</div>';
+}
+
+/* ============================================================
+   8. 健康保険 4択
+   ============================================================ */
+function calcC9(){
+  const hoshu = Math.min(N("c9_hoshu"), N("c9_cap")) * MAN;
+  const is40 = V("c9_age") === "40";
+  const rate = (N("c9_rate") + (is40 ? N("c9_kaigo") : 0)) / 100;
+  const nini = hoshu * rate * 12;
+
+  const prevInc = N("c9_prevInc") * MAN;
+  let shotoku = Math.max(0, prevInc - salaryDed(prevInc));
+  const comp = V("c9_reason") === "comp";
+  if (comp) shotoku = shotoku * 0.3;                        // 非自発的失業者の軽減
+  const kijun = Math.max(0, shotoku - 430000);
+  const dep = N("c9_dep");
+  const heads = 1 + dep;
+  const iryo   = Math.min(kijun * N("c9_i1")/100 + N("c9_e1") * heads, 660000);
+  const shien  = Math.min(kijun * N("c9_i2")/100 + N("c9_e2") * heads, 260000);
+  const kaigo  = is40 ? Math.min(kijun * N("c9_i3")/100 + N("c9_e3") * 1, 170000) : 0;
+  const kokuho = iryo + shien + kaigo;
+
+  const newInc = N("c9_newInc") * MAN;
+  const fuyoOK = newInc < 1800000;
+  const saishu = Math.min(N("c9_hoshu"), 65) * MAN * rate * 12 / 2;   // 労使折半
+
+  const cand = [
+    ["① 再就職先の健康保険", saishu, "労使折半。標準報酬月額は新しい給与で決まる。<b>再就職するなら最優先</b>", "g", true],
+    ["② 家族の被扶養者", 0, fuyoOK ? "退職後の収入 " + manR(newInc) + "万円 < 180万円 → <b>要件を満たす可能性が高い</b>(被保険者の収入の1/2未満であることも必要)" : "退職後の収入 " + manR(newInc) + "万円 ≧ 180万円 → <b>要件を満たさない</b>", "g", fuyoOK],
+    ["③ 任意継続被保険者", nini, "標準報酬月額 " + manR(hoshu) + "万円(上限適用後)× " + (rate*100).toFixed(2) + "% × 12か月。<b>被扶養者を何人入れても保険料は同じ</b>。申請期限は退職日の翌日から20日以内", "a", true],
+    ["④ 国民健康保険", kokuho, "前年の所得 " + manR(shotoku) + "万円ベース" + (comp ? "(<b>非自発的失業により給与所得を30%とみなす軽減を適用</b>)" : "") + "。世帯人数 " + heads + "人分の均等割を含む", "w", true]
+  ];
+  const payable = cand.filter(c => c[4]);
+  const best = payable.reduce((a, b) => b[1] < a[1] ? b : a);
+  let h = '<div class="tbl-wrap"><table><thead><tr><th>選択肢</th><th class="num">年間保険料(概算)</th><th class="num">月額</th><th>判定・メモ</th></tr></thead><tbody>';
+  cand.forEach(c => {
+    const ok = c[4];
+    h += '<tr' + (ok && c[0] === best[0] ? ' style="background:var(--good-soft)"' : (ok ? '' : ' style="opacity:.5"')) + '>' +
+      '<td><b>' + c[0] + '</b>' + (ok && c[0] === best[0] ? ' <span class="pill g">最安</span>' : (ok ? '' : ' <span class="pill m">対象外</span>')) + '</td>' +
+      '<td class="num"><b>' + (ok ? yen(c[1]) : "—") + '</b>' + (ok ? ' 円' : '') + '</td>' +
+      '<td class="num">' + (ok ? yen(c[1]/12) + ' 円' : "—") + '</td>' +
+      '<td style="font-size:12px">' + c[2] + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  $("out_c9_table").innerHTML = h;
+
+  $("out_c9_bd").innerHTML =
+    row("任意継続 と 国民健康保険 の差", (nini - kokuho >= 0 ? "国保が " + yen(nini - kokuho) + " 円 安い" : "任意継続が " + yen(kokuho - nini) + " 円 安い"), "tot") +
+    row("国保 内訳:医療分", yen(iryo) + " 円", "sub") +
+    row("国保 内訳:後期高齢者支援金分", yen(shien) + " 円", "sub") +
+    row("国保 内訳:介護分(40〜64歳)", yen(kaigo) + " 円", "sub") +
+    row("国保の賦課基準額(前年所得 − 43万円)", yen(kijun) + " 円", "sub") +
+    '<div style="font-size:11.5px;color:var(--muted);margin-top:9px">※国保料率・均等割・賦課限度額は自治体ごとに大きく異なります。<b>必ず居住地の市区町村サイトの料率を入力</b>してください(賦課限度額は医療66万円・支援26万円・介護17万円の目安を適用)。<br>※<b>2年目は国保が下がって逆転する</b>のが通常です。翌年の所得見込みで再計算し、必要なら任意継続から国保へ切り替えてください。<br>※65歳以上は介護保険料が健康保険とは別建て(第1号)になるため、この表には含まれていません。</div>';
+}
+
+/* ============================================================
+   9. 高額療養費
+   ============================================================ */
+const HK_U70 = [
+  ["ア", "標準報酬月額83万円以上(年収約1,160万円〜)", c => 252600 + Math.max(0, c - 842000) * 0.01, 140100],
+  ["イ", "標準報酬月額53〜79万円(年収約770〜1,160万円)", c => 167400 + Math.max(0, c - 558000) * 0.01, 93000],
+  ["ウ", "標準報酬月額28〜50万円(年収約370〜770万円)", c => 80100 + Math.max(0, c - 267000) * 0.01, 44400],
+  ["エ", "標準報酬月額26万円以下(年収約370万円まで)", () => 57600, 44400],
+  ["オ", "住民税非課税世帯", () => 35400, 24600]
+];
+const HK_O70 = [
+  ["現役並みIII", "課税所得690万円以上", c => 252600 + Math.max(0, c - 842000) * 0.01, 140100, null],
+  ["現役並みII", "課税所得380万円以上", c => 167400 + Math.max(0, c - 558000) * 0.01, 93000, null],
+  ["現役並みI", "課税所得145万円以上", c => 80100 + Math.max(0, c - 267000) * 0.01, 44400, null],
+  ["一般", "課税所得145万円未満", () => 57600, 44400, 18000],
+  ["低所得II", "住民税非課税", () => 24600, 24600, 8000],
+  ["低所得I", "住民税非課税かつ所得が一定以下", () => 15000, 15000, 8000]
+];
+function fillHkClasses(){
+  const o70 = V("ca_age") === "o70";
+  const sel = $("ca_cls"), cur = sel.value;
+  sel.innerHTML = (o70 ? HK_O70 : HK_U70).map((r, i) => '<option value="' + i + '">' + r[0] + ':' + r[1] + '</option>').join("");
+  if (cur && sel.options[cur]) sel.value = cur;
+}
+function calcCA(){
+  const o70 = V("ca_age") === "o70";
+  const T = o70 ? HK_O70 : HK_U70;
+  const i = Math.min(parseInt(V("ca_cls") || "0", 10), T.length - 1);
+  const r = T[i];
+  const cost = N("ca_cost") * MAN;
+  const multi = V("ca_multi") === "1";
+  const kaburi = o70 ? (i >= 3 ? 0.2 : 0.3) : 0.3;    // 窓口負担割合(70歳以上一般は2割)
+  const raw = cost * kaburi;
+  let limit = multi ? r[3] : r[2](cost);
+  const gairai = o70 && r[4] ? r[4] : null;
+  const back = Math.max(0, raw - limit);
+  $("out_ca_kpi").innerHTML =
+    kpi("窓口負担(3割/2割)", yen(raw), "円", "warn") +
+    kpi("自己負担限度額", yen(limit), "円", "acc") +
+    kpi("高額療養費として戻る額", yen(back), "円", "good") +
+    (gairai ? kpi("外来のみの上限(個人)", yen(gairai), "円") : "") +
+    kpi("実質の負担率", (cost > 0 ? (limit / cost * 100).toFixed(1) : 0), "%");
+  $("out_ca_bd").innerHTML =
+    row("医療費(10割)", yen(cost) + " 円") +
+    row("窓口負担割合", (kaburi * 100) + " %") +
+    row("窓口で支払う額", yen(raw) + " 円") +
+    row("自己負担限度額" + (multi ? "(多数回該当)" : ""), yen(limit) + " 円") +
+    row("払い戻される額", yen(back) + " 円", "tot") +
+    '<div style="font-size:11.5px;color:var(--muted);margin-top:9px">※同一月・同一医療機関単位。<b>差額ベッド代・食事療養費・先進医療は対象外</b>です。<b>限度額適用認定証またはマイナ保険証</b>を提示すれば、窓口での支払いを最初から限度額までに抑えられます。<br>※<b>多数回該当</b>は直近12か月に3回以上高額療養費に該当した場合、4回目から上限が下がる仕組みです。<b>保険者が変わる(任意継続→国保など)とカウントはリセット</b>されます。</div>';
+}
+</script>
+
+<script>
+/* ============================================================
+   10. 翌年ショック / 総合税額
+   ============================================================ */
+function kokuhoEstimate(shotoku, heads, is40){
+  const kijun = Math.max(0, shotoku - 430000);
+  const iryo  = Math.min(kijun * (N("c9_i1")||7.71)/100 + (N("c9_e1")||49100) * heads, 660000);
+  const shien = Math.min(kijun * (N("c9_i2")||2.69)/100 + (N("c9_e2")||16500) * heads, 260000);
+  const kaigo = is40 ? Math.min(kijun * (N("c9_i3")||2.25)/100 + (N("c9_e3")||16500), 170000) : 0;
+  return iryo + shien + kaigo;
+}
+function calcCB(){
+  const prevSal = N("cb_prevSal") * MAN;
+  const pen = N("cb_pen") * MAN, sal = N("cb_sal") * MAN, shaho = N("cb_shaho") * MAN;
+  // 翌年に課税される住民税(前年=退職した年の所得ベース)
+  const prevT = taxTotal({pension:0, salary:prevSal, other:0, is65:false, shaho:prevSal*0.15, etc:0, haigu:0, fuyo:0, special:true});
+  const juminNext = prevT.jt;
+  // 翌年の所得税(その年の所得ベース)
+  const nowT = taxTotal({pension:pen, salary:sal, other:0, is65:true, shaho:shaho, etc:0, haigu:0, fuyo:0, special:true});
+  // 翌年の国民健康保険料(前年所得ベース)
+  const prevShotoku = Math.max(0, prevSal - salaryDed(prevSal));
+  const kokuho = kokuhoEstimate(prevShotoku, 1, true);
+  const income = pen + sal;
+  const burden = juminNext + nowT.it + kokuho;
+  const ratio = income > 0 ? burden / income * 100 : 0;
+
+  $("out_cb_kpi").innerHTML =
+    kpi("翌年の住民税", yen(juminNext), "円", "dang") +
+    kpi("翌年の国民健康保険料", yen(kokuho), "円", "dang") +
+    kpi("翌年の所得税", yen(nowT.it), "円", "warn") +
+    kpi("負担の合計", yen(burden), "円", "dang") +
+    kpi("翌年の収入", manR(income), "万円") +
+    kpi("収入に占める負担率", ratio.toFixed(1), "%", ratio > 25 ? "dang" : "warn");
+
+  $("out_cb_bd").innerHTML =
+    row("退職した年の給与収入(=翌年の住民税の課税ベース)", yen(prevSal) + " 円") +
+    row("　 給与所得", yen(prevT.salInc) + " 円", "sub") +
+    row("翌年6月〜翌々年5月に納める住民税", yen(juminNext) + " 円") +
+    row("翌年の国民健康保険料(前年所得ベース・40〜64歳想定)", yen(kokuho) + " 円") +
+    row("翌年の所得税(年金" + manR(pen) + "万円＋給与" + manR(sal) + "万円)", yen(nowT.it) + " 円") +
+    row("翌年に必要な納税・保険料の資金", yen(burden) + " 円", "tot") +
+    '<div class="note danger" style="margin:12px 0 0"><span class="t">顧客へのアドバイス</span>退職金から<b>' +
+    manR(burden) + '万円程度</b>を「翌年の税・社会保険料専用」として別口座に確保しておくよう伝えてください。退職翌年の6月に住民税の納付書、同じ頃に国民健康保険料の決定通知が届きます。<b>年金収入だけの生活になった年に、現役時代の所得に対する請求が来る</b>のが最大の落とし穴です。</div>';
+}
+function calcCC(){
+  const pen = N("cc_pen") * MAN, sal = N("cc_sal") * MAN, other = N("cc_other") * MAN;
+  const is65 = V("cc_age") === "65";
+  const shaho = N("cc_shaho") * MAN, etc = N("cc_etc") * MAN;
+  const haigu = parseFloat(V("cc_haigu")) * MAN || 0;
+  const fuyo = N("cc_fuyo") * MAN;
+  const special = V("cc_kiso") === "1";
+  const t = taxTotal({pension:pen, salary:sal, other:other, is65:is65, shaho:shaho, etc:etc, haigu:haigu, fuyo:fuyo, special:special});
+  const income = pen + sal + other;
+  const net = income - t.total - shaho;
+  $("out_cc_kpi").innerHTML =
+    kpi("合計所得金額", manR(t.goukei), "万円") +
+    kpi("所得税(復興特別込)", yen(t.it), "円", "warn") +
+    kpi("住民税", yen(t.jt), "円", "warn") +
+    kpi("税の合計", yen(t.total), "円", "dang") +
+    kpi("手取り(社会保険料も控除後)", manR(net), "万円", "acc") +
+    kpi("実効税率", (income > 0 ? (t.total / income * 100).toFixed(1) : 0), "%");
+  $("out_cc_bd").innerHTML =
+    row("公的年金等の収入", yen(pen) + " 円") +
+    row("　 公的年金等控除(" + (is65 ? "65歳以上" : "65歳未満") + ")", "▲" + yen(pensionDed(pen, is65)) + " 円", "sub") +
+    row("　 雑所得(公的年金等)", yen(t.penInc) + " 円", "sub") +
+    row("給与収入", yen(sal) + " 円") +
+    row("　 給与所得控除", "▲" + yen(salaryDed(sal)) + " 円", "sub") +
+    row("　 給与所得", yen(t.salInc) + " 円", "sub") +
+    row("その他の所得", yen(other) + " 円") +
+    row("合計所得金額", yen(t.goukei) + " 円") +
+    row("所得控除の合計(所得税)", "▲" + yen(t.dedIT) + " 円") +
+    row("　 基礎控除", yen(kisoDedIT(t.goukei, special)) + " 円", "sub") +
+    row("　 社会保険料控除", yen(shaho) + " 円", "sub") +
+    row("課税所得(所得税)", yen(t.taxableIT) + " 円") +
+    row("所得税＋復興特別所得税", "▲" + yen(t.it) + " 円") +
+    row("課税所得(住民税)", yen(t.taxableJT) + " 円") +
+    row("住民税(所得割＋均等割)", "▲" + yen(t.jt) + " 円") +
+    row("税の合計", yen(t.total) + " 円", "tot") +
+    '<div style="font-size:11.5px;color:var(--muted);margin-top:9px">※住民税は調整控除を簡便計算で反映しています。実際の税額は自治体の均等割額・非課税限度額により異なります。<b>退職所得(分離課税)はここには含まれません</b>。</div>';
+}
+
+/* ============================================================
+   13. 統合キャッシュフロー
+   ============================================================ */
+function zaishokuPay(koseiAnnual, monthlyTotalReward){
+  const kihonM = koseiAnnual / 12;
+  const line = N("g_zaishoku") * MAN;
+  const over = kihonM + monthlyTotalReward - line;
+  const stop = Math.max(0, Math.min(kihonM, over / 2));
+  return (kihonM - stop) * 12;
+}
+function calcCD(){
+  const b = birth();
+  const startAge = N("cd_start"), workEnd = N("cd_workEnd"), endAge = N("cd_end");
+  const income = N("cd_income") * MAN, expense = N("cd_expense") * MAN;
+  const r = rateAt((startAge - 65) * 12);
+  const kisoA = N("p_kiso") * MAN * r;
+  const koseiA = (N("p_kosei") + N("p_keika")) * MAN * r;
+  const kakyuA = N("p_kakyu") * MAN;
+  const spouseOn = V("cd_spouse") === "1";
+  const spouseStart = N("cd_spouseStart");
+  const spouseBirth = N("p_spouseY");
+  const spousePen = N("p_spousePen") * MAN;
+  const maxRate = koyoRate();
+  const koyoM = koyoBenefit(N("c6_before") * MAN, N("c6_after") * MAN, maxRate, N("c6_limit"), N("c6_min"));
+  // 退職時の失業給付(一時的な収入)
+  const wageD = Math.min(N("c5_wage") * MAN / 30, N("c5_capW"));
+  const koyoLump = workEnd < 65
+      ? Math.min(wageD * dailyRate(wageD), N("c5_capD")) * kihonDays(N("c5_years"), V("c5_reason") === "comp")
+      : Math.min(wageD * dailyRate(wageD), N("c5_capD65")) * (N("c5_years") >= 1 ? 50 : 30);
+
+  let assets = N("cd_assets") * MAN;
+  const rows = [], chartRows = [], assetLine = [];
+  let sumNet = 0, sumTax = 0, minAssets = assets, minAge = 60;
+
+  for (let age = 60; age <= endAge; age++){
+    const working = age < workEnd;
+    const salary = working ? income : 0;
+    // 年金
+    let pension = 0, kakyu = 0;
+    if (age >= startAge){
+      let kosei = koseiA;
+      if (working && age < 70) kosei = zaishokuPay(koseiA, salary / 12);
+      pension = kisoA + kosei;
+      const spAge = spouseBirth > 1900 ? (b.y + age) - spouseBirth : 999;
+      if (spouseOn && age >= 65 && spAge < 65 && kosei > 0) kakyu = kakyuA;
+    }
+    let spPen = 0;
+    if (spouseOn && spouseBirth > 1900){
+      const spAge = (b.y + age) - spouseBirth;
+      if (spAge >= spouseStart) spPen = spousePen;
+    }
+    // 雇用保険
+    let koyo = 0;
+    if (working && age >= 60 && age < 65) koyo = koyoM * 12;
+    if (age === workEnd) koyo += koyoLump;
+    // 社会保険料
+    let shaho;
+    if (working) shaho = salary * (age < 70 ? 0.147 : 0.05);
+    else shaho = kokuhoEstimate(Math.max(0, (pension + kakyu) - pensionDed(pension + kakyu, age >= 65)), 1, false)
+                 + (age >= 65 ? 80000 : 0);   // 65歳以降は介護保険第1号(概算)
+    // 税
+    const t = taxTotal({pension:pension + kakyu, salary:salary, other:0, is65:age >= 65,
+                        shaho:shaho, etc:0, haigu:(spouseOn && spPen < 1100000 && age >= 65) ? 480000 : 0,
+                        fuyo:0, special:true});
+    let spTax = 0, spShaho = 0;
+    if (spPen > 0){
+      const spAge = (b.y + age) - spouseBirth;
+      spShaho = kokuhoEstimate(Math.max(0, spPen - pensionDed(spPen, spAge >= 65)), 1, false) + (spAge >= 65 ? 80000 : 0);
+      spTax = taxTotal({pension:spPen, salary:0, other:0, is65:spAge >= 65, shaho:spShaho, etc:0, haigu:0, fuyo:0, special:true}).total;
+    }
+    const gross = salary + pension + kakyu + spPen + koyo;
+    const burden = t.total + shaho + spTax + spShaho;
+    const net = gross - burden;
+    const bal = net - expense;
+    assets += bal;
+    sumNet += net; sumTax += burden;
+    if (assets < minAssets){ minAssets = assets; minAge = age; }
+    rows.push({age, year:b.y + age, salary, pension:pension + kakyu + spPen, koyo, gross, burden, net, expense, bal, assets});
+    chartRows.push({label:age, vals:[salary/MAN, (pension+kakyu+spPen)/MAN, koyo/MAN], neg:0});
+    assetLine.push(assets / MAN);
+  }
+
+  const depleted = rows.find(x => x.assets < 0);
+  $("out_cd_kpi").innerHTML =
+    kpi("生涯手取り(60〜" + endAge + "歳)", manR(sumNet), "万円", "acc") +
+    kpi("生涯の税・社会保険料", manR(sumTax), "万円", "dang") +
+    kpi("生涯生活費", manR(expense * (endAge - 60 + 1)), "万円") +
+    kpi(endAge + "歳時点の資産", manR(assets), "万円", assets >= 0 ? "good" : "dang") +
+    kpi("資産が尽きる年齢", depleted ? depleted.age + "歳" : "尽きない", "", depleted ? "dang" : "good") +
+    kpi("年金開始年齢", startAge, "歳", "warn");
+
+  const ymax = Math.max(100, Math.max(...chartRows.map(r => r.vals.reduce((a, c) => a + c, 0))) * 1.15);
+  const yt = ticks(0, ymax, 4);
+  let lmin = Math.min(...assetLine, 0), lmax = Math.max(...assetLine, 0) * 1.1;
+  if (lmax <= lmin) lmax = lmin + 100;
+  $("out_cd_chart").innerHTML = stackChart({
+    w:900, h:300, ymax:ymax, yticks:yt, rows:chartRows, labelEvery:5,
+    colors:["var(--terra)", "var(--accent)", "var(--warn)"], negColor:"var(--danger)",
+    yfmt:v => Math.round(v).toLocaleString("ja-JP"), ylab:"年間収入(万円)", rlab:"資産残高",
+    alt:"年齢別の収入内訳と資産残高",
+    line:{pts:assetLine, color:"var(--good)", min:lmin, max:lmax, ticks:[lmax, (lmax+lmin)/2, lmin], fmt:v => Math.round(v).toLocaleString("ja-JP")}
+  });
+
+  let h = "";
+  rows.forEach(x => {
+    const warn = x.assets < 0;
+    h += '<tr' + (warn ? ' style="background:var(--danger-soft)"' : (x.age === startAge ? ' style="background:var(--accent-soft)"' : '')) + '>' +
+      '<td class="num"><b>' + x.age + '</b></td><td class="num">' + x.year + '</td>' +
+      '<td class="num">' + manR(x.salary) + '</td><td class="num">' + manR(x.pension) + '</td>' +
+      '<td class="num">' + manR(x.koyo) + '</td><td class="num">' + manR(x.gross) + '</td>' +
+      '<td class="num" style="color:var(--danger)">▲' + manR(x.burden) + '</td>' +
+      '<td class="num"><b>' + manR(x.net) + '</b></td>' +
+      '<td class="num">▲' + manR(x.expense) + '</td>' +
+      '<td class="num" style="color:' + (x.bal >= 0 ? 'var(--good)' : 'var(--danger)') + '">' + (x.bal >= 0 ? "+" : "") + manR(x.bal) + '</td>' +
+      '<td class="num"><b>' + manR(x.assets) + '</b></td></tr>';
+  });
+  $("out_cd_table").innerHTML = h;
+}
+</script>
+
+<script>
+/* ============================================================
+   15. チェックリスト
+   ============================================================ */
+const CHECKS = {
+  ck1: [
+    "ねんきん定期便／ねんきんネットで65歳時点の年金見込額を確認した",
+    "厚生年金・国民年金の加入記録に空白がないか確認した(転職時の切替漏れ)",
+    "特別支給の老齢厚生年金の対象世代かどうかを確認した",
+    "会社の退職金規程を取り寄せ、支給額と算定基礎を確認した",
+    "企業年金(DB・企業型DC・厚生年金基金)の有無と受取方法の選択肢を確認した",
+    "企業年金連合会に中途脱退者の年金記録がないか照会した",
+    "退職日を「勤続年数の切上げ」「月末/月末前日」「65歳の誕生日」の3点で検証した",
+    "再雇用の条件(給与・社会保険加入の有無)を確認した",
+    "健康保険の任意継続保険料を健保組合／協会けんぽに試算依頼した",
+    "居住自治体の国民健康保険料を試算した(市区町村の窓口またはWeb試算)",
+    "配偶者が第3号被保険者の場合、第1号への切替が必要になることを説明した"
+  ],
+  ck2: [
+    "「退職所得の受給に関する申告書」を会社に提出した",
+    "住民税の徴収方法(一括徴収／普通徴収／特別徴収の継続)を選択した",
+    "健康保険証を返却し、資格喪失証明書の発行を依頼した",
+    "離職票(雇用保険被保険者離職票1・2)の発行を依頼した",
+    "源泉徴収票(給与分・退職所得分)を受け取った",
+    "財形貯蓄・持株会・社内融資・団体保険の精算方法を確認した",
+    "企業型DCの移換手続き(iDeCoまたは新勤務先)の書類を受け取った"
+  ],
+  ck3: [
+    "【20日以内】任意継続被保険者の申請(期限厳守・1日でも遅れると不可)",
+    "【14日以内】国民健康保険への加入手続き(市区町村)",
+    "【14日以内】国民年金の第1号被保険者への種別変更(60歳未満の場合／配偶者も)",
+    "ハローワークで求職の申込みと離職票の提出(基本手当の受給手続き)",
+    "60歳未満の配偶者の国民年金第1号への切替手続き",
+    "国民年金の任意加入の申出(納付月数が480月未満の場合)",
+    "企業型DCの移換手続き(資格喪失から6か月以内・放置すると自動移換)"
+  ],
+  ck4: [
+    "年金請求書(誕生日の3か月前に届く)を記入し、年金事務所へ提出した",
+    "受給開始年齢(繰上げ・繰下げ・片方繰下げ)の方針を決めた",
+    "加給年金の対象(配偶者の生年月日・収入要件)を確認した",
+    "配偶者の振替加算の対象かどうか(昭和41年4月1日以前生まれか)を確認した",
+    "年金の受取口座を指定した",
+    "「扶養親族等申告書」の提出方法を確認した",
+    "DC(iDeCo・企業型)の受給開始時期と受取方法(一時金/年金/併用)を決めた"
+  ],
+  ck5: [
+    "毎年秋:「公的年金等の受給者の扶養親族等申告書」を提出する",
+    "毎年1〜2月:公的年金の源泉徴収票を保管する",
+    "毎年2〜3月:確定申告(医療費控除・生命保険料控除・社会保険料控除など)を検討する",
+    "毎年6月:住民税の納税通知書・国民健康保険料の決定通知書を確認する",
+    "毎年8月:雇用保険の給付日額・限度額の改定を確認する(受給中の場合)",
+    "毎年4月:年金額改定通知書を確認する(マクロ経済スライドによる改定)",
+    "任意継続2年目に入る前に、国民健康保険との保険料を再比較する",
+    "65歳・70歳・75歳の到達前年に、制度変更の影響をキャッシュフローに反映する"
+  ]
+};
+function renderChecks(){
+  Object.keys(CHECKS).forEach(k => {
+    const el = $(k); if (!el) return;
+    el.innerHTML = CHECKS[k].map((t, i) =>
+      '<label class="chk" id="lbl_' + k + '_' + i + '"><input type="checkbox" id="chk_' + k + '_' + i + '"><span>' + t + '</span></label>'
+    ).join("");
+  });
+  document.querySelectorAll('[id^="chk_ck"]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      const l = $("lbl_" + cb.id.slice(4));
+      if (l) l.classList.toggle("done", cb.checked);
+    });
+  });
+}
+function paintChecks(){
+  document.querySelectorAll('[id^="chk_ck"]').forEach(cb => {
+    const l = $("lbl_" + cb.id.slice(4));
+    if (l) l.classList.toggle("done", cb.checked);
+  });
+}
+
+/* ============================================================
+   プロフィール → 各計算機への反映
+   ============================================================ */
+function syncProfile(){
+  const set = (id, v) => { const e = $(id); if (e) e.value = (Math.round(v * 100) / 100); };
+  set("c4_kosei", N("p_kosei"));
+  set("c4_kiso", N("p_kiso") + N("p_keika"));
+  set("c4_kakyu", N("p_kakyu"));
+  set("c4_hoshu", N("p_salaryM2"));
+  set("c4_bonus", N("p_bonusY2"));
+  set("c4_line", N("g_zaishoku"));
+  set("c5_wage", N("p_salaryM"));
+  set("c5_years", N("p_years"));
+  set("c6_before", N("p_salaryM"));
+  set("c6_after", N("p_salaryM2"));
+  set("c6_months", Math.max(0, Math.min(60, (Math.min(65, N("p_workEnd")) - 60) * 12)));
+  set("c7_amount", N("p_taishoku"));
+  set("c7_years", Math.ceil(N("p_years")));
+  const role = $("c7_role"); if (role) role.value = (N("p_yakuinYears") > 0 && N("p_yakuinYears") <= 5) ? "exec" : "emp";
+  set("c8_tai", N("p_taishoku"));
+  set("c8_taiY", Math.ceil(N("p_years")));
+  set("c8_dc", N("p_dc"));
+  set("c8_dcY", N("p_dcYears"));
+  set("c8_overlap", N("p_dcYears"));
+  set("c9_hoshu", N("p_salaryM"));
+  set("c9_prevInc", N("p_salaryM") * 12 + N("p_bonusY"));
+  const pref = $("p_pref"); if (pref && $("c9_rate")) $("c9_rate").value = pref.value;
+  set("cd_workEnd", N("p_workEnd"));
+  set("cd_income", N("p_salaryM2") * 12 + N("p_bonusY2"));
+  set("cd_spouseStart", 65);
+  const sp = $("cd_spouse"); if (sp) sp.value = V("p_spouse");
+  set("c3_kakyuY", (function(){
+    const spY = N("p_spouseY"); if (V("p_spouse") !== "1" || spY < 1900) return 0;
+    const my65 = N("p_birthY") + 65, sp65 = spY + 65;
+    return Math.max(0, Math.min(20, sp65 - my65));
+  })());
+}
+
+/* ============================================================
+   再計算・初期化
+   ============================================================ */
+function recalc(){
+  const jobs = [calcCalendar, calcC2, calcC3, calcC4, calcC5, calcC6, calcC7, calcC8, calcC9, calcCA, calcCB, calcCC, calcCD];
+  jobs.forEach(f => { try{ f(); }catch(e){ console.error(f.name, e); } });
+}
+function initTOC(){
+  const links = [...document.querySelectorAll("nav.toc a")];
+  const secs = links.map(a => $(a.getAttribute("href").slice(1))).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id));
+    });
+  }, {rootMargin:"-64px 0px -70% 0px", threshold:0});
+  secs.forEach(s => io.observe(s));
+}
+document.addEventListener("DOMContentLoaded", () => {
+  renderChecks();
+  fillHkClasses();
+  collectIds();
+  const had = (function(){ try{ return !!localStorage.getItem("fp60.v1"); }catch(e){ return false; } })();
+  loadProfile();
+  paintChecks();
+  if (!had) syncProfile();
+  // プロフィール／制度パラメータの変更は各計算機へ伝播
+  document.querySelectorAll("#profile input, #profile select").forEach(e =>
+    e.addEventListener("input", () => { syncProfile(); recalc(); }));
+  document.querySelectorAll("#s16 input").forEach(e =>
+    e.addEventListener("input", () => { syncProfile(); recalc(); }));
+  $("ca_age").addEventListener("change", () => { fillHkClasses(); calcCA(); });
+  document.querySelectorAll("input,select").forEach(e => e.addEventListener("input", recalc));
+  recalc();
+  initTOC();
+});
+</script>
+</body>
+</html>
