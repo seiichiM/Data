@@ -364,13 +364,87 @@ dialog h3{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-fa
 .ctxmenu hr{border:none;border-top:1px solid var(--line2);margin:4px 2px}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ---- 印刷ドキュメント（画面プレビューと紙面で共通） ---- */
+#printdoc{display:none}
+.pdoc{background:#fff;color:#14202b;font-family:var(--font-ui);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.p-sheet{background:#fff;box-sizing:border-box;overflow:hidden}
+.p-sheet+.p-sheet{page-break-before:always;break-before:page}
+.p-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;border-bottom:1pt solid #16222e;padding-bottom:2mm;margin-bottom:3mm}
+.p-title{font-family:var(--font-disp);font-weight:700;font-size:13pt;line-height:1.25;color:#101c26}
+.p-sub{font-size:8pt;color:#3f505d;margin-top:1.2mm}
+.p-meta{font-family:var(--font-num);font-size:7pt;color:#3f505d;text-align:right;line-height:1.7;white-space:nowrap}
+.p-stats{display:flex;border:0.6pt solid #b6c3d0;border-radius:1mm;margin-bottom:3mm;overflow:hidden}
+.p-stat{flex:1;padding:1.4mm 2.4mm;border-right:0.6pt solid #dde4ec}
+.p-stat:last-child{border-right:none}
+.p-stat .k{font-size:6.5pt;color:#5a6a78;display:block;letter-spacing:.03em}
+.p-stat .v{font-family:var(--font-num);font-size:10pt;font-weight:500;color:#16222e}
+.p-stat .v.bad{color:#a8301f}
+table.p-gantt{border-collapse:collapse;table-layout:fixed;width:100%;font-size:7.5pt}
+table.p-gantt thead{display:table-header-group}
+table.p-gantt th{background:#eef2f7;border:0.6pt solid #b6c3d0;padding:0.8mm 1.2mm;font-weight:600;font-size:7pt;color:#31414d;text-align:left;vertical-align:bottom}
+table.p-gantt th.tl{padding:0}
+table.p-gantt td{border:0.5pt solid #d9e1e9;padding:0.7mm 1.2mm;vertical-align:middle;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+table.p-gantt td.n{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:7pt;text-align:right}
+table.p-gantt td.c{text-align:center}
+table.p-gantt tr{page-break-inside:avoid;break-inside:avoid}
+table.p-gantt tr.sum td{background:#f2f5f9;font-weight:600}
+table.p-gantt td.trk{padding:0}
+.p-tlh{position:relative;height:9mm}
+.p-tlh .maj,.p-tlh .min{position:absolute;left:0;right:0;height:4.5mm}
+.p-tlh .maj{top:0;border-bottom:0.5pt solid #b6c3d0}
+.p-tlh .min{top:4.5mm}
+.p-tlh i{position:absolute;top:0;bottom:0;border-right:0.4pt solid #c9d4df;font-style:normal;font-family:var(--font-num);font-size:6pt;color:#3f505d;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.p-tlh .maj i{justify-content:flex-start;padding-left:1mm;font-size:7pt;color:#16222e;font-weight:500}
+.p-tlh i.we{background:#e7ecf2;color:#78889a}
+.p-tlh i.hd{background:#f4e5e5;color:#a8301f}
+.p-track{position:relative;height:5.4mm}
+.p-nw{position:absolute;top:0;bottom:0;background:#eef1f6}
+.p-hd{position:absolute;top:0;bottom:0;background:#f7eaea}
+.p-vl{position:absolute;top:0;bottom:0;width:0.25mm;background:#e2e8ef}
+.p-today{position:absolute;top:0;bottom:0;width:0;border-left:0.4mm dashed #c0392b}
+.p-bar{position:absolute;top:1.4mm;height:2.6mm;background:#3a7fbf;border:0.4pt solid #21507c;border-radius:0.5mm;overflow:hidden}
+.p-bar .pf{position:absolute;left:0;top:0;bottom:0;background:#123f5e}
+.p-bar.crit{background:#d17263;border-color:#9a2f1e}
+.p-bar.crit .pf{background:#8d2b1b}
+.p-bar.done{background:#7f97ab;border-color:#5a6d7d}
+.p-sum{position:absolute;top:1.8mm;height:1.8mm;background:#243444}
+.p-sum::before,.p-sum::after{content:"";position:absolute;top:100%;border-style:solid;border-width:1.2mm 1mm 0 0;border-color:#243444 transparent transparent transparent}
+.p-sum::before{left:0}
+.p-sum::after{right:0;border-width:1.2mm 0 0 1mm}
+.p-ms{position:absolute;width:2.4mm;height:2.4mm;background:#243444;transform:rotate(45deg);top:1.5mm}
+.p-ms.crit{background:#a8301f}
+.p-cap{position:absolute;font-size:6pt;color:#5a6a78;top:1.2mm}
+.p-blab{position:absolute;font-family:var(--font-num);font-size:6pt;color:#3f505d;top:1.5mm;white-space:nowrap}
+.p-base{position:absolute;top:4.3mm;height:1mm;background:#94a3b1;border-radius:0.3mm}
+.p-legend{display:flex;gap:5mm;flex-wrap:wrap;font-size:6.5pt;color:#3f505d;margin-top:2.5mm;padding-top:1.5mm;border-top:0.5pt solid #d9e1e9}
+.p-legend span{display:flex;align-items:center;gap:1.2mm}
+.p-legend i{display:block;width:5mm;height:2mm;border-radius:0.4mm}
+.p-foot{display:flex;justify-content:space-between;font-size:6.5pt;color:#5a6a78;margin-top:2mm;font-family:var(--font-num)}
+.p-chart svg{width:100%;height:auto;max-height:70mm}
+.p-chart text{fill:#3f505d}
+.p-note{font-size:7pt;color:#3f505d;margin:2mm 0 0;line-height:1.6}
+.p-empty{padding:14mm;text-align:center;color:#5a6a78;font-size:9pt;border:0.6pt dashed #b6c3d0;border-radius:2mm}
+.p-h2{font-family:var(--font-disp);font-size:10pt;font-weight:700;margin:0 0 1.5mm;color:#101c26}
+.p-two{display:flex;gap:6mm;align-items:flex-start}
+.p-two>*{flex:1;min-width:0}
+/* 印刷ダイアログのプレビュー */
+dialog.wide{max-width:min(96vw,940px)}
+.pv-wrap{background:#6f7d8b;padding:10px;overflow:auto;max-height:48vh;border-radius:4px;border:1px solid var(--line)}
+.pv-scale{transform-origin:top left;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.pgrid .fset{gap:6px}
+.radio-list{display:flex;flex-direction:column;gap:2px;max-height:196px;overflow:auto;border:1px solid var(--line2);border-radius:4px;padding:5px}
+.radio-list label{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:3px;font-size:11.5px;cursor:pointer}
+.radio-list label:hover{background:var(--panel3)}
+.radio-list label.on{background:var(--accent-soft)}
+.radio-list small{color:var(--ink3);font-size:10px;margin-left:auto;font-family:var(--font-num)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{
-  .titlebar,.ribbon-tabs,.ribbon,.viewrail,.inspector,.statusbar,.splitter{display:none!important}
-  #app{height:auto;display:block}
-  .view{position:static;display:none}
-  .view.on{display:grid}
-  .pane{overflow:visible}
-  body{background:#fff}
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
+  #app,#tip,#toast,.ctxmenu,dialog,#pvwrap{display:none!important}
+  #printdoc{display:block!important}
+  .p-sheet{padding:0!important}
 }
 </style>
 
@@ -484,6 +558,7 @@ dialog h3{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-fa
       </div><div class="glabel">基準計画</div></div>
       <div class="rgroup"><div class="rrow">
         <button class="rb" data-act="gotoReport"><span class="ic">▲</span>進捗<br>レポート</button>
+        <button class="rb" data-act="print"><span class="ic">🖨</span>工程表を<br>印刷</button>
         <button class="rb" data-act="gotoNet"><span class="ic">⊹</span>ネット<br>ワーク図</button>
         <button class="rb" data-act="sample"><span class="ic">↺</span>サンプル<br>再読込</button>
       </div><div class="glabel">分析</div></div>
@@ -526,6 +601,14 @@ dialog h3{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-fa
   <div class="dlg-foot"><button class="btn" data-close>キャンセル</button><button class="btn pri" id="dlgProjOk">OK</button></div></dialog>
 <dialog id="dlgCal"><h3>稼働カレンダー</h3><div class="dlg-body" id="dlgCalBody"></div>
   <div class="dlg-foot"><button class="btn" data-close>閉じる</button><button class="btn pri" id="dlgCalOk">適用</button></div></dialog>
+
+<dialog id="dlgPrint" class="wide"><h3>工程表の印刷 — 範囲の自動抽出</h3>
+  <div class="dlg-body" id="dlgPrintBody"></div>
+  <div class="dlg-foot"><span id="prInfo" class="hint" style="margin-right:auto"></span>
+    <button class="btn" data-close>閉じる</button><button class="btn pri" id="prGo">印刷 / PDF 出力</button></div></dialog>
+
+<style id="pageStyle">@page{size:A4 landscape;margin:10mm}</style>
+<div id="printdoc"></div>
 
 <script>
 "use strict";
@@ -798,8 +881,8 @@ function cellHTML(t,c){
       return '<div class="nm" style="padding-left:'+(t.level*15)+'px">'+tw+'<span class="txt">'+esc(t.name)+'</span>'+badge+'</div>';
     }
     case "dur": return durText(t);
-    case "start": return md(t._s)+"("+WD[t._s.getDay()]+")";
-    case "finish": return md(t._f)+"("+WD[t._f.getDay()]+")";
+    case "start": return md(t._s)+'<b style="font-weight:400;color:#78889a"> '+WD[t._s.getDay()]+'</b>';
+    case "finish": return md(t._f)+'<b style="font-weight:400;color:#78889a"> '+WD[t._f.getDay()]+'</b>';
     case "preds": return esc(predsText(t));
     case "res": return esc(resText(t));
     case "pct": return '<div class="pbar"><i style="width:'+(t.pct||0)+'%"></i><b>'+(t.pct||0)+'%</b></div>';
@@ -1168,7 +1251,7 @@ function sCurveSVG(data){
     '<text x="'+x(ti)+'" y="'+(pt-3)+'" text-anchor="middle" fill="var(--todayline)">今日</text>':"";
   const endLbl=(v,i,color,txt)=>i<0?"":'<circle cx="'+x(i)+'" cy="'+y(v)+'" r="3.5" fill="'+color+'" stroke="var(--panel)" stroke-width="2"/>'+
     '<text class="lbl" x="'+(x(i)+8)+'" y="'+(y(v)+3.5)+'" fill="'+color+'">'+txt+'</text>';
-  return '<svg id="scurve" width="'+W+'" height="'+H+'" role="img" aria-label="計画と実績の累積出来高曲線">'+grid+xl+area+
+  return '<svg id="scurve" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="計画と実績の累積出来高曲線">'+grid+xl+area+
     line("p","var(--plan)")+line("a","var(--actual)")+tl+
     endLbl(last.p,data.length-1,"var(--plan)","計画 "+Math.round(last.p)+"%")+
     (lastAi>=0?endLbl(lastA.a,lastAi,"var(--actual)","実績 "+Math.round(lastA.a)+"%"):"")+
@@ -1578,7 +1661,7 @@ const ACT={
   clearBaseline:()=>{ mutate(()=>{ D.baseline=null; }); U.showBaseline=false; render(); toast("ベースラインを解除しました"); },
   sample:()=>{ if(!confirm("サンプル工程（新社屋 内装リニューアル工事）を読み込みます。現在の内容は失われます。"))return;
     pushUndo(); D=sampleState(); seedProgress(); U.sel=[]; U.collapsed={}; render(); toast("サンプル工程を読み込みました"); },
-  print:()=>window.print(),
+  print:openPrint,
   theme:()=>{ const cur=document.documentElement.getAttribute("data-theme");
     const next=cur==="dark"?"light":(cur==="light"?"":"dark");
     if(next)document.documentElement.setAttribute("data-theme",next); else document.documentElement.removeAttribute("data-theme");
@@ -1626,6 +1709,7 @@ document.addEventListener("keydown",e=>{
   if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==="y"||(e.shiftKey&&e.key.toLowerCase()==="z"))){ e.preventDefault(); return doRedo(); }
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="s"){ e.preventDefault(); return ACT.save(); }
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="f"){ e.preventDefault(); $("#f-search").focus(); return; }
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="p"){ e.preventDefault(); return openPrint(); }
   if(inField)return;
   if(e.key==="Delete"){ e.preventDefault(); return deleteSel(); }
   if(e.key==="Insert"){ e.preventDefault(); return newTask(false); }
@@ -1679,6 +1763,257 @@ $("#dlgCalOk").addEventListener("click",()=>{
   $("#dlgCal").close(); render(); toast("カレンダーを更新しました");
 });
 document.addEventListener("click",e=>{ if(e.target.dataset&&"close" in e.target.dataset){ const d=e.target.closest("dialog"); if(d)d.close(); } });
+
+/* ============================ 印刷（必要な範囲を自動抽出） ============================ */
+const PAPER={"A4-l":{w:297,h:210,n:"A4 横"},"A4-p":{w:210,h:297,n:"A4 縦"},
+             "A3-l":{w:420,h:297,n:"A3 横"},"A3-p":{w:297,h:420,n:"A3 縦"}};
+const PRESETS=[
+ {k:"week",n:"今週の工程（週間工程表）",d:"月〜日"},
+ {k:"look2",n:"2週間先行工程表",d:"今日＋14日"},
+ {k:"look4",n:"4週間先行工程表",d:"今日＋28日"},
+ {k:"month",n:"今月の工程（月間工程表）",d:"月初〜月末"},
+ {k:"nextms",n:"次のマイルストーンまで",d:"自動"},
+ {k:"wip",n:"残工程（未完了のみ）",d:"自動"},
+ {k:"crit",n:"クリティカルパスのみ",d:"自動"},
+ {k:"late",n:"遅延タスクのみ",d:"自動"},
+ {k:"sel",n:"選択したタスク",d:"選択"},
+ {k:"all",n:"全体工程表（全期間）",d:"着工〜竣工"},
+ {k:"custom",n:"日付を指定",d:"手動"}
+];
+const PCOLS={
+ min:[{k:"wbs",n:"WBS",w:10},{k:"name",n:"工種・作業名",w:42},{k:"start",n:"開始",w:15},{k:"finish",n:"終了",w:15}],
+ std:[{k:"wbs",n:"WBS",w:10},{k:"name",n:"工種・作業名",w:42},{k:"dur",n:"日数",w:9},{k:"start",n:"開始",w:15},{k:"finish",n:"終了",w:15},{k:"pct",n:"進捗",w:10}],
+ full:[{k:"wbs",n:"WBS",w:10},{k:"name",n:"工種・作業名",w:38},{k:"dur",n:"日数",w:9},{k:"start",n:"開始",w:15},{k:"finish",n:"終了",w:15},{k:"preds",n:"先行",w:15},{k:"res",n:"担当",w:22},{k:"pct",n:"進捗",w:10}]
+};
+let PR={preset:"look2",paper:"A4-l",cols:"std",scale:"auto",shade:true,legend:true,stats:true,
+        base:false,label:true,report:false,from:"",to:""};
+
+function printRange(){
+  const t0=todayD(), P=PR.preset, leaves=D.tasks.filter(t=>!t.isSummary);
+  const span=list=>{ if(!list.length)return null; let a=list[0]._s,b=list[0]._f;
+    list.forEach(t=>{ if(dayDiff(t._s,a)>0)a=t._s; if(dayDiff(b,t._f)>0)b=t._f; }); return {a:addD(a,-2),b:addD(b,2)}; };
+  let s,f,label="工程表",note="";
+  if(P==="week"){ s=addD(t0,-((t0.getDay()+6)%7)); f=addD(s,6); label="週間工程表"; }
+  else if(P==="look2"){ s=t0; f=addD(t0,13); label="2週間先行工程表"; }
+  else if(P==="look4"){ s=t0; f=addD(t0,27); label="4週間先行工程表"; }
+  else if(P==="month"){ s=new Date(t0.getFullYear(),t0.getMonth(),1); f=new Date(t0.getFullYear(),t0.getMonth()+1,0); label="月間工程表"; }
+  else if(P==="nextms"){ const ms=leaves.filter(t=>t.ms&&dayDiff(t0,t._f)>=0).sort((a,b)=>a._f-b._f)[0];
+    s=t0; f=ms?addD(ms._f,1):SCH.pf; label="マイルストーンまでの工程"; note=ms?"目標：#"+ms.id+" "+ms.name+"（"+jdate(ms._f)+"）":"未到達のマイルストーンなし"; }
+  else if(P==="wip"){ const r=span(leaves.filter(t=>(t.pct||0)<100)); s=r?r.a:SCH.ps; f=r?r.b:SCH.pf; label="残工程表"; note="未完了タスクのみを抽出"; }
+  else if(P==="crit"){ const r=span(leaves.filter(t=>t.critical)); s=r?r.a:SCH.ps; f=r?r.b:SCH.pf; label="クリティカルパス工程表"; note="余裕 0 日以下のタスクのみを抽出"; }
+  else if(P==="late"){ const l=leaves.filter(t=>(t.pct||0)<100&&dayDiff(t._f,t0)>0); const r=span(l);
+    s=r?r.a:SCH.ps; f=r?r.b:t0; label="遅延タスク工程表"; note=l.length?l.length+" 件の遅延を抽出":"遅延タスクはありません"; }
+  else if(P==="sel"){ const ids=new Set(); U.sel.forEach(id=>{ const i=idx(id); if(i<0)return; ids.add(id); descendants(i).forEach(k=>ids.add(k.id)); });
+    const r=span(D.tasks.filter(t=>ids.has(t.id)&&!t.isSummary)); s=r?r.a:SCH.ps; f=r?r.b:SCH.pf; label="抜粋工程表"; note="選択した "+ids.size+" 件を抽出"; }
+  else if(P==="custom"){ s=PR.from?pd(PR.from):SCH.ps; f=PR.to?pd(PR.to):SCH.pf; label="工程表"; }
+  else { s=SCH.ps; f=SCH.pf; label="全体工程表"; }
+  if(dayDiff(s,f)<0) f=addD(s,6);
+  return {s:s,f:f,label:label,note:note};
+}
+function printRows(rg){
+  const P=PR.preset, t0=todayD(), keep=new Set();
+  const selIds=new Set(); if(P==="sel") U.sel.forEach(id=>{ const i=idx(id); if(i<0)return; selIds.add(id); descendants(i).forEach(k=>selIds.add(k.id)); });
+  D.tasks.forEach(t=>{ if(t.isSummary)return;
+    let ok=dayDiff(t._s,rg.f)>=0&&dayDiff(rg.s,t._f)>=0;
+    if(P==="crit") ok=ok&&t.critical;
+    else if(P==="late") ok=ok&&(t.pct||0)<100&&dayDiff(t._f,t0)>0;
+    else if(P==="wip") ok=ok&&(t.pct||0)<100;
+    else if(P==="sel") ok=selIds.has(t.id);
+    if(ok)keep.add(t.id); });
+  D.tasks.forEach((t,i)=>{ if(!keep.has(t.id))return; let lv=t.level;
+    for(let j=i-1;j>=0;j--){ if(D.tasks[j].level<lv){ keep.add(D.tasks[j].id); lv=D.tasks[j].level; if(!lv)break; } } });
+  return D.tasks.filter(t=>keep.has(t.id));
+}
+function pScale(dayMM){ if(PR.scale!=="auto")return PR.scale;
+  return dayMM>=3.2?"day":(dayMM*7>=7?"week":"month"); }
+function pTimeline(rg,days,dayMM,scale){
+  const dl=[]; for(let i=0;i<days;i++)dl.push(addD(rg.s,i));
+  const grp=(keyf,labf,clsf)=>{ let out="",st=0;
+    for(let i=1;i<=dl.length;i++){ if(i===dl.length||keyf(dl[i])!==keyf(dl[st])){
+        out+='<i class="'+(clsf?clsf(dl[st]):"")+'" style="left:'+(st*dayMM)+'mm;width:'+((i-st)*dayMM)+'mm">'+labf(dl[st],i-st)+'</i>'; st=i; } }
+    return out; };
+  let maj,min;
+  if(scale==="day"){
+    maj=grp(d=>d.getFullYear()+"/"+d.getMonth(),d=>d.getFullYear()+"年 "+(d.getMonth()+1)+"月");
+    min=dl.map((d,i)=>{ const k=ymd(d), c=D.cal.holidays[k]?"hd":(isWork(d)?"":"we");
+      const lab=dayMM>=6?d.getDate()+'<b>'+WD[d.getDay()]+'</b>':(dayMM>=3?String(d.getDate()):"");
+      return '<i class="'+c+'" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm">'+lab+'</i>'; }).join("");
+  } else if(scale==="week"){
+    maj=grp(d=>d.getFullYear()+"/"+d.getMonth(),d=>d.getFullYear()+"年 "+(d.getMonth()+1)+"月");
+    min=grp(d=>ymd(addD(d,-((d.getDay()+6)%7))),(d,n)=>n*dayMM>=7?md(addD(d,-((d.getDay()+6)%7))):"");
+  } else {
+    maj=grp(d=>d.getFullYear(),d=>d.getFullYear()+"年");
+    min=grp(d=>d.getFullYear()+"/"+d.getMonth(),(d,n)=>n*dayMM>=6?(d.getMonth()+1)+"月":"");
+  }
+  return '<div class="p-tlh"><div class="maj">'+maj+'</div><div class="min">'+min+'</div></div>';
+}
+function pTrack(t,rg,days,dayMM,scale,chartW){
+  let h="";
+  if(PR.shade&&dayMM>=1.4){ for(let i=0;i<days;i++){ const d=addD(rg.s,i),k=ymd(d);
+      if(D.cal.holidays[k]) h+='<div class="p-hd" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm"></div>';
+      else if(!isWork(d)) h+='<div class="p-nw" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm"></div>'; } }
+  for(let i=0;i<days;i++){ const d=addD(rg.s,i);
+    if((scale==="day"&&d.getDay()===1)||(scale!=="day"&&d.getDate()===1)) h+='<div class="p-vl" style="left:'+(i*dayMM)+'mm"></div>'; }
+  const ti=dayDiff(rg.s,todayD()); if(ti>=0&&ti<days) h+='<div class="p-today" style="left:'+(ti*dayMM)+'mm"></div>';
+  const cs=dayDiff(rg.s,t._s)>=0?t._s:rg.s, cf=dayDiff(t._f,rg.f)>=0?t._f:rg.f;
+  if(dayDiff(cs,cf)<0) return h;
+  const x=dayDiff(rg.s,cs)*dayMM, w=Math.max(0.8,(dayDiff(cs,cf)+1)*dayMM);
+  const cut=(dayDiff(rg.s,t._s)<0?"border-left-style:dashed;border-left-width:0.5mm;":"")+
+            (dayDiff(t._f,rg.f)<0?"border-right-style:dashed;border-right-width:0.5mm;":"");
+  if(PR.base&&D.baseline&&D.baseline[t.id]){ const b=D.baseline[t.id];
+    const bs=pd(b.s),bf=pd(b.f), qs=dayDiff(rg.s,bs)>=0?bs:rg.s, qf=dayDiff(bf,rg.f)>=0?bf:rg.f;
+    if(dayDiff(qs,qf)>=0) h+='<div class="p-base" style="left:'+(dayDiff(rg.s,qs)*dayMM)+'mm;width:'+((dayDiff(qs,qf)+1)*dayMM)+'mm"></div>'; }
+  const scut=(dayDiff(rg.s,t._s)<0?"border-left:0.5mm dashed #fff;":"")+(dayDiff(t._f,rg.f)<0?"border-right:0.5mm dashed #fff;":"");
+  if(t.ms) h+='<div class="p-ms'+(t.critical?" crit":"")+'" style="left:'+(x+dayMM/2-1.2)+'mm"></div>';
+  else if(t.isSummary) h+='<div class="p-sum" style="left:'+x+'mm;width:'+w+'mm;'+scut+'"></div>';
+  else h+='<div class="p-bar'+(t.critical?" crit":"")+((t.pct||0)>=100?" done":"")+'" style="left:'+x+'mm;width:'+w+'mm;'+cut+'">'+
+       ((t.pct||0)>0?'<div class="pf" style="width:'+(t.pct||0)+'%"></div>':"")+'</div>';
+  if(PR.label&&!t.isSummary){
+    const rn=(t.res||[]).map(r=>(resById(r.id)||{}).init||"").filter(Boolean).join("・");
+    const txt=(t.ms?md(t._s):rn)+((t.pct||0)>0&&(t.pct||0)<100?" "+t.pct+"%":"");
+    if(txt&&x+w+2+txt.length*1.9<chartW) h+='<div class="p-blab" style="left:'+(x+w+1.2)+'mm">'+esc(txt)+'</div>'; }
+  return h;
+}
+function pCell(t,c){
+  switch(c.k){
+    case "wbs": return esc(t.wbs);
+    case "name": return '<span style="padding-left:'+(t.level*3)+'mm">'+(t.ms?"◆ ":"")+esc(t.name)+'</span>';
+    case "dur": return t.ms?"—":(t.dur|0);
+    case "start": return md(t._s)+'<b style="font-weight:400;color:#78889a"> '+WD[t._s.getDay()]+'</b>';
+    case "finish": return md(t._f)+'<b style="font-weight:400;color:#78889a"> '+WD[t._f.getDay()]+'</b>';
+    case "preds": return esc(predsText(t));
+    case "res": return esc((t.res||[]).map(r=>(resById(r.id)||{}).name||"").join("・"));
+    case "pct": return (t.pct||0)+"%";
+  }
+  return "";
+}
+function printMeta(){
+  const rg=printRange(), rows=printRows(rg), pg=PAPER[PR.paper], M=10;
+  const cw=pg.w-M*2, ch=pg.h-M*2, cols=PCOLS[PR.cols];
+  const leftW=cols.reduce((a,c)=>a+c.w,0), chartW=Math.max(30,cw-leftW);
+  const days=dayDiff(rg.s,rg.f)+1, dayMM=chartW/days, scale=pScale(dayMM);
+  const headH=(PR.stats?34:22), rowH=5.4;
+  const pages=Math.max(1,Math.ceil((rows.length*rowH+headH+(PR.legend?8:0))/ch))+(PR.report?1:0);
+  return {rg:rg,rows:rows,pg:pg,cw:cw,ch:ch,cols:cols,leftW:leftW,chartW:chartW,days:days,dayMM:dayMM,scale:scale,pages:pages};
+}
+function buildPrint(){
+  const m=printMeta(), rg=m.rg, s=projStats(), t0=todayD();
+  const inRange=D.tasks.filter(t=>!t.isSummary&&m.rows.indexOf(t)>=0);
+  const wsum=inRange.reduce((a,t)=>a+Math.max(1,t.dur|0),0);
+  const pctR=wsum?Math.round(inRange.reduce((a,t)=>a+Math.max(1,t.dur|0)*(t.pct||0),0)/wsum):0;
+  const lateN=inRange.filter(t=>(t.pct||0)<100&&dayDiff(t._f,t0)>0).length;
+  const critN=inRange.filter(t=>t.critical).length;
+  const head='<div class="p-head"><div><div class="p-title">'+esc(rg.label)+'</div>'+
+    '<div class="p-sub">'+esc(D.meta.name)+(D.meta.note?'　'+esc(D.meta.note):"")+
+    (rg.note?'<br>'+esc(rg.note):"")+'</div></div>'+
+    '<div class="p-meta">対象期間　'+jdate(rg.s)+' 〜 '+jdate(rg.f)+'（'+m.days+' 日／稼働 '+workDays(rg.s,rg.f)+' 日）<br>'+
+    '基準日　'+jdate(t0)+'　／　監督　'+esc(D.meta.manager||"—")+'<br>'+
+    '出力　'+jdate(new Date())+'　／　'+m.pg.n+'　／　抽出 '+inRange.length+' タスク</div></div>';
+  const stats=PR.stats?'<div class="p-stats">'+
+    pstat("この範囲の進捗",pctR+"%")+pstat("抽出タスク",inRange.length+" 件")+
+    pstat("クリティカル",critN+" 件")+pstat("遅延",lateN+" 件",lateN>0)+
+    pstat("全体工期",md(s.start)+" → "+md(s.finish))+pstat("全体進捗",s.pct+"%")+'</div>':"";
+  let table;
+  if(!m.rows.length) table='<div class="p-empty">この条件に該当するタスクがありません。抽出範囲を変更してください。</div>';
+  else table='<table class="p-gantt"><colgroup>'+m.cols.map(c=>'<col style="width:'+c.w+'mm">').join("")+
+    '<col style="width:'+m.chartW+'mm"></colgroup>'+
+    '<thead><tr>'+m.cols.map(c=>'<th>'+c.n+'</th>').join("")+
+    '<th class="tl">'+pTimeline(rg,m.days,m.dayMM,m.scale)+'</th></tr></thead><tbody>'+
+    m.rows.map(t=>'<tr'+(t.isSummary?' class="sum"':"")+'>'+
+      m.cols.map(c=>'<td class="'+(["dur","start","finish","pct"].indexOf(c.k)>=0?"n":"")+'">'+pCell(t,c)+'</td>').join("")+
+      '<td class="trk"><div class="p-track">'+pTrack(t,rg,m.days,m.dayMM,m.scale,m.chartW)+'</div></td></tr>').join("")+
+    '</tbody></table>';
+  const legend=PR.legend?'<div class="p-legend">'+
+    '<span><i style="background:#3a7fbf"></i>予定</span><span><i style="background:#123f5e"></i>出来高</span>'+
+    '<span><i style="background:#d17263"></i>クリティカル</span><span><i style="background:#243444;height:1.2mm"></i>集計</span>'+
+    '<span><i style="background:#243444;width:2mm;height:2mm;transform:rotate(45deg)"></i>マイルストーン</span>'+
+    (PR.base?'<span><i style="background:#94a3b1;height:1mm"></i>基準計画</span>':"")+
+    '<span><i style="background:#eef1f6;border:0.4pt solid #c9d4df"></i>休日</span>'+
+    '<span><i style="background:#c0392b;width:1mm"></i>基準日</span>'+
+    '<span>破線の端＝この範囲の外へ継続</span></div>':"";
+  const foot='<div class="p-foot"><span>'+esc(D.meta.name)+'　'+esc(rg.label)+'</span>'+
+    '<span>工程表ワークベンチ　'+ymd(new Date())+'</span></div>';
+  let doc='<div class="p-sheet" style="width:'+m.cw+'mm">'+head+stats+table+legend+foot+'</div>';
+  if(PR.report) doc+=printReportSheet(m,s);
+  return '<div class="pdoc">'+doc+'</div>';
+}
+const pstat=(k,v,bad)=>'<div class="p-stat"><span class="k">'+k+'</span><span class="v'+(bad?" bad":"")+'">'+v+'</span></div>';
+function printReportSheet(m,s){
+  const t0=todayD(), data=curveData();
+  const late=D.tasks.filter(t=>!t.isSummary&&(t.pct||0)<100&&dayDiff(t._f,t0)>0)
+    .map(t=>({t:t,d:workDays(t._f,t0)-1})).sort((a,b)=>b.d-a.d);
+  const tops=D.tasks.filter(t=>t.isSummary&&t.level===0);
+  return '<div class="p-sheet" style="width:'+m.cw+'mm">'+
+   '<div class="p-head"><div><div class="p-title">進捗レポート</div>'+
+   '<div class="p-sub">'+esc(D.meta.name)+'</div></div>'+
+   '<div class="p-meta">基準日　'+jdate(t0)+'<br>出力　'+jdate(new Date())+'</div></div>'+
+   '<div class="p-stats">'+pstat("全体進捗",s.pct+"%")+pstat("工期",s.days+" 稼働日")+
+     pstat("残り",Math.max(0,workDays(t0,s.finish)-1)+" 稼働日")+pstat("遅延",late.length+" 件",late.length>0)+
+     pstat("総コスト",yen(s.cost))+'</div>'+
+   '<div class="p-h2">出来高曲線（S カーブ）</div>'+
+   '<div class="p-chart" style="margin-bottom:4mm">'+sCurveSVG(data)+'</div>'+
+   '<div class="p-two"><div><div class="p-h2">大工程の進捗</div>'+
+    '<table class="p-gantt"><thead><tr><th>工程</th><th>期間</th><th>進捗</th></tr></thead><tbody>'+
+    tops.map(t=>'<tr><td>'+esc(t.wbs)+' '+esc(t.name)+'</td><td class="n">'+md(t._s)+"→"+md(t._f)+'</td><td class="n">'+(t.pct||0)+'%</td></tr>').join("")+
+    '</tbody></table></div>'+
+   '<div><div class="p-h2">遅延タスク</div>'+
+    (late.length?'<table class="p-gantt"><thead><tr><th>タスク</th><th>終了予定</th><th>遅れ</th></tr></thead><tbody>'+
+     late.map(x=>'<tr><td>#'+x.t.id+' '+esc(x.t.name)+'</td><td class="n">'+md(x.t._f)+'</td><td class="n">'+x.d+'日</td></tr>').join("")+'</tbody></table>'
+     :'<p class="p-note">遅延しているタスクはありません。</p>')+'</div></div>'+
+   '<div class="p-foot"><span>'+esc(D.meta.name)+'　進捗レポート</span><span>工程表ワークベンチ　'+ymd(new Date())+'</span></div></div>';
+}
+/* --- 印刷ダイアログ --- */
+function openPrint(){ renderPrintDlg(); if(!$("#dlgPrint").open)$("#dlgPrint").showModal(); }
+function renderPrintDlg(){
+  const m=printMeta(), pg=m.pg;
+  const cur=PRESETS.filter(p=>p.k===PR.preset)[0]||PRESETS[0];
+  const chk=(k,lab)=>'<label style="display:flex;align-items:center;gap:6px;font-size:11.5px"><input type="checkbox" data-pr="'+k+'"'+(PR[k]?" checked":"")+'>'+lab+'</label>';
+  $("#dlgPrintBody").innerHTML=
+   '<div class="pgrid">'+
+    '<div class="fset"><h4>抽出する範囲</h4><div class="radio-list">'+
+      PRESETS.map(p=>'<label class="'+(p.k===PR.preset?"on":"")+'"><input type="radio" name="prp" data-preset="'+p.k+'"'+(p.k===PR.preset?" checked":"")+'>'+p.n+'<small>'+p.d+'</small></label>').join("")+
+      '</div>'+
+      (PR.preset==="custom"?'<div class="frow"><label>開始</label><input type="date" data-pr="from" value="'+(PR.from||ymd(m.rg.s))+'"></div>'+
+        '<div class="frow"><label>終了</label><input type="date" data-pr="to" value="'+(PR.to||ymd(m.rg.f))+'"></div>':"")+
+    '</div>'+
+    '<div class="fset"><h4>用紙とスケール</h4>'+
+      '<div class="frow"><label>用紙</label><select data-pr="paper">'+Object.keys(PAPER).map(k=>'<option value="'+k+'"'+(k===PR.paper?" selected":"")+'>'+PAPER[k].n+'</option>').join("")+'</select></div>'+
+      '<div class="frow"><label>時間目盛</label><select data-pr="scale">'+
+        [["auto","自動（"+({day:"日",week:"週",month:"月"}[m.scale])+"）"],["day","日"],["week","週"],["month","月"]]
+        .map(o=>'<option value="'+o[0]+'"'+(o[0]===PR.scale?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
+      '<div class="frow"><label>表の列</label><select data-pr="cols">'+
+        [["min","簡易（4列）"],["std","標準（6列）"],["full","詳細（8列）"]].map(o=>'<option value="'+o[0]+'"'+(o[0]===PR.cols?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
+      '<p class="hint">1 日あたり '+m.dayMM.toFixed(1)+' mm ／ 表 '+m.leftW+' mm ＋ 工程欄 '+m.chartW.toFixed(0)+' mm</p>'+
+    '</div>'+
+    '<div class="fset"><h4>紙面に含める</h4>'+
+      chk("stats","範囲のサマリー")+chk("shade","休日の網掛け")+chk("label","バー右の担当・進捗")+
+      chk("base","基準計画（ベースライン）")+chk("legend","凡例")+chk("report","進捗レポートを別ページで添付")+
+      '<p class="hint">依存関係は「先行」列（詳細）で表示します。紙面の矢印は改ページでずれるため描画しません。</p>'+
+    '</div>'+
+   '</div>'+
+   '<div class="pv-wrap" id="pvwrap"><div id="pvinner"><div class="pv-scale" id="pvscale"></div></div></div>';
+  $("#pvscale").innerHTML=buildPrint();
+  const pxw=(pg.w-20)*96/25.4, avail=$("#pvwrap").clientWidth-24;
+  const k=Math.min(1,avail/pxw);
+  $("#pvscale").style.width=pxw+"px"; $("#pvscale").style.transform="scale("+k+")";
+  $("#pvinner").style.height=($("#pvscale").offsetHeight*k)+"px";
+  $("#pageStyle").textContent="@page{size:"+pg.w+"mm "+pg.h+"mm;margin:10mm}";
+  $("#prInfo").textContent=pg.n+" ／ "+ymd(m.rg.s)+" 〜 "+ymd(m.rg.f)+" ／ "+m.rows.length+" 行 ／ 推定 "+m.pages+" ページ";
+}
+$("#dlgPrintBody").addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.preset){ PR.preset=t.dataset.preset; renderPrintDlg(); return; }
+  const k=t.dataset.pr; if(!k)return;
+  PR[k]=t.type==="checkbox"?t.checked:t.value;
+  renderPrintDlg();
+});
+window.addEventListener("beforeprint",()=>{ try{ $("#printdoc").innerHTML=buildPrint(); }catch(e){} });
+$("#prGo").addEventListener("click",()=>{
+  $("#printdoc").innerHTML=buildPrint();
+  const m=printMeta(); $("#pageStyle").textContent="@page{size:"+m.pg.w+"mm "+m.pg.h+"mm;margin:10mm}";
+  $("#dlgPrint").close();
+  setTimeout(()=>window.print(),60);
+});
 
 /* ============================ 初期化 ============================ */
 function seedProgress(){
