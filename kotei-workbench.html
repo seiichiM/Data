@@ -196,6 +196,18 @@ td.c-wbs{font-family:var(--font-num);font-size:10.5px;color:var(--ink3)}
 .pbar b{position:absolute;inset:0;text-align:center;font-size:9px;font-family:var(--font-num);font-weight:500;color:var(--ink);line-height:9px;mix-blend-mode:normal}
 .cell-edit{width:100%;height:calc(var(--rowh) - 6px);border:1px solid var(--accent2);border-radius:2px;background:var(--panel);padding:0 4px;font-size:12px;font-family:var(--font-ui)}
 .cell-edit.num{font-family:var(--font-num);text-align:right}
+.edit-wrap{display:flex;align-items:stretch;gap:2px;height:calc(var(--rowh) - 6px)}
+.edit-wrap .cell-edit{flex:1;min-width:0;height:100%}
+.edit-wrap input[type=number]{-moz-appearance:textfield}
+.edit-wrap input[type=number]::-webkit-outer-spin-button,.edit-wrap input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.edit-wrap.hidenative input[type=date]::-webkit-calendar-picker-indicator{opacity:0;width:0;padding:0;margin:0}
+.spin{display:flex;flex-direction:column;width:15px;flex:none}
+.spin button{flex:1;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--line);background:var(--panel2);color:var(--ink2);cursor:pointer;font-size:7px;line-height:1}
+.spin button:first-child{border-radius:2px 2px 0 0;border-bottom:none}
+.spin button:last-child{border-radius:0 0 2px 2px}
+.spin button:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-ring)}
+.calbtn{width:20px;flex:none;border:1px solid var(--line);border-radius:2px;background:var(--panel2);color:var(--ink2);cursor:pointer;font-size:11px;line-height:1;padding:0}
+.calbtn:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-ring)}
 
 /* ---- chart ---- */
 .chart-inner{position:relative;width:max-content;min-width:100%}
@@ -861,8 +873,8 @@ const COLS=[
  {k:"wbs",t:"WBS",w:54,cls:"c-wbs"},
  {k:"mode",t:"⚙",w:26,cls:"ctr"},
  {k:"name",t:"タスク名",w:256,cls:"c-name",edit:1},
- {k:"dur",t:"期間",w:58,cls:"num",edit:1},
- {k:"start",t:"開始",w:96,cls:"date",edit:1},
+ {k:"dur",t:"期間",w:78,cls:"num",edit:1},
+ {k:"start",t:"開始",w:116,cls:"date",edit:1},
  {k:"finish",t:"終了",w:96,cls:"date"},
  {k:"preds",t:"先行タスク",w:104,cls:"",edit:1},
  {k:"res",t:"リソース名",w:136,cls:"",edit:1},
@@ -881,8 +893,8 @@ function cellHTML(t,c){
       return '<div class="nm" style="padding-left:'+(t.level*15)+'px">'+tw+'<span class="txt">'+esc(t.name)+'</span>'+badge+'</div>';
     }
     case "dur": return durText(t);
-    case "start": return md(t._s)+'<b style="font-weight:400;color:#78889a"> '+WD[t._s.getDay()]+'</b>';
-    case "finish": return md(t._f)+'<b style="font-weight:400;color:#78889a"> '+WD[t._f.getDay()]+'</b>';
+    case "start": return md(t._s)+"("+WD[t._s.getDay()]+")";
+    case "finish": return md(t._f)+"("+WD[t._f.getDay()]+")";
     case "preds": return esc(predsText(t));
     case "res": return esc(resText(t));
     case "pct": return '<div class="pbar"><i style="width:'+(t.pct||0)+'%"></i><b>'+(t.pct||0)+'%</b></div>';
@@ -1399,6 +1411,7 @@ function unlinkSel(){ const ids=new Set(U.sel);
 
 /* ============================ セル編集 ============================ */
 let editing=null;
+const HAS_PICKER=(function(){ try{ return typeof HTMLInputElement.prototype.showPicker==="function"; }catch(e){ return false; } })();
 function rawValue(t,col){
   switch(col){ case "name":return t.name; case "dur":return String(t.dur|0); case "start":return t.start;
     case "preds":return predsText(t); case "res":return resText(t); case "pct":return String(t.pct||0); }
@@ -1409,10 +1422,26 @@ function startEdit(td){
   const tr=td.closest("tr"), t=SCH.byId.get(+tr.dataset.tid), col=td.dataset.col;
   if(!t||!td.dataset.edit)return;
   if(t.isSummary&&["dur","start","pct","preds"].indexOf(col)>=0)return toast("集計タスクは子タスクから自動計算されます");
-  const html=td.innerHTML, isNum=["dur","pct"].indexOf(col)>=0;
-  td.innerHTML='<input class="cell-edit'+(isNum?" num":"")+'" '+(col==="start"?'type="date"':"")+' value="'+esc(rawValue(t,col))+'">';
-  const inp=td.firstChild; editing={td:td,html:html,id:t.id,col:col};
-  inp.focus(); if(inp.select)inp.select();
+  const html=td.innerHTML, isNum=["dur","pct"].indexOf(col)>=0, val=esc(rawValue(t,col));
+  if(col==="dur"){
+    td.innerHTML='<div class="edit-wrap"><input class="cell-edit num" type="number" min="0" step="1" value="'+val+'">'+
+      '<span class="spin"><button type="button" tabindex="-1" data-spin="1" title="1 日増やす" aria-label="1 日増やす">▲</button>'+
+      '<button type="button" tabindex="-1" data-spin="-1" title="1 日減らす" aria-label="1 日減らす">▼</button></span></div>';
+  } else if(col==="start"){
+    td.innerHTML='<div class="edit-wrap'+(HAS_PICKER?" hidenative":"")+'"><input class="cell-edit" type="date" value="'+val+'">'+
+      (HAS_PICKER?'<button type="button" tabindex="-1" class="calbtn" data-cal="1" title="カレンダーから選ぶ" aria-label="カレンダーから選ぶ">▦</button>':"")+'</div>';
+  } else {
+    td.innerHTML='<input class="cell-edit'+(isNum?" num":"")+'" value="'+val+'">';
+  }
+  const inp=td.querySelector("input"); editing={td:td,html:html,id:t.id,col:col};
+  inp.focus(); try{ if(col!=="start"&&inp.select)inp.select(); }catch(e){}
+  Array.prototype.forEach.call(td.querySelectorAll("[data-spin]"),b=>{
+    b.addEventListener("mousedown",e=>{ e.preventDefault();
+      inp.value=Math.max(0,(parseInt(inp.value,10)||0)+(+b.dataset.spin)); inp.focus(); });
+  });
+  const calb=td.querySelector("[data-cal]");
+  if(calb) calb.addEventListener("mousedown",e=>{ e.preventDefault(); inp.focus(); try{ inp.showPicker(); }catch(err){} });
+  if(col==="start") inp.addEventListener("change",()=>{ if(editing&&editing.td===td&&inp.value) commitEdit(inp.value); });
   inp.addEventListener("keydown",e=>{
     if(e.key==="Enter"){ e.preventDefault(); commitEdit(inp.value); }
     else if(e.key==="Escape"){ e.preventDefault(); cancelEdit(); }
