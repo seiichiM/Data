@@ -174,6 +174,7 @@ table.grid th{position:sticky;top:0;z-index:3;height:var(--headh);background:var
 table.grid td{height:var(--rowh);padding:0 7px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--panel)}
 table.grid td.num,table.grid th.num{text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:11px}
 table.grid td.ctr{text-align:center}
+table.grid td[data-col="mode"]{cursor:pointer;user-select:none}
 table.grid td.date{font-family:var(--font-num);font-size:11px;color:var(--ink2)}
 tr.trow:hover td{background:var(--panel2)}
 tr.trow.sel td{background:var(--accent-soft)}
@@ -509,6 +510,13 @@ dialog.wide{max-width:min(96vw,940px)}
         </div>
       </div><div class="glabel">進捗の更新</div></div>
       <div class="rgroup"><div class="rrow">
+        <div class="seg" id="seg-mode">
+          <button data-act="mode" data-v="auto" title="稼働カレンダー（土日祝を除く）で計算">⚙ 自動</button>
+          <button data-act="mode" data-v="cont" title="土日祝も稼働日として連続で計算">∞ 連続</button>
+          <button data-act="mode" data-v="manual" title="入力した開始日を固定">✋ 手動</button>
+        </div>
+      </div><div class="glabel">スケジュール方法</div></div>
+      <div class="rgroup"><div class="rrow">
         <button class="rb" data-act="info"><span class="ic">☰</span>タスク<br>情報</button>
         <button class="rb" data-act="scrollTo"><span class="ic">◎</span>バーへ<br>移動</button>
       </div><div class="glabel">プロパティ</div></div>
@@ -722,13 +730,18 @@ function persist(){ try{localStorage.setItem(LS,JSON.stringify({D:D,U:{zoom:U.zo
 function restore(){ try{const s=JSON.parse(localStorage.getItem(LS)||"null"); if(s&&s.D&&Array.isArray(s.D.tasks)&&s.D.tasks.length){D=s.D; Object.assign(U,s.U||{}); return true;} }catch(e){} return false; }
 
 /* ============================ カレンダー ============================ */
-function isWork(d){ return !!D.cal.work[d.getDay()] && !D.cal.holidays[ymd(d)]; }
-function nextWork(d,dir){ dir=dir||1; let x=new Date(d),g=0; while(!isWork(x)&&g<2000){x=addD(x,dir);g++;} return x; }
-function shiftWork(d,n){ let x=nextWork(d,n<0?-1:1); const dir=n<0?-1:1; let k=Math.abs(n),g=0;
+function isHoli(d){ return !D.cal.ignore && !!D.cal.holidays[ymd(d)]; }
+function isWork(d,free){ if(free||D.cal.ignore)return true; return !!D.cal.work[d.getDay()] && !D.cal.holidays[ymd(d)]; }
+function freeOf(t){ return !!t && t.mode==="cont"; }
+function nextWork(d,dir,free){ if(free||D.cal.ignore)return new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  dir=dir||1; let x=new Date(d),g=0; while(!isWork(x)&&g<2000){x=addD(x,dir);g++;} return x; }
+function shiftWork(d,n,free){ if(free||D.cal.ignore)return addD(d,n);
+  let x=nextWork(d,n<0?-1:1); const dir=n<0?-1:1; let k=Math.abs(n),g=0;
   while(k>0&&g<20000){ x=addD(x,dir); if(isWork(x))k--; g++; } return x; }
-function endFrom(s,dur){ return dur<=1?nextWork(s):shiftWork(s,dur-1); }
-function startFrom(f,dur){ return dur<=1?nextWork(f,-1):shiftWork(f,-(dur-1)); }
-function workDays(a,b){ if(dayDiff(a,b)<0)return 0; let n=0,x=new Date(a),g=0;
+function endFrom(s,dur,free){ return dur<=1?nextWork(s,1,free):shiftWork(s,dur-1,free); }
+function startFrom(f,dur,free){ return dur<=1?nextWork(f,-1,free):shiftWork(f,-(dur-1),free); }
+function workDays(a,b,free){ if(dayDiff(a,b)<0)return 0; if(free||D.cal.ignore)return dayDiff(a,b)+1;
+  let n=0,x=new Date(a),g=0;
   while(dayDiff(x,b)>=0&&g<20000){ if(isWork(x))n++; x=addD(x,1); g++; } return n; }
 
 /* ============================ スケジューリング（CPM） ============================ */
@@ -755,36 +768,36 @@ function schedule(){
 
   const PS=nextWork(pd(D.meta.start)); SCH.ps=PS;
   order.forEach(id=>{
-    const t=byId.get(id), dur=Math.max(t.ms?0:1,t.dur|0);
+    const t=byId.get(id), dur=Math.max(t.ms?0:1,t.dur|0), fr=freeOf(t);
     let st=PS;
     t.preds.forEach(p=>{ const q2=byId.get(p.id); if(!q2||!q2._s)return; const lag=p.lag||0; let c;
-      if(p.type==="SS") c=shiftWork(q2._s,lag);
-      else if(p.type==="FF") c=startFrom(shiftWork(q2._f,lag),dur||1);
-      else if(p.type==="SF") c=startFrom(shiftWork(q2._s,lag),dur||1);
-      else c=shiftWork(q2._f,1+lag);
+      if(p.type==="SS") c=shiftWork(q2._s,lag,fr);
+      else if(p.type==="FF") c=startFrom(shiftWork(q2._f,lag,fr),dur||1,fr);
+      else if(p.type==="SF") c=startFrom(shiftWork(q2._s,lag,fr),dur||1,fr);
+      else c=shiftWork(q2._f,1+lag,fr);
       if(dayDiff(st,c)>0) st=c; });
-    if(t.mode==="manual"&&t.start) st=nextWork(pd(t.start));
+    if(t.mode==="manual"&&t.start) st=nextWork(pd(t.start),1,fr);
     const c=t.constraint||{type:"ASAP",date:null};
-    if(c.date){ const cd=nextWork(pd(c.date));
+    if(c.date){ const cd=nextWork(pd(c.date),1,fr);
       if(c.type==="MSO") st=cd;
       else if(c.type==="SNET"){ if(dayDiff(st,cd)>0) st=cd; }
       else if(c.type==="SNLT"){ if(dayDiff(cd,st)>0){ st=cd; t.warn="制約と競合"; } }
-      else if(c.type==="MFO") st=startFrom(nextWork(pd(c.date),-1),dur||1);
-      else if(c.type==="FNLT"){ const lim=startFrom(nextWork(pd(c.date),-1),dur||1); if(dayDiff(lim,st)>0){ st=lim; t.warn="制約と競合"; } }
+      else if(c.type==="MFO") st=startFrom(nextWork(pd(c.date),-1,fr),dur||1,fr);
+      else if(c.type==="FNLT"){ const lim=startFrom(nextWork(pd(c.date),-1,fr),dur||1,fr); if(dayDiff(lim,st)>0){ st=lim; t.warn="制約と競合"; } }
     }
-    t._s=nextWork(st); t._f=(dur<=0)?t._s:endFrom(t._s,dur);
+    t._s=nextWork(st,1,fr); t._f=(dur<=0)?t._s:endFrom(t._s,dur,fr);
   });
   let PF=PS; leaves.forEach(t=>{ if(t._f&&dayDiff(PF,t._f)>0)PF=t._f; }); SCH.pf=PF;
   for(let i=order.length-1;i>=0;i--){
-    const t=byId.get(order[i]), dur=Math.max(t.ms?0:1,t.dur|0); let lf=PF;
+    const t=byId.get(order[i]), dur=Math.max(t.ms?0:1,t.dur|0), fr=freeOf(t); let lf=PF;
     succ.get(t.id).forEach(s=>{ const u=byId.get(s.id); if(!u||!u._ls)return; const lag=s.lag||0; let c;
-      if(s.type==="SS") c=endFrom(shiftWork(u._ls,-lag),dur||1);
-      else if(s.type==="FF") c=shiftWork(u._lf,-lag);
-      else if(s.type==="SF") c=endFrom(shiftWork(u._lf,-lag),dur||1);
-      else c=shiftWork(u._ls,-1-lag);
+      if(s.type==="SS") c=endFrom(shiftWork(u._ls,-lag,fr),dur||1,fr);
+      else if(s.type==="FF") c=shiftWork(u._lf,-lag,fr);
+      else if(s.type==="SF") c=endFrom(shiftWork(u._lf,-lag,fr),dur||1,fr);
+      else c=shiftWork(u._ls,-1-lag,fr);
       if(dayDiff(c,lf)>0) lf=c; });
-    t._lf=lf; t._ls=(dur<=0)?lf:startFrom(lf,dur);
-    t.slack=(dayDiff(t._f,t._lf)>=0)?workDays(t._f,t._lf)-1:-(workDays(t._lf,t._f)-1);
+    t._lf=lf; t._ls=(dur<=0)?lf:startFrom(lf,dur,fr);
+    t.slack=(dayDiff(t._f,t._lf)>=0)?workDays(t._f,t._lf,fr)-1:-(workDays(t._lf,t._f,fr)-1);
     t.critical=t.slack<=0;
   }
   for(let i=T.length-1;i>=0;i--){
@@ -806,10 +819,10 @@ function taskCost(t){ if(t.isSummary)return 0; const dur=Math.max(t.ms?0:1,t.dur
 /* リソース日別負荷 */
 function loadMap(){
   const m=new Map();
-  D.tasks.forEach(t=>{ if(t.isSummary||t.ms)return;
+  D.tasks.forEach(t=>{ if(t.isSummary||t.ms)return; const fr=freeOf(t);
     (t.res||[]).forEach(x=>{ if(!m.has(x.id))m.set(x.id,{});
       const o=m.get(x.id); let d=new Date(t._s),g=0;
-      while(dayDiff(d,t._f)>=0&&g<2000){ if(isWork(d)){ const k=ymd(d); o[k]=(o[k]||0)+(x.units||100); } d=addD(d,1); g++; } });
+      while(dayDiff(d,t._f)>=0&&g<2000){ if(isWork(d,fr)){ const k=ymd(d); o[k]=(o[k]||0)+(x.units||100); } d=addD(d,1); g++; } });
   });
   return m;
 }
@@ -823,6 +836,7 @@ function overAlloc(){
 /* ============================ 表示対象の抽出 ============================ */
 const ROWH=30, HEADH=48;
 const ZOOMW={day:28,week:11,month:3.6,quarter:1.25};
+const MODEN={auto:"自動（稼働カレンダー）",cont:"連続（土日祝も稼働）",manual:"手動"};
 const CTYPE={ASAP:"できるだけ早く",SNET:"開始日以降",SNLT:"開始日以前",MSO:"開始日固定",MFO:"終了日固定",FNLT:"終了日以前"};
 
 function matchTask(t){
@@ -886,7 +900,10 @@ function cellHTML(t,c){
   switch(c.k){
     case "id": return t.id;
     case "wbs": return esc(t.wbs||"");
-    case "mode": return t.mode==="manual"?'<span title="手動スケジュール">✋</span>':'<span title="自動スケジュール" style="color:var(--ink3)">⚙</span>';
+    case "mode": return t.isSummary?"":
+      (t.mode==="manual"?'<span title="手動スケジュール（もう一度クリックで切替）">✋</span>':
+       t.mode==="cont"?'<span title="連続スケジュール：土日祝も稼働（もう一度クリックで切替）" style="color:var(--warn);font-weight:600">∞</span>':
+       '<span title="自動スケジュール：稼働カレンダーに従う（もう一度クリックで切替）" style="color:var(--ink3)">⚙</span>');
     case "name":{
       const tw=t.isSummary?'<button class="tw" data-tw="'+t.id+'" aria-label="折りたたみ">'+(U.collapsed[t.id]?"▶":"▼")+'</button>':'<span class="tw ph"></span>';
       const badge=t.warn?'<span class="chip wn" title="'+esc(t.warn)+'">!</span>':(t.ms?'<span class="chip ms">◆</span>':"");
@@ -940,8 +957,8 @@ function timelineHTML(){
     return out; };
   if(z==="day"){
     major=grp(d=>d.getFullYear()+"-"+d.getMonth(),d=>d.getFullYear()+"年"+(d.getMonth()+1)+"月");
-    minor=days.map((d,i)=>{ const k=ymd(d); const c=k===t0?"td":(D.cal.holidays[k]?"hd":(isWork(d)?"":"we"));
-      return '<div class="tl-cell '+c+'" style="left:'+(i*w)+'px;width:'+w+'px" title="'+jdate(d)+(D.cal.holidays[k]?" "+esc(D.cal.holidays[k]):"")+'">'+d.getDate()+'<br>'+WD[d.getDay()]+'</div>'; }).join("");
+    minor=days.map((d,i)=>{ const k=ymd(d); const c=k===t0?"td":(isHoli(d)?"hd":(isWork(d)?"":"we"));
+      return '<div class="tl-cell '+c+'" style="left:'+(i*w)+'px;width:'+w+'px" title="'+jdate(d)+(isHoli(d)?" "+esc(D.cal.holidays[k]):"")+'">'+d.getDate()+'<br>'+WD[d.getDay()]+'</div>'; }).join("");
   } else if(z==="week"){
     major=grp(d=>d.getFullYear()+"-"+d.getMonth(),d=>d.getFullYear()+"年"+(d.getMonth()+1)+"月");
     minor=grp(d=>{const x=addD(d,-((d.getDay()+6)%7));return ymd(x);},(d,n)=>n*w>28?md(addD(d,-((d.getDay()+6)%7))):"");
@@ -959,7 +976,7 @@ function chartHTML(rows){
   const w=ZOOMW[U.zoom], W=RANGE.days*w, H=Math.max(rows.length*ROWH+30,180), sel=new Set(U.sel);
   let bg="",bars="",lab="";
   if(w>=8){ for(let i=0;i<RANGE.days;i++){ const d=addD(RANGE.s,i),k=ymd(d);
-      if(D.cal.holidays[k]) bg+='<div class="bg-holiday" style="left:'+(i*w)+'px;width:'+w+'px"></div>';
+      if(isHoli(d)) bg+='<div class="bg-holiday" style="left:'+(i*w)+'px;width:'+w+'px"></div>';
       else if(!isWork(d)) bg+='<div class="bg-nonwork" style="left:'+(i*w)+'px;width:'+w+'px"></div>'; } }
   for(let i=0;i<RANGE.days;i++){ const d=addD(RANGE.s,i);
     const line=(U.zoom==="day"&&d.getDay()===1)||(U.zoom!=="day"&&d.getDate()===1);
@@ -1038,6 +1055,7 @@ function projStats(){
 function renderStatus(){
   const s=projStats();
   $("#statusbar").innerHTML=
+   (D.cal.ignore?st("カレンダー",'<span style="color:var(--warn)">連続稼働（休日無視）</span>'):"")+
    st("開始",jdate(s.start))+st("完了",jdate(s.finish))+st("工期",s.days+" 稼働日")+
    st("全体進捗",s.pct+"%",s.pct>=100?"okv":"")+
    st("タスク",s.total+" 件（マイルストーン "+s.ms+"）")+
@@ -1076,7 +1094,7 @@ function renderInspector(){
     '<div class="frow"><label>タスク名</label><input data-f="name" value="'+esc(t.name)+'"></div>'+
     '<div class="frow"><label>WBS / ID</label><input value="'+esc(t.wbs)+"  /  #"+t.id+'" readonly></div>'+
     '<div class="frow"><label>種別</label><select data-f="ms">'+opt("0",t.ms?"1":"0","通常タスク")+opt("1",t.ms?"1":"0","マイルストーン")+'</select></div>'+
-    '<div class="frow"><label>モード</label><select data-f="mode">'+opt("auto",t.mode,"自動スケジュール")+opt("manual",t.mode,"手動スケジュール")+'</select></div>'+
+    '<div class="frow"><label>モード</label><select data-f="mode">'+opt("auto",t.mode||"auto","自動（稼働カレンダー）")+opt("cont",t.mode||"auto","連続（土日祝も稼働）")+opt("manual",t.mode||"auto","手動")+'</select></div>'+
     '<div class="frow"><label>期間（日）</label><input data-f="dur" type="number" min="0" value="'+(t.dur|0)+'"'+(t.isSummary?" readonly":"")+'></div>'+
     '<div class="frow"><label>進捗（%）</label><input data-f="pct" type="number" min="0" max="100" step="5" value="'+(t.pct||0)+'"'+(t.isSummary?" readonly":"")+'></div>'+
   '</div>'+
@@ -1113,6 +1131,9 @@ function render(){
   $$("#viewrail button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===U.view?"true":"false"));
   $$(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+U.view));
   $$("#seg-zoom button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===U.zoom?"true":"false"));
+  const st1=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]):null;
+  const curMode=(st1&&!st1.isSummary)?(st1.mode||"auto"):null;
+  $$("#seg-mode button").forEach(b=>{ b.setAttribute("aria-pressed",b.dataset.v===curMode?"true":"false"); b.disabled=!curMode; });
   $$('[data-act="tgl"]').forEach(b=>b.setAttribute("aria-pressed",U[b.dataset.v]?"true":"false"));
   $("#b-undo").disabled=!undoStack.length; $("#b-redo").disabled=!redoStack.length;
   $("#f-filter").value=U.filter;
@@ -1395,6 +1416,19 @@ function moveSel(dir){
     mutate(()=>{ const cut=D.tasks.splice(i,n); D.tasks.splice(i+nb,0,...cut); });
   }
 }
+function setMode(v){
+  const list=selTasks().filter(t=>!t.isSummary);
+  if(!list.length)return toast("タスクを選択してください");
+  mutate(()=>{ list.forEach(t=>{ t.mode=v; }); });
+  toast(list.length+" 件を「"+MODEN[v]+"」にしました");
+}
+function cycleMode(id){
+  const t=SCH.byId.get(id); if(!t)return;
+  if(t.isSummary)return toast("集計タスクは子タスクから自動計算されます");
+  const order=["auto","cont","manual"], nx=order[(order.indexOf(t.mode||"auto")+1)%3];
+  mutate(()=>{ t.mode=nx; });
+  toast("#"+t.id+" を「"+MODEN[nx]+"」にしました");
+}
 function setPct(v){ mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary)t.pct=clamp(v|0,0,100); }); }); }
 function linkSel(){
   const s=selTasks().filter(t=>!t.isSummary); if(s.length<2)return toast("2つ以上のタスクを選択してください");
@@ -1459,7 +1493,7 @@ function commitEdit(val){
   if(col==="name") t.name=String(val).trim()||t.name;
   else if(col==="dur"){ const n=Math.max(0,parseInt(String(val).replace(/[^\d-]/g,""),10)||0);
     if(n===0){ t.ms=true; t.dur=0; } else { t.ms=false; t.dur=n; } }
-  else if(col==="start"){ const d=parseDateInput(val); if(d) setStartByDrag(t,nextWork(d)); }
+  else if(col==="start"){ const d=parseDateInput(val); if(d) setStartByDrag(t,nextWork(d,1,freeOf(t))); }
   else if(col==="preds"){ const ps=parsePreds(val).filter(p=>p.id!==t.id&&D.tasks.some(x=>x.id===p.id&&!x.isSummary)&&!wouldCycle(p.id,t.id)); t.preds=ps; }
   else if(col==="res") t.res=parseRes(val);
   else if(col==="pct") t.pct=clamp(parseInt(val,10)||0,0,100);
@@ -1480,10 +1514,12 @@ $("#gridPane").addEventListener("click",e=>{
   if(tw){ const id=+tw.dataset.tw; U.collapsed[id]=!U.collapsed[id]; render(); return; }
   const tr=e.target.closest("tr.trow"); if(!tr)return;
   const id=+tr.dataset.tid, td=e.target.closest("td");
-  const already=U.sel.length===1&&U.sel[0]===id&&td&&td.dataset.edit;
+  const wasSel=U.sel.length===1&&U.sel[0]===id;
+  const already=wasSel&&td&&td.dataset.edit;
   const col=td?td.dataset.col:null;
   if(editing)return;
   selectRow(id,e); render();
+  if(col==="mode"&&wasSel){ cycleMode(id); return; }
   if(already){ const ntd=document.querySelector('tr[data-tid="'+id+'"] td[data-col="'+col+'"]'); if(ntd)startEdit(ntd); }
 });
 $("#gridPane").addEventListener("dblclick",e=>{
@@ -1548,12 +1584,12 @@ document.addEventListener("mouseup",e=>{
       if(tid&&tid!==d.t.id){ if(d.side==="r")addLink(d.t.id,tid,"FS",0); else addLink(tid,d.t.id,"FS",0); } }
     return; }
   if(!d.dd&&d.kind!=="pct"){ render(); return; }
-  const t=d.t;
-  if(d.kind==="move"&&d.dd){ mutate(()=>{ setStartByDrag(t,nextWork(addD(d.s0,d.dd))); }); toast("#"+t.id+" を移動しました（制約：開始日以降）"); }
-  else if(d.kind==="resizer"&&d.dd){ mutate(()=>{ const nf=nextWork(addD(d.f0,d.dd),-1);
-      const nd=Math.max(1,workDays(t._s,nf)); if(t.ms&&nd>0)t.ms=false; t.dur=nd; }); }
-  else if(d.kind==="resizel"&&d.dd){ mutate(()=>{ const ns=nextWork(addD(d.s0,d.dd));
-      const nd=Math.max(1,workDays(ns,d.f0)); t.dur=nd; setStartByDrag(t,ns); }); }
+  const t=d.t, fr=freeOf(t);
+  if(d.kind==="move"&&d.dd){ mutate(()=>{ setStartByDrag(t,nextWork(addD(d.s0,d.dd),1,fr)); }); toast("#"+t.id+" を移動しました（制約：開始日以降）"); }
+  else if(d.kind==="resizer"&&d.dd){ mutate(()=>{ const nf=nextWork(addD(d.f0,d.dd),-1,fr);
+      const nd=Math.max(1,workDays(t._s,nf,fr)); if(t.ms&&nd>0)t.ms=false; t.dur=nd; }); }
+  else if(d.kind==="resizel"&&d.dd){ mutate(()=>{ const ns=nextWork(addD(d.s0,d.dd),1,fr);
+      const nd=Math.max(1,workDays(ns,d.f0,fr)); t.dur=nd; setStartByDrag(t,ns); }); }
   else if(d.kind==="pct"){ if(d.pct!==(t.pct||0)) mutate(()=>{ t.pct=d.pct; }); else render(); }
 });
 /* ============================ ツールチップ ============================ */
@@ -1565,7 +1601,8 @@ cp.addEventListener("mousemove",e=>{
   const bl=D.baseline&&D.baseline[t.id];
   tip.innerHTML='<h5>#'+t.id+' '+esc(t.name)+'</h5><dl>'+
     '<dt>開始</dt><dd>'+jdate(t._s)+'</dd><dt>終了</dt><dd>'+jdate(t._f)+'</dd>'+
-    '<dt>期間</dt><dd>'+(t.dur|0)+' 稼働日</dd><dt>進捗</dt><dd>'+(t.pct||0)+'%</dd>'+
+    '<dt>期間</dt><dd>'+(t.dur|0)+(freeOf(t)?' 日（連続）':' 稼働日')+'</dd><dt>進捗</dt><dd>'+(t.pct||0)+'%</dd>'+
+    (t.isSummary?"":'<dt>モード</dt><dd>'+MODEN[t.mode||"auto"]+'</dd>')+
     (t.isSummary?"":'<dt>余裕</dt><dd>'+t.slack+' 日'+(t.critical?"（クリティカル）":"")+'</dd>')+
     (resText(t)?'<dt>担当</dt><dd>'+esc(resText(t))+'</dd>':"")+
     (predsText(t)?'<dt>先行</dt><dd>'+esc(predsText(t))+'</dd>':"")+
@@ -1707,6 +1744,7 @@ document.addEventListener("click",e=>{
   const el=e.target.closest("[data-act]"); if(!el)return;
   const a=el.dataset.act;
   if(a==="pct"){ setPct(+el.dataset.v); return; }
+  if(a==="mode"){ setMode(el.dataset.v); return; }
   if(a==="zoom"){ U.zoom=el.dataset.v; render(); return; }
   if(a==="tgl"){ U[el.dataset.v]=!U[el.dataset.v]; render(); return; }
   if(ACT[a]){ ctx.classList.remove("on"); ACT[a](el); }
@@ -1773,6 +1811,12 @@ $("#dlgProjOk").addEventListener("click",()=>{
 function openCal(){
   const hs=Object.keys(D.cal.holidays).sort();
   $("#dlgCalBody").innerHTML=
+   '<div class="note-cal" style="border:1px solid var(--line);border-radius:5px;padding:9px 11px;background:var(--panel2)">'+
+    '<label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer">'+
+    '<input type="checkbox" id="cal-ignore"'+(D.cal.ignore?" checked":"")+' style="margin-top:3px">'+
+    '<span><b>プロジェクト全体を連続稼働にする（土日・休日を無視）</b><br>'+
+    '<span class="hint">すべての日を稼働日として計算します。下の稼働曜日と休日の設定は消さずに保持され、チェックを外せば元の計算に戻ります。'+
+    'タスクごとに切り替えたいときは、表のモード列または <b>タスク → スケジュール方法 → ∞ 連続</b> を使ってください。</span></span></label></div>'+
    '<div><h4 style="margin:0 0 6px;font-size:11px;color:var(--ink3)">稼働曜日</h4><div class="wk">'+
     WD.map((w,i)=>'<label><input type="checkbox" data-wd="'+i+'"'+(D.cal.work[i]?" checked":"")+'>'+w+'</label>').join("")+'</div></div>'+
    '<div><h4 style="margin:0 0 6px;font-size:11px;color:var(--ink3)">休日（'+hs.length+' 日）</h4><div class="hol-list">'+
@@ -1783,9 +1827,10 @@ function openCal(){
   $("#dlgCal").showModal();
 }
 $("#dlgCalBody").addEventListener("click",e=>{ const k=e.target.dataset.delhol; if(!k)return;
-  pushUndo(); delete D.cal.holidays[k]; openCal(); render(); });
+  pushUndo(); D.cal.ignore=$("#cal-ignore").checked; delete D.cal.holidays[k]; openCal(); render(); });
 $("#dlgCalOk").addEventListener("click",()=>{
   pushUndo();
+  D.cal.ignore=$("#cal-ignore").checked;
   $$("#dlgCalBody [data-wd]").forEach(cb=>{ D.cal.work[+cb.dataset.wd]=cb.checked; });
   $$("#dlgCalBody [data-hol]").forEach(inp=>{ D.cal.holidays[inp.dataset.hol]=inp.value||"休日"; });
   const nv=$("#cal-new").value; if(nv)D.cal.holidays[nv]="休日";
@@ -1864,7 +1909,7 @@ function pTimeline(rg,days,dayMM,scale){
   let maj,min;
   if(scale==="day"){
     maj=grp(d=>d.getFullYear()+"/"+d.getMonth(),d=>d.getFullYear()+"年 "+(d.getMonth()+1)+"月");
-    min=dl.map((d,i)=>{ const k=ymd(d), c=D.cal.holidays[k]?"hd":(isWork(d)?"":"we");
+    min=dl.map((d,i)=>{ const k=ymd(d), c=isHoli(d)?"hd":(isWork(d)?"":"we");
       const lab=dayMM>=6?d.getDate()+'<b>'+WD[d.getDay()]+'</b>':(dayMM>=3?String(d.getDate()):"");
       return '<i class="'+c+'" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm">'+lab+'</i>'; }).join("");
   } else if(scale==="week"){
@@ -1879,7 +1924,7 @@ function pTimeline(rg,days,dayMM,scale){
 function pTrack(t,rg,days,dayMM,scale,chartW){
   let h="";
   if(PR.shade&&dayMM>=1.4){ for(let i=0;i<days;i++){ const d=addD(rg.s,i),k=ymd(d);
-      if(D.cal.holidays[k]) h+='<div class="p-hd" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm"></div>';
+      if(isHoli(d)) h+='<div class="p-hd" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm"></div>';
       else if(!isWork(d)) h+='<div class="p-nw" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm"></div>'; } }
   for(let i=0;i<days;i++){ const d=addD(rg.s,i);
     if((scale==="day"&&d.getDay()===1)||(scale!=="day"&&d.getDate()===1)) h+='<div class="p-vl" style="left:'+(i*dayMM)+'mm"></div>'; }
