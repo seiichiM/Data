@@ -148,8 +148,9 @@ td.k{white-space:nowrap;font-weight:600}
 
 ol.steps{list-style:none;counter-reset:s;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:12px}
 ol.steps li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;gap:12px;margin:0}
-ol.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--font-num);font-size:11.5px;color:var(--accent);background:var(--accent-soft);border-radius:4px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:500}
-ol.steps b{display:block;font-weight:600}
+ol.steps li::before{grid-column:1;grid-row:1;content:counter(s,decimal-leading-zero);font-family:var(--font-num);font-size:11.5px;color:var(--accent);background:var(--accent-soft);border-radius:4px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:500}
+ol.steps li>b{grid-column:2;grid-row:1;display:block;font-weight:600}
+ol.steps li>p{grid-column:2;grid-row:2}
 ol.steps p{margin:0;color:var(--ink2);font-size:13px}
 
 .note{border-left:3px solid var(--accent2);background:var(--panel2);padding:11px 15px;margin:14px 0 18px;font-size:13px;border-radius:0 5px 5px 0;max-width:76ch}
