@@ -2000,11 +2000,9 @@ function printRows(rg){
     if(ok)keep.add(t.id); });
   D.tasks.forEach((t,i)=>{ if(!keep.has(t.id)||t.blank)return; let lv=t.level;
     for(let j=i-1;j>=0;j--){ if(!D.tasks[j].blank&&D.tasks[j].level<lv){ keep.add(D.tasks[j].id); lv=D.tasks[j].level; if(!lv)break; } } });
-  D.tasks.forEach((t,i)=>{ if(!t.blank)return;
-    let before=false,after=false;
-    for(let j=i-1;j>=0;j--) if(!D.tasks[j].blank&&keep.has(D.tasks[j].id)){ before=true; break; }
-    for(let j=i+1;j<D.tasks.length;j++) if(!D.tasks[j].blank&&keep.has(D.tasks[j].id)){ after=true; break; }
-    if(before&&after) keep.add(t.id); });
+  /* 空白行は位置をそのままに、末尾のものも含めてすべて紙面へ出す
+     （抽出結果が 0 件のときは「該当なし」を出したいので付けない） */
+  if(keep.size) D.tasks.forEach(t=>{ if(t.blank) keep.add(t.id); });
   return D.tasks.filter(t=>keep.has(t.id));
 }
 function pScale(dayMM){ if(PR.scale!=="auto")return PR.scale;
