@@ -231,7 +231,7 @@ footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px
     <div><span class="k">ファイル</span><span class="v">kotei-workbench.html</span></div>
     <div><span class="k">必要なもの</span><span class="v">最近のブラウザのみ</span></div>
     <div><span class="k">データの保存先</span><span class="v">お使いの端末の中だけ</span></div>
-    <div><span class="k">出力</span><span class="v">JSON / CSV / 印刷・PDF</span></div>
+    <div><span class="k">出力</span><span class="v">Excel / CSV / JSON / 印刷</span></div>
   </div>
 </header>
 
@@ -656,8 +656,20 @@ footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px
     <li><b>共有</b>：<code>kotei-workbench.html</code> と <code>.json</code> の 2 つを渡せば、相手の PC でも同じ工程表が開けます。</li>
     <li><b>世代管理</b>：<code>20260908_内装工事.json</code> のように日付を付けて保存しておくと、あとで比較できます。</li>
   </ul>
+  <h3>Excel（.xlsx）で書き出す</h3>
+  <p>タイトルバーの <span class="chip">⊞ Excel</span> で、Excel ファイル（.xlsx）として書き出します。3 つのシートに分かれています。</p>
+  <div class="tw"><table>
+    <thead><tr><th>シート</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td class="k">工程表</td><td>ID・WBS・種別・モード・タスク名・期間・開始・終了・先行タスク・リソース・進捗・コスト・余裕・クリティカル・メモ。空白行も「空白行」として出ます</td></tr>
+      <tr><td class="k">リソース</td><td>リソース名・略称・グループ・最大単位%・標準単価・割当タスク数・延べ人日・ピーク%・コスト・状態</td></tr>
+      <tr><td class="k">プロジェクト情報</td><td>プロジェクト名・開始日・作成者・工期・進捗・総コスト・クリティカル件数などの集計と、稼働曜日・休日の一覧</td></tr>
+    </tbody>
+  </table></div>
+  <p>Excel 側でそのまま集計できるよう、<b>日付は日付型、進捗はパーセント型、コストは通貨型</b>で書き出します。見出し行の固定（ウィンドウ枠）とオートフィルタが設定済みで、<b>WBS の階層は Excel のグループ化（アウトライン）として再現</b>されるため、大工程単位の折りたたみができます。</p>
+  <div class="note"><b>書き出し専用です</b><p>Excel ファイルの読み込みには対応していません。工程表を受け渡すときは JSON を使ってください。</p></div>
   <h3>CSV で書き出す</h3>
-  <p>「CSV」ボタンで、ID・WBS・タスク名・期間・開始・終了・先行タスク・リソース・進捗・コスト・余裕・クリティカルの一覧を書き出します。Excel で開けるよう BOM 付き UTF-8 で出力します。<b>読み込みには対応していません</b>（取り込みは JSON のみ）。</p>
+  <p>「CSV」ボタンでは、工程表の一覧を 1 枚の CSV として書き出します。Excel で開けるよう BOM 付き UTF-8 で出力します。他システムへの取り込み用です。こちらも<b>読み込みには対応していません</b>（取り込みは JSON のみ）。</p>
   <h3>ベースライン（基準計画）</h3>
   <p>着工時の計画を保存しておき、現状と比べる機能です。<span class="chip">プロジェクト</span> → ベースライン設定 で、そのときの全タスクの開始・終了を記録します。</p>
   <ul>
