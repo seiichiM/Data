@@ -181,6 +181,11 @@ tr.trow:hover td{background:var(--panel2)}
 tr.trow.sel td{background:var(--accent-soft)}
 tr.trow.summary td{font-weight:600;background:var(--panel2)}
 tr.trow.summary.sel td{background:var(--accent-soft)}
+tr.trow.blank td{background:var(--panel2)}
+tr.trow.blank.sel td{background:var(--accent-soft)}
+.blanktxt{color:var(--ink3);font-size:11.5px}
+.row-hit.blank{background:var(--panel2)}
+.row-hit.blank.sel{background:var(--accent-soft)}
 tr.trow.crit td.c-id{color:var(--crit);box-shadow:inset 3px 0 0 var(--crit)}
 tr.trow.done td.c-name{color:var(--ink3)}
 td.c-id{color:var(--ink3);font-family:var(--font-num);font-size:10.5px;text-align:right;background:var(--panel2)!important}
@@ -497,6 +502,7 @@ dialog.wide{max-width:min(96vw,940px)}
       <div class="rgroup"><div class="rrow">
         <button class="rb" data-act="addTask"><span class="ic">＋</span>タスク</button>
         <button class="rb" data-act="addMilestone"><span class="ic">◆</span>マイル<br>ストーン</button>
+        <button class="rb" data-act="addBlank"><span class="ic">▭</span>空白行</button>
         <button class="rb" data-act="delTask"><span class="ic">✕</span>削除</button>
       </div><div class="glabel">挿入</div></div>
       <div class="rgroup"><div class="rrow">
@@ -771,17 +777,23 @@ function workDays(a,b,free){ if(dayDiff(a,b)<0)return 0; if(free||D.cal.ignore)r
 
 /* ============================ スケジューリング（CPM） ============================ */
 let SCH={ps:null,pf:null,cyclic:false,byId:new Map()};
-function descendants(i){ const t=D.tasks[i],out=[]; for(let j=i+1;j<D.tasks.length;j++){ if(D.tasks[j].level<=t.level)break; out.push(D.tasks[j]); } return out; }
+function descendants(i){ const t=D.tasks[i],out=[];
+  for(let j=i+1;j<D.tasks.length;j++){ const k=D.tasks[j]; if(!k.blank&&k.level<=t.level)break; out.push(k); }
+  while(out.length&&out[out.length-1].blank)out.pop();
+  return out; }
 function parentOf(i){ for(let j=i-1;j>=0;j--) if(D.tasks[j].level<D.tasks[i].level) return D.tasks[j]; return null; }
 
 function schedule(){
   const T=D.tasks, byId=new Map(T.map(t=>[t.id,t])); SCH.byId=byId;
-  T.forEach((t,i)=>{ t.isSummary=(i+1<T.length&&T[i+1].level>t.level); if(t.ms)t.dur=0; t.warn=""; });
+  T.forEach((t,i)=>{
+    if(t.blank){ t.isSummary=false; t.wbs=""; t.warn=""; t.critical=false; t.slack=0; t.cost=0; return; }
+    let nx=null; for(let j=i+1;j<T.length;j++){ if(!T[j].blank){ nx=T[j]; break; } }
+    t.isSummary=!!(nx&&nx.level>t.level); if(t.ms)t.dur=0; t.warn=""; });
   let ctr=[];
-  T.forEach(t=>{ ctr=ctr.slice(0,t.level+1); ctr[t.level]=(ctr[t.level]||0)+1; t.wbs=ctr.map(n=>n||1).join("."); });
-  const leaves=T.filter(t=>!t.isSummary);
-  leaves.forEach(t=>{ t.preds=(t.preds||[]).filter(p=>byId.has(p.id)&&p.id!==t.id&&!byId.get(p.id).isSummary); });
-  T.filter(t=>t.isSummary).forEach(t=>{t.preds=[];});
+  T.forEach(t=>{ if(t.blank)return; ctr=ctr.slice(0,t.level+1); ctr[t.level]=(ctr[t.level]||0)+1; t.wbs=ctr.map(n=>n||1).join("."); });
+  const leaves=T.filter(t=>!t.isSummary&&!t.blank);
+  leaves.forEach(t=>{ t.preds=(t.preds||[]).filter(p=>byId.has(p.id)&&p.id!==t.id&&!byId.get(p.id).isSummary&&!byId.get(p.id).blank); });
+  T.filter(t=>t.isSummary||t.blank).forEach(t=>{t.preds=[];});
   const indeg=new Map(),succ=new Map();
   leaves.forEach(t=>{indeg.set(t.id,0);succ.set(t.id,[]);});
   leaves.forEach(t=>t.preds.forEach(p=>{ if(indeg.has(p.id)){ indeg.set(t.id,indeg.get(t.id)+1); succ.get(p.id).push({id:t.id,type:p.type,lag:p.lag||0}); } }));
@@ -827,24 +839,24 @@ function schedule(){
   }
   for(let i=T.length-1;i>=0;i--){
     const t=T[i]; if(!t.isSummary)continue;
-    const kids=descendants(i).filter(k=>!k.isSummary);
+    const kids=descendants(i).filter(k=>!k.isSummary&&!k.blank);
     if(!kids.length){ t._s=PS; t._f=PS; t.dur=0; t.slack=0; t.critical=false; continue; }
     let s=kids[0]._s,f=kids[0]._f,slk=Infinity,w=0,wp=0;
     kids.forEach(k=>{ if(dayDiff(k._s,s)>0)s=k._s; if(dayDiff(f,k._f)>0)f=k._f;
       slk=Math.min(slk,k.slack); const d=Math.max(1,k.dur|0)||1; w+=d; wp+=d*(k.pct||0); });
     t._s=s; t._f=f; t.dur=workDays(s,f); t.slack=slk; t.critical=slk<=0; t.pct=w?Math.round(wp/w):0;
   }
-  T.forEach(t=>{ t.start=ymd(t._s); t.finish=ymd(t._f); t.cost=taskCost(t); });
-  D.tasks.forEach((t,i)=>{ if(t.isSummary) t.cost=descendants(i).filter(k=>!k.isSummary).reduce((a,k)=>a+k.cost,0); });
+  T.forEach(t=>{ if(t.blank){ t.start=null; t.finish=null; t.cost=0; return; } t.start=ymd(t._s); t.finish=ymd(t._f); t.cost=taskCost(t); });
+  D.tasks.forEach((t,i)=>{ if(t.isSummary) t.cost=descendants(i).filter(k=>!k.isSummary&&!k.blank).reduce((a,k)=>a+k.cost,0); });
 }
 function resById(id){ return D.resources.find(r=>r.id===id); }
-function taskCost(t){ if(t.isSummary)return 0; const dur=Math.max(t.ms?0:1,t.dur|0);
+function taskCost(t){ if(t.isSummary||t.blank)return 0; const dur=Math.max(t.ms?0:1,t.dur|0);
   return (t.res||[]).reduce((a,x)=>{ const r=resById(x.id); return a+(r?r.rate*(x.units/100)*dur:0); },0); }
 
 /* リソース日別負荷 */
 function loadMap(){
   const m=new Map();
-  D.tasks.forEach(t=>{ if(t.isSummary||t.ms)return; const fr=freeOf(t);
+  D.tasks.forEach(t=>{ if(t.isSummary||t.ms||t.blank)return; const fr=freeOf(t);
     (t.res||[]).forEach(x=>{ if(!m.has(x.id))m.set(x.id,{});
       const o=m.get(x.id); let d=new Date(t._s),g=0;
       while(dayDiff(d,t._f)>=0&&g<2000){ if(isWork(d,fr)){ const k=ymd(d); o[k]=(o[k]||0)+(x.units||100); } d=addD(d,1); g++; } });
@@ -883,6 +895,7 @@ const MODEN={auto:"自動（稼働カレンダー）",cont:"連続（土日祝�
 const CTYPE={ASAP:"できるだけ早く",SNET:"開始日以降",SNLT:"開始日以前",MSO:"開始日固定",MFO:"終了日固定",FNLT:"終了日以前"};
 
 function matchTask(t){
+  if(t.blank)return false;
   const q=U.query.trim().toLowerCase(); let ok=true;
   if(U.filter==="crit") ok=!t.isSummary&&t.critical;
   else if(U.filter==="inc") ok=!t.isSummary&&(t.pct||0)<100;
@@ -940,6 +953,9 @@ const COLS=[
  {k:"slack",t:"余裕",w:52,cls:"num"}
 ];
 function cellHTML(t,c){
+  if(t.blank) return c.k!=="name"?"":
+    '<div class="nm" style="padding-left:'+(t.level*15)+'px"><span class="tw ph"></span>'+
+    '<span class="txt blanktxt">'+(t.name?esc(t.name):"（空白行）")+'</span></div>';
   switch(c.k){
     case "id": return t.id;
     case "wbs": return esc(t.wbs||"");
@@ -968,10 +984,10 @@ function renderGrid(rows){
   $("#gridhead").innerHTML='<tr>'+COLS.map(c=>'<th class="'+(c.cls.indexOf("num")>=0?"num":"")+'">'+c.t+'</th>').join("")+'</tr>';
   const sel=new Set(U.sel);
   $("#gridbody").innerHTML=rows.map(t=>{
-    const cls=["trow"]; if(t.isSummary)cls.push("summary"); if(sel.has(t.id))cls.push("sel");
+    const cls=["trow"]; if(t.blank)cls.push("blank"); if(t.isSummary)cls.push("summary"); if(sel.has(t.id))cls.push("sel");
     if(U.showCritical&&t.critical&&!t.isSummary)cls.push("crit"); if((t.pct||0)>=100)cls.push("done");
     return '<tr class="'+cls.join(" ")+'" data-tid="'+t.id+'">'+COLS.map(c=>
-      '<td class="'+c.cls+'" data-col="'+c.k+'"'+(c.edit?' data-edit="1"':"")+'>'+cellHTML(t,c)+'</td>').join("")+'</tr>';
+      '<td class="'+c.cls+'" data-col="'+c.k+'"'+((c.edit&&(!t.blank||c.k==="name"))?' data-edit="1"':"")+'>'+cellHTML(t,c)+'</td>').join("")+'</tr>';
   }).join("");
 }
 /* ============================ ガント描画 ============================ */
@@ -1028,7 +1044,9 @@ function chartHTML(rows){
   rows.forEach((t,i)=>{ bg+='<div class="bg-hline" style="top:'+((i+1)*ROWH-1)+'px"></div>'; });
   const rects=new Map();
   rows.forEach((t,i)=>{
-    const y=i*ROWH, x1=X(t._s), x2=X(t._f)+w, crit=U.showCritical&&t.critical;
+    const y=i*ROWH;
+    if(t.blank){ bars+='<div class="row-hit blank'+(sel.has(t.id)?" sel":"")+'" data-row="'+t.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>'; return; }
+    const x1=X(t._s), x2=X(t._f)+w, crit=U.showCritical&&t.critical;
     bars+='<div class="row-hit'+(sel.has(t.id)?" sel":"")+'" data-row="'+t.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>';
     if(D.baseline&&U.showBaseline&&D.baseline[t.id]){ const b=D.baseline[t.id];
       bars+='<div class="base-bar" style="left:'+X(pd(b.s))+'px;width:'+Math.max(3,X(pd(b.f))+w-X(pd(b.s)))+'px;top:'+(y+22)+'px" title="ベースライン '+b.s+" 〜 "+b.f+'"></div>'; }
@@ -1082,7 +1100,7 @@ const arrowL=(x,y)=>"M"+x+","+y+"l5,-3.2 l0,6.4 z";
 
 /* ============================ ステータスバー ============================ */
 function projStats(){
-  const leaves=D.tasks.filter(t=>!t.isSummary);
+  const leaves=D.tasks.filter(t=>!t.isSummary&&!t.blank);
   const w=leaves.reduce((a,t)=>a+Math.max(1,t.dur|0),0);
   const wp=leaves.reduce((a,t)=>a+Math.max(1,t.dur|0)*(t.pct||0),0);
   const t0=todayD();
@@ -1125,6 +1143,11 @@ function renderInspector(){
   const t=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]):null;
   const head='<div class="insp-head"><h3>タスク情報</h3><button class="icon-btn" data-act="info" title="閉じる">✕</button></div>';
   if(!t){ el.innerHTML=head+'<div class="insp-body"><p class="hint">グリッドの行、またはガントのバーを選択すると詳細を編集できます。<br><br>操作のヒント<br>・バーをドラッグ＝移動（開始日以降の制約が付きます）<br>・バー端をドラッグ＝期間の変更<br>・バー内の小さな四角をドラッグ＝進捗の更新<br>・バー左右の丸をドラッグ＝依存関係の作成<br>・右クリック＝コンテキストメニュー</p></div>'; return; }
+  if(t.blank){ el.innerHTML=head+'<div class="insp-body"><div class="fset"><h4>空白行</h4>'+
+    '<div class="frow"><label>見出し</label><input data-f="name" value="'+esc(t.name||"")+'" placeholder="空欄のままでも、区切りの見出しでも可"></div>'+
+    '<p class="hint">この行は工程計算・集計・クリティカルパス・リソース・コスト・印刷のいずれにも含まれません。表とガントの区切りとしてだけ表示されます。<br>'+
+    '通常のタスクと同じように、上下移動・レベル変更・削除ができます。</p></div>'+
+    '<div class="btnrow"><button class="btn dgr" data-act="delTask">この行を削除</button></div></div>'; return; }
   const bl=D.baseline&&D.baseline[t.id];
   const varF=bl?workDays(pd(bl.f),t._f)*(dayDiff(pd(bl.f),t._f)>=0?1:-1):null;
   const opt=(v,cur,lab)=>'<option value="'+v+'"'+(v===cur?" selected":"")+'>'+lab+'</option>';
@@ -1201,7 +1224,7 @@ function resStats(){
   D.resources.forEach(r=>{ const o=m.get(r.id)||{}; const ks=Object.keys(o);
     const pd_=ks.reduce((a,k)=>a+o[k]/100,0), peak=ks.length?Math.max.apply(null,ks.map(k=>o[k])):0;
     out.push({r:r,days:pd_,peak:peak,cost:pd_*r.rate,over:ks.filter(k=>o[k]>r.max).length,
-      tasks:D.tasks.filter(t=>!t.isSummary&&(t.res||[]).some(x=>x.id===r.id)).length}); });
+      tasks:D.tasks.filter(t=>!t.isSummary&&!t.blank&&(t.res||[]).some(x=>x.id===r.id)).length}); });
   return out;
 }
 function renderResSheet(){
@@ -1266,7 +1289,7 @@ function renderLoad(){
 
 /* ============================ ネットワーク図 ============================ */
 function renderNet(){
-  const leaves=D.tasks.filter(t=>!t.isSummary), byId=SCH.byId;
+  const leaves=D.tasks.filter(t=>!t.isSummary&&!t.blank), byId=SCH.byId;
   const dep=new Map(), seen=new Set();
   const depthOf=t=>{ if(dep.has(t.id))return dep.get(t.id); if(seen.has(t.id))return 0; seen.add(t.id);
     const v=(t.preds||[]).reduce((a,p)=>{ const q=byId.get(p.id); return q&&!q.isSummary?Math.max(a,depthOf(q)+1):a; },0);
@@ -1298,7 +1321,7 @@ function renderNet(){
 
 /* ============================ 進捗レポート ============================ */
 function curveData(){
-  const days=workDayList(SCH.ps,SCH.pf), leaves=D.tasks.filter(t=>!t.isSummary&&!t.ms);
+  const days=workDayList(SCH.ps,SCH.pf), leaves=D.tasks.filter(t=>!t.isSummary&&!t.ms&&!t.blank);
   const total=leaves.reduce((a,t)=>a+Math.max(1,t.dur|0),0)||1, t0=todayD();
   const info=leaves.map(t=>{ const dur=Math.max(1,t.dur|0);
     const endNow=dayDiff(t0,t._f)>=0?t0:t._f;
@@ -1347,7 +1370,7 @@ function renderReport(){
   const s=projStats(), data=curveData(), t0=todayD();
   const cur=data.filter(r=>r.a!=null).slice(-1)[0]||{p:0,a:0};
   const gap=Math.round((cur.a||0)-(cur.p||0));
-  const late=D.tasks.filter(t=>!t.isSummary&&(t.pct||0)<100&&dayDiff(t._f,t0)>0)
+  const late=D.tasks.filter(t=>!t.isSummary&&!t.blank&&(t.pct||0)<100&&dayDiff(t._f,t0)>0)
     .map(t=>({t:t,d:workDays(t._f,t0)-1})).sort((a,b)=>b.d-a.d);
   const tops=D.tasks.filter(t=>t.isSummary&&t.level===0);
   $("#reportInner").innerHTML=
@@ -1422,7 +1445,7 @@ function wouldCycle(predId,succId){
 function addLink(predId,succId,type,lag){
   if(predId===succId)return toast("同じタスクは接続できません");
   const s=SCH.byId.get(succId),p=SCH.byId.get(predId);
-  if(!s||!p||s.isSummary||p.isSummary)return toast("集計タスクは接続できません");
+  if(!s||!p||s.isSummary||p.isSummary||s.blank||p.blank)return toast("集計タスク・空白行は接続できません");
   if((s.preds||[]).some(x=>x.id===predId))return toast("すでに接続されています");
   if(wouldCycle(predId,succId))return toast("循環参照になるため接続できません");
   mutate(()=>{ s.preds=(s.preds||[]).concat([{id:predId,type:type||"FS",lag:lag||0}]); });
@@ -1435,6 +1458,14 @@ function newTask(ms){
     preds:[],res:[],pct:0,mode:"auto",constraint:{type:"ASAP",date:null},notes:"",start:null,finish:null};
   mutate(()=>{ T.splice(at,0,t); U.sel=[t.id]; });
   setTimeout(()=>{ const td=document.querySelector('tr[data-tid="'+t.id+'"] td[data-col="name"]'); if(td)startEdit(td); },30);
+}
+function newBlank(){
+  const T=D.tasks, at=U.sel.length?idx(U.sel[U.sel.length-1])+1:T.length;
+  const prev=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]):null;
+  const t={id:D.nextTask++,name:"",blank:true,level:prev?prev.level:0,dur:0,ms:false,
+    preds:[],res:[],pct:0,mode:"auto",constraint:{type:"ASAP",date:null},notes:"",start:null,finish:null};
+  mutate(()=>{ T.splice(at,0,t); U.sel=[t.id]; });
+  toast("空白行を挿入しました（工程計算には含まれません）");
 }
 function deleteSel(){
   const ids=new Set(); selTasks().forEach(t=>{ const i=idx(t.id); ids.add(t.id); if(t.isSummary)descendants(i).forEach(k=>ids.add(k.id)); });
@@ -1466,21 +1497,21 @@ function moveSel(dir){
   }
 }
 function setMode(v){
-  const list=selTasks().filter(t=>!t.isSummary);
+  const list=selTasks().filter(t=>!t.isSummary&&!t.blank);
   if(!list.length)return toast("タスクを選択してください");
   mutate(()=>{ list.forEach(t=>{ t.mode=v; }); });
   toast(list.length+" 件を「"+MODEN[v]+"」にしました");
 }
 function cycleMode(id){
-  const t=SCH.byId.get(id); if(!t)return;
+  const t=SCH.byId.get(id); if(!t||t.blank)return;
   if(t.isSummary)return toast("集計タスクは子タスクから自動計算されます");
   const order=["auto","cont","manual"], nx=order[(order.indexOf(t.mode||"auto")+1)%3];
   mutate(()=>{ t.mode=nx; });
   toast("#"+t.id+" を「"+MODEN[nx]+"」にしました");
 }
-function setPct(v){ mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary)t.pct=clamp(v|0,0,100); }); }); }
+function setPct(v){ mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary&&!t.blank)t.pct=clamp(v|0,0,100); }); }); }
 function linkSel(){
-  const s=selTasks().filter(t=>!t.isSummary); if(s.length<2)return toast("2つ以上のタスクを選択してください");
+  const s=selTasks().filter(t=>!t.isSummary&&!t.blank); if(s.length<2)return toast("2つ以上のタスクを選択してください");
   const order=s.slice().sort((a,b)=>idx(a.id)-idx(b.id));
   pushUndo();
   for(let i=1;i<order.length;i++){ const a=order[i-1],b=order[i];
@@ -1504,6 +1535,7 @@ function startEdit(td){
   if(!td||editing)return;
   const tr=td.closest("tr"), t=SCH.byId.get(+tr.dataset.tid), col=td.dataset.col;
   if(!t||!td.dataset.edit)return;
+  if(t.blank&&col!=="name")return;
   if(t.isSummary&&["dur","start","pct","preds"].indexOf(col)>=0)return toast("集計タスクは子タスクから自動計算されます");
   const html=td.innerHTML, isNum=["dur","pct"].indexOf(col)>=0, val=esc(rawValue(t,col));
   if(col==="dur"){
@@ -1543,7 +1575,7 @@ function commitEdit(val){
   else if(col==="dur"){ const n=Math.max(0,parseInt(String(val).replace(/[^\d-]/g,""),10)||0);
     if(n===0){ t.ms=true; t.dur=0; } else { t.ms=false; t.dur=n; } }
   else if(col==="start"){ const d=parseDateInput(val); if(d) setStartByDrag(t,nextWork(d,1,freeOf(t))); }
-  else if(col==="preds"){ const ps=parsePreds(val).filter(p=>p.id!==t.id&&D.tasks.some(x=>x.id===p.id&&!x.isSummary)&&!wouldCycle(p.id,t.id)); t.preds=ps; }
+  else if(col==="preds"){ const ps=parsePreds(val).filter(p=>p.id!==t.id&&D.tasks.some(x=>x.id===p.id&&!x.isSummary&&!x.blank)&&!wouldCycle(p.id,t.id)); t.preds=ps; }
   else if(col==="res") t.res=parseRes(val);
   else if(col==="pct") t.pct=clamp(parseInt(val,10)||0,0,100);
   render();
@@ -1655,6 +1687,11 @@ cp.addEventListener("mousemove",e=>{
   const bar=e.target.closest("[data-bar]");
   if(!bar||drag){ tip.style.display="none"; return; }
   const t=SCH.byId.get(+bar.dataset.tid); if(!t)return;
+  if(t.blank){ el.innerHTML=head+'<div class="insp-body"><div class="fset"><h4>空白行</h4>'+
+    '<div class="frow"><label>見出し</label><input data-f="name" value="'+esc(t.name||"")+'" placeholder="空欄のままでも、区切りの見出しでも可"></div>'+
+    '<p class="hint">この行は工程計算・集計・クリティカルパス・リソース・コスト・印刷のいずれにも含まれません。表とガントの区切りとしてだけ表示されます。<br>'+
+    '通常のタスクと同じように、上下移動・レベル変更・削除ができます。</p></div>'+
+    '<div class="btnrow"><button class="btn dgr" data-act="delTask">この行を削除</button></div></div>'; return; }
   const bl=D.baseline&&D.baseline[t.id];
   tip.innerHTML='<h5>#'+t.id+' '+esc(t.name)+'</h5><dl>'+
     '<dt>開始</dt><dd>'+jdate(t._s)+'</dd><dt>終了</dt><dd>'+jdate(t._f)+'</dd>'+
@@ -1725,7 +1762,7 @@ $("#v-net").addEventListener("click",e=>{ const n=e.target.closest(".node"); if(
 /* ============================ コンテキストメニュー ============================ */
 const ctx=$("#ctxmenu");
 function showCtx(x,y){
-  ctx.innerHTML=[["addTask","タスクを挿入","Ins"],["addMilestone","マイルストーンを挿入",""],["dup","複製",""],null,
+  ctx.innerHTML=[["addTask","タスクを挿入","Ins"],["addMilestone","マイルストーンを挿入",""],["addBlank","空白行を挿入",""],["dup","複製",""],null,
     ["indent","レベル下げ","Alt+→"],["outdent","レベル上げ","Alt+←"],["moveUp","上へ移動","Alt+↑"],["moveDown","下へ移動","Alt+↓"],null,
     ["link","選択をリンク",""],["unlink","リンク解除",""],["setMS","マイルストーンに変更",""],null,
     ["info","タスク情報",""],["delTask","削除","Del"]]
@@ -1762,12 +1799,12 @@ async function saveFile(filename,data,mime){
 /* ============================ アクション ============================ */
 const ACT={
   undo:doUndo, redo:doRedo,
-  addTask:()=>newTask(false), addMilestone:()=>newTask(true), delTask:deleteSel,
+  addTask:()=>newTask(false), addMilestone:()=>newTask(true), addBlank:newBlank, delTask:deleteSel,
   indent:()=>indentSel(1), outdent:()=>indentSel(-1), moveUp:()=>moveSel(-1), moveDown:()=>moveSel(1),
   link:linkSel, unlink:unlinkSel,
   dup:()=>{ const t=selTasks()[0]; if(!t)return; const c=JSON.parse(JSON.stringify(t)); c.id=D.nextTask++; c.name=t.name+"（複製）"; c.preds=[];
     mutate(()=>{ D.tasks.splice(idx(t.id)+1,0,c); U.sel=[c.id]; }); },
-  setMS:()=>mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary){ t.ms=!t.ms; t.dur=t.ms?0:Math.max(1,t.dur|0); } }); }),
+  setMS:()=>mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary&&!t.blank){ t.ms=!t.ms; t.dur=t.ms?0:Math.max(1,t.dur|0); } }); }),
   info:()=>{ U.inspector=!U.inspector; render(); },
   scrollTo:()=>{ const t=selTasks()[0]; if(!t)return; cp.scrollLeft=Math.max(0,X(t._s)-160); },
   today:()=>{ cp.scrollLeft=Math.max(0,X(todayD())-cp.clientWidth/2); },
@@ -1793,7 +1830,7 @@ const ACT={
   save:()=>{ saveFile((D.meta.name||"project").replace(/[\\/:*?"<>|]/g,"_")+".json",JSON.stringify(D,null,1),"application/json"); },
   open:()=>$("#fileInput").click(),
   csv:()=>{ const head=["ID","WBS","タスク名","期間(日)","開始","終了","先行タスク","リソース","進捗(%)","コスト","余裕(日)","クリティカル"];
-    const rows=D.tasks.map(t=>[t.id,t.wbs,t.name,t.dur|0,t.start,t.finish,predsText(t),resText(t),t.pct||0,Math.round(t.cost||0),t.isSummary?"":t.slack,t.critical?"○":""]);
+    const rows=D.tasks.map(t=>t.blank?["","",t.name||"","","","","","","","","",""]:[t.id,t.wbs,t.name,t.dur|0,t.start,t.finish,predsText(t),resText(t),t.pct||0,Math.round(t.cost||0),t.isSummary?"":t.slack,t.critical?"○":""]);
     const csv="\ufeff"+[head].concat(rows).map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(",")).join("\r\n");
     saveFile((D.meta.name||"project")+"_工程表.csv",csv,"text/csv"); },
   dlgProj:openProj, dlgCal:openCal
@@ -1921,7 +1958,7 @@ let PR={preset:"look2",paper:"A4-l",cols:"std",scale:"auto",shade:true,legend:tr
         base:false,label:true,report:false,from:"",to:""};
 
 function printRange(){
-  const t0=todayD(), P=PR.preset, leaves=D.tasks.filter(t=>!t.isSummary);
+  const t0=todayD(), P=PR.preset, leaves=D.tasks.filter(t=>!t.isSummary&&!t.blank);
   const span=list=>{ if(!list.length)return null; let a=list[0]._s,b=list[0]._f;
     list.forEach(t=>{ if(dayDiff(t._s,a)>0)a=t._s; if(dayDiff(b,t._f)>0)b=t._f; }); return {a:addD(a,-2),b:addD(b,2)}; };
   let s,f,label="工程表",note="";
@@ -1936,7 +1973,7 @@ function printRange(){
   else if(P==="late"){ const l=leaves.filter(t=>(t.pct||0)<100&&dayDiff(t._f,t0)>0); const r=span(l);
     s=r?r.a:SCH.ps; f=r?r.b:t0; label="遅延タスク工程表"; note=l.length?l.length+" 件の遅延を抽出":"遅延タスクはありません"; }
   else if(P==="sel"){ const ids=new Set(); U.sel.forEach(id=>{ const i=idx(id); if(i<0)return; ids.add(id); descendants(i).forEach(k=>ids.add(k.id)); });
-    const r=span(D.tasks.filter(t=>ids.has(t.id)&&!t.isSummary)); s=r?r.a:SCH.ps; f=r?r.b:SCH.pf; label="抜粋工程表"; note="選択した "+ids.size+" 件を抽出"; }
+    const r=span(D.tasks.filter(t=>ids.has(t.id)&&!t.isSummary&&!t.blank)); s=r?r.a:SCH.ps; f=r?r.b:SCH.pf; label="抜粋工程表"; note="選択した "+ids.size+" 件を抽出"; }
   else if(P==="custom"){ s=PR.from?pd(PR.from):SCH.ps; f=PR.to?pd(PR.to):SCH.pf; label="工程表"; }
   else { s=SCH.ps; f=SCH.pf; label="全体工程表"; }
   if(dayDiff(s,f)<0) f=addD(s,6);
@@ -1945,7 +1982,7 @@ function printRange(){
 function printRows(rg){
   const P=PR.preset, t0=todayD(), keep=new Set();
   const selIds=new Set(); if(P==="sel") U.sel.forEach(id=>{ const i=idx(id); if(i<0)return; selIds.add(id); descendants(i).forEach(k=>selIds.add(k.id)); });
-  D.tasks.forEach(t=>{ if(t.isSummary)return;
+  D.tasks.forEach(t=>{ if(t.isSummary||t.blank)return;
     let ok=dayDiff(t._s,rg.f)>=0&&dayDiff(rg.s,t._f)>=0;
     if(P==="crit") ok=ok&&t.critical;
     else if(P==="late") ok=ok&&(t.pct||0)<100&&dayDiff(t._f,t0)>0;
@@ -2030,7 +2067,7 @@ function printMeta(){
 }
 function buildPrint(){
   const m=printMeta(), rg=m.rg, s=projStats(), t0=todayD();
-  const inRange=D.tasks.filter(t=>!t.isSummary&&m.rows.indexOf(t)>=0);
+  const inRange=D.tasks.filter(t=>!t.isSummary&&!t.blank&&m.rows.indexOf(t)>=0);
   const wsum=inRange.reduce((a,t)=>a+Math.max(1,t.dur|0),0);
   const pctR=wsum?Math.round(inRange.reduce((a,t)=>a+Math.max(1,t.dur|0)*(t.pct||0),0)/wsum):0;
   const lateN=inRange.filter(t=>(t.pct||0)<100&&dayDiff(t._f,t0)>0).length;
@@ -2072,7 +2109,7 @@ function buildPrint(){
 const pstat=(k,v,bad)=>'<div class="p-stat"><span class="k">'+k+'</span><span class="v'+(bad?" bad":"")+'">'+v+'</span></div>';
 function printReportSheet(m,s){
   const t0=todayD(), data=curveData();
-  const late=D.tasks.filter(t=>!t.isSummary&&(t.pct||0)<100&&dayDiff(t._f,t0)>0)
+  const late=D.tasks.filter(t=>!t.isSummary&&!t.blank&&(t.pct||0)<100&&dayDiff(t._f,t0)>0)
     .map(t=>({t:t,d:workDays(t._f,t0)-1})).sort((a,b)=>b.d-a.d);
   const tops=D.tasks.filter(t=>t.isSummary&&t.level===0);
   return '<div class="p-sheet" style="width:'+m.cw+'mm">'+

@@ -349,6 +349,7 @@ footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px
     <tbody>
       <tr><td class="k">タスクを挿入</td><td><span class="chip">タスク</span> → ＋タスク、または <kbd>Insert</kbd>。選択行の<b>下</b>に、同じ階層で入ります</td></tr>
       <tr><td class="k">マイルストーンを挿入</td><td><span class="chip">タスク</span> → ◆マイルストーン（期間 0 日の節目。ひし形で表示）</td></tr>
+      <tr><td class="k">空白行を挿入</td><td><span class="chip">タスク</span> → ▭ 空白行。工程の区切りに使う行で、<b>計算・集計には一切含まれません</b>（下記）</td></tr>
       <tr><td class="k">削除</td><td><kbd>Delete</kbd>。集計タスクを消すと<b>その配下もまとめて消えます</b></td></tr>
       <tr><td class="k">複製</td><td>行を右クリック → 複製（先行タスクは引き継ぎません）</td></tr>
       <tr><td class="k">上下に移動</td><td><kbd>Alt</kbd>+<kbd>↑</kbd> / <kbd>Alt</kbd>+<kbd>↓</kbd>。配下の行も一緒に動きます</td></tr>
@@ -357,6 +358,15 @@ footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px
     </tbody>
   </table></div>
   <p>行を右クリックすると、挿入・階層・移動・リンク・削除をまとめたメニューが出ます。ガントのバーやネットワーク図のボックスを右クリックしても同じメニューです。</p>
+  <h3>空白行（区切り行）</h3>
+  <p>工程のまとまりを目で区切りたいときは、空白行を挿入します。表とガントの両方に高さだけの帯が入り、<b>WBS 番号・工期・進捗・コスト・クリティカルパス・リソース負荷・印刷・レポートのいずれにも含まれません</b>。タスク件数にも数えられません。</p>
+  <ul>
+    <li><b>入れ方</b>：区切りを入れたい行を選んで <span class="chip">タスク</span> → ▭ 空白行（右クリックメニューからも可）。選択行の下に入ります。</li>
+    <li><b>見出しを書く</b>：タスク名の欄だけ編集できます。「― 解体着手前の準備完了 ―」のような区切りの見出しを書けます（空欄のままでも構いません）。</li>
+    <li><b>できないこと</b>：期間・日付・進捗・リソースの入力、依存関係の接続、スケジュール方法の切り替え。これらの欄は編集できません。</li>
+    <li><b>できること</b>：通常の行と同じく <kbd>Alt</kbd>+<kbd>↑</kbd> <kbd>↓</kbd> での移動、<kbd>Alt</kbd>+<kbd>←</kbd> <kbd>→</kbd> でのレベル変更、<kbd>Delete</kbd> での削除。集計タスクの中に置いても、その集計タスクの日程や進捗は変わりません。</li>
+    <li><b>CSV</b>：書き出すと、見出しだけが入った空の行として出力されます。</li>
+  </ul>
 </section>
 
 <section id="s04">
