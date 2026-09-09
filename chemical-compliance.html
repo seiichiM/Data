@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>化学物質法令チェック台帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=BIZ+UDPMincho&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ---- tokens: light (bare :root defines the complete palette) ---- */
+:root{
+  --paper:#f4f6fa;
+  --surface:#ffffff;
+  --surface-2:#eaeef5;
+  --surface-3:#dfe5ef;
+  --ink:#111721;
+  --ink-2:#39445a;
+  --muted:#66718a;
+  --line:#d2d9e6;
+  --line-2:#b3bdd0;
+  --accent:#1f3f73;
+  --accent-2:#33609f;
+  --accent-soft:#e4ebf7;
+  --ok:#2a6b48;
+  --ok-soft:#e0efe6;
+  --warn:#95650a;
+  --warn-soft:#f8eed6;
+  --crit:#9e1c31;
+  --crit-soft:#f8e3e7;
+  --grid:rgba(31,63,115,.07);
+  --shadow:0 1px 2px rgba(17,23,33,.06), 0 6px 18px -12px rgba(17,23,33,.28);
+  --mono:"IBM Plex Mono","Roboto Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"BIZ UDPGothic","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --serif:"BIZ UDPMincho","Hiragino Mincho ProN","Yu Mincho",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1117;
+    --surface:#151c26;
+    --surface-2:#1c2531;
+    --surface-3:#26313f;
+    --ink:#e7ecf5;
+    --ink-2:#b9c4d6;
+    --muted:#8e9bb2;
+    --line:#2a3542;
+    --line-2:#3b4859;
+    --accent:#82abec;
+    --accent-2:#a2c2f4;
+    --accent-soft:#182741;
+    --ok:#71c295;
+    --ok-soft:#14271d;
+    --warn:#dfb257;
+    --warn-soft:#2c2413;
+    --crit:#f0879b;
+    --crit-soft:#2e141a;
+    --grid:rgba(130,171,236,.09);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1117; --surface:#151c26; --surface-2:#1c2531; --surface-3:#26313f;
+  --ink:#e7ecf5; --ink-2:#b9c4d6; --muted:#8e9bb2; --line:#2a3542; --line-2:#3b4859;
+  --accent:#82abec; --accent-2:#a2c2f4; --accent-soft:#182741;
+  --ok:#71c295; --ok-soft:#14271d; --warn:#dfb257; --warn-soft:#2c2413;
+  --crit:#f0879b; --crit-soft:#2e141a; --grid:rgba(130,171,236,.09);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.8);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light dark}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:14px; line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+[hidden]{display:none !important}
+h1,h2,h3,h4{margin:0; text-wrap:balance; font-weight:700}
+p{margin:0}
+button,input,select,textarea{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent-2); outline-offset:2px; border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
+
+.wrap{max-width:1240px; margin:0 auto; padding:0 20px}
+
+/* ---- masthead: blueprint grid ---- */
+.masthead{
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  background-image:
+    repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 28px);
+}
+.mast-in{display:flex; flex-wrap:wrap; align-items:flex-end; gap:20px; padding:22px 0 18px}
+.mast-id{flex:1 1 320px; min-width:0}
+.eyebrow{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); margin-bottom:4px;
+}
+.masthead h1{font-family:var(--serif); font-size:29px; line-height:1.25; letter-spacing:.02em; font-weight:400}
+.mast-sub{color:var(--muted); font-size:12.5px; margin-top:4px}
+.mast-meta{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.chip{
+  display:inline-flex; align-items:center; gap:6px; padding:4px 10px;
+  border:1px solid var(--line-2); border-radius:999px; background:var(--surface-2);
+  font-size:12px; color:var(--ink-2); white-space:nowrap;
+}
+.chip b{font-family:var(--mono); font-weight:600; color:var(--ink)}
+.iconbtn{
+  border:1px solid var(--line-2); background:var(--surface-2); color:var(--ink-2);
+  border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer;
+}
+.iconbtn:hover{background:var(--surface-3); color:var(--ink)}
+
+/* ---- status band ---- */
+.band{border-bottom:1px solid var(--line); background:var(--surface-2)}
+.band-in{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line)}
+.stat{background:var(--surface-2); padding:12px 16px; display:flex; flex-direction:column; gap:2px}
+.stat .k{font-size:11.5px; color:var(--muted); letter-spacing:.04em}
+.stat .v{font-family:var(--mono); font-size:26px; font-weight:600; line-height:1.15; font-variant-numeric:tabular-nums}
+.stat .u{font-size:11px; color:var(--muted); font-family:var(--sans)}
+.stat.is-crit .v{color:var(--crit)} .stat.is-warn .v{color:var(--warn)} .stat.is-ok .v{color:var(--ok)}
+@media (max-width:720px){.band-in{grid-template-columns:repeat(2,1fr)}}
+
+/* ---- tabs ---- */
+.tabs{
+  position:sticky; top:0; z-index:20; background:var(--surface);
+  border-bottom:1px solid var(--line); box-shadow:var(--shadow);
+}
+.tabs-in{display:flex; gap:2px; overflow-x:auto; scrollbar-width:thin}
+.tab{
+  appearance:none; border:0; background:transparent; cursor:pointer;
+  padding:12px 15px 10px; font-size:13.5px; color:var(--muted);
+  border-bottom:2.5px solid transparent; white-space:nowrap; display:flex; gap:7px; align-items:center;
+}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent); font-weight:700}
+.tab .num{font-family:var(--mono); font-size:11px; opacity:.65}
+.tab .badge{
+  font-family:var(--mono); font-size:10.5px; font-weight:600; padding:1px 6px; border-radius:999px;
+  background:var(--crit-soft); color:var(--crit);
+}
+
+main{padding:24px 0 72px}
+.panel{display:flex; flex-direction:column; gap:20px}
+
+/* ---- generic blocks ---- */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:8px}
+.card > .hd{
+  display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  padding:13px 16px; border-bottom:1px solid var(--line);
+}
+.card > .hd h2{font-family:var(--serif); font-size:17px; font-weight:400; letter-spacing:.02em}
+.card > .hd .note{font-size:12px; color:var(--muted)}
+.card > .bd{padding:16px}
+.card > .bd.flush{padding:0}
+.lead{color:var(--ink-2); font-size:13px; max-width:66ch}
+
+.sec-label{
+  font-family:var(--mono); font-size:11px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:8px;
+}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px}
+.grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px}
+
+/* ---- forms ---- */
+.field{display:flex; flex-direction:column; gap:4px}
+.field label{font-size:12px; color:var(--muted)}
+.field .hint{font-size:11.5px; color:var(--muted)}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  background:var(--surface); border:1px solid var(--line-2); border-radius:5px;
+  padding:7px 9px; font-size:13px; width:100%; min-width:0;
+}
+input[type=number]{font-family:var(--mono); font-variant-numeric:tabular-nums}
+textarea{resize:vertical; min-height:56px}
+.check{display:flex; gap:8px; align-items:flex-start; padding:7px 9px; border:1px solid var(--line); border-radius:5px; background:var(--surface); cursor:pointer}
+.check:hover{border-color:var(--line-2)}
+.check input{margin:4px 0 0; flex:none; accent-color:var(--accent)}
+.check span{font-size:12.5px; line-height:1.5}
+.check small{display:block; color:var(--muted); font-size:11px; line-height:1.45}
+
+.btn{
+  appearance:none; cursor:pointer; border-radius:6px; padding:8px 14px; font-size:13px;
+  border:1px solid var(--accent); background:var(--accent); color:#fff; font-weight:700;
+}
+:root[data-theme="dark"] .btn, :root:not([data-theme="light"]) .btn{color:#0d1117}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn{color:#fff}}
+.btn:hover{background:var(--accent-2); border-color:var(--accent-2)}
+.btn.ghost{background:transparent; color:var(--accent); border-color:var(--line-2); font-weight:400}
+.btn.ghost:hover{background:var(--accent-soft); border-color:var(--accent)}
+.btn.danger{background:transparent; color:var(--crit); border-color:var(--line-2); font-weight:400}
+.btn.danger:hover{background:var(--crit-soft); border-color:var(--crit)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btnrow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+
+/* ---- tables ---- */
+.tw{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:12.5px}
+th,td{padding:8px 10px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top}
+thead th{
+  position:sticky; top:0; background:var(--surface-2); color:var(--muted);
+  font-size:11px; letter-spacing:.05em; font-weight:700; white-space:nowrap; z-index:1;
+  border-bottom:1px solid var(--line-2);
+}
+tbody tr:hover{background:var(--surface-2)}
+td.num,th.num{font-family:var(--mono); text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+td.mono{font-family:var(--mono); white-space:nowrap}
+
+/* ---- pills / severity ---- */
+.pill{
+  display:inline-block; padding:1.5px 8px; border-radius:999px; font-size:11px;
+  font-weight:700; white-space:nowrap; border:1px solid transparent;
+}
+.p-crit{background:var(--crit-soft); color:var(--crit); border-color:var(--crit)}
+.p-warn{background:var(--warn-soft); color:var(--warn); border-color:var(--warn)}
+.p-ok{background:var(--ok-soft); color:var(--ok); border-color:var(--ok)}
+.p-info{background:var(--accent-soft); color:var(--accent); border-color:var(--accent)}
+.p-mute{background:var(--surface-2); color:var(--muted); border-color:var(--line-2)}
+
+/* severity stripe on task rows */
+tr.sev td:first-child{border-left:3px solid transparent}
+tr.sev-crit td:first-child{border-left-color:var(--crit)}
+tr.sev-warn td:first-child{border-left-color:var(--warn)}
+tr.sev-ok td:first-child{border-left-color:var(--ok)}
+tr.sev-info td:first-child{border-left-color:var(--line-2)}
+
+/* ---- law result list ---- */
+.laws{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px}
+.law{
+  border:1px solid var(--line); border-radius:7px; background:var(--surface);
+  padding:12px 14px; display:flex; flex-direction:column; gap:7px;
+}
+.law.hit{border-color:var(--line-2)}
+.law.off{opacity:.62}
+.law-hd{display:flex; justify-content:space-between; gap:10px; align-items:baseline}
+.law-hd h3{font-size:14px; font-weight:700; line-height:1.4}
+.law .why{font-size:11.5px; color:var(--muted); line-height:1.6}
+.law .why b{color:var(--ink-2); font-weight:400}
+.law .cnt{font-family:var(--mono); font-size:11.5px; color:var(--muted)}
+
+/* ---- product editor ---- */
+.prod{border:1px solid var(--line); border-radius:7px; background:var(--surface); overflow:hidden}
+.prod + .prod{margin-top:12px}
+.prod-hd{
+  display:flex; gap:10px; align-items:center; justify-content:space-between;
+  padding:10px 14px; background:var(--surface-2); border-bottom:1px solid var(--line); flex-wrap:wrap;
+}
+.prod-hd .nm{font-weight:700; font-size:14px}
+.prod-hd .tags{display:flex; gap:5px; flex-wrap:wrap}
+.prod-bd{padding:14px; display:flex; flex-direction:column; gap:14px}
+.comp-row{display:grid; grid-template-columns:minmax(120px,1.1fr) minmax(140px,1.6fr) 90px 34px; gap:8px; align-items:start}
+.comp-row .rm{border:1px solid var(--line-2); background:transparent; color:var(--muted); border-radius:5px; cursor:pointer; height:33px}
+.comp-row .rm:hover{color:var(--crit); border-color:var(--crit)}
+@media (max-width:620px){.comp-row{grid-template-columns:1fr 1fr 80px 34px}}
+
+/* ---- gauge (消防法 指定数量倍数) ---- */
+.gauge{display:flex; flex-direction:column; gap:6px}
+.gauge-bar{position:relative; height:22px; background:var(--surface-2); border:1px solid var(--line-2); border-radius:4px; overflow:hidden}
+.gauge-fill{position:absolute; inset:0 auto 0 0; background:var(--accent); opacity:.8}
+.gauge-fill.warn{background:var(--warn)} .gauge-fill.crit{background:var(--crit)}
+.gauge-tick{position:absolute; top:0; bottom:0; width:1px; background:var(--ink-2); opacity:.55}
+.gauge-tick span{
+  position:absolute; top:100%; left:0; transform:translateX(-50%); margin-top:3px;
+  font-family:var(--mono); font-size:10px; color:var(--muted); white-space:nowrap;
+}
+.gauge-scale{height:15px}
+
+.callout{
+  border-left:3px solid var(--accent); background:var(--accent-soft);
+  padding:10px 14px; border-radius:0 6px 6px 0; font-size:12.5px; color:var(--ink-2);
+}
+.callout.warn{border-left-color:var(--warn); background:var(--warn-soft)}
+.callout.crit{border-left-color:var(--crit); background:var(--crit-soft)}
+.callout b{color:var(--ink)}
+
+.empty{padding:34px 16px; text-align:center; color:var(--muted); font-size:13px}
+.foot{border-top:1px solid var(--line); margin-top:36px; padding:18px 0 40px; color:var(--muted); font-size:11.5px}
+.foot .wrap{display:flex; flex-direction:column; gap:6px; max-width:88ch}
+
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
+  background:var(--ink); color:var(--paper); padding:9px 18px; border-radius:6px;
+  font-size:13px; box-shadow:var(--shadow); z-index:60;
+}
+
+@media print{
+  .tabs,.masthead .mast-meta,.btnrow,.no-print{display:none !important}
+  body{background:#fff; font-size:10.5pt}
+  .card{break-inside:avoid; border-color:#999}
+  .panel{gap:12px}
+  @page{size:A4; margin:14mm}
+}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap mast-in">
+    <div class="mast-id">
+      <p class="eyebrow">工場内で使用・消費する化学品の法令適合管理</p>
+      <h1>化学物質法令チェック台帳</h1>
+      <p class="mast-sub">化学品を1回登録すれば、労働安全衛生法・化管法・消防法・毒劇法・水濁法ほか<span id="lawCountInline">21</span>法令の該当判定と、年間の点検・測定・届出タスクを自動で組み立てます。</p>
+    </div>
+    <div class="mast-meta">
+      <span class="chip">事業場 <b id="chipSite">—</b></span>
+      <span class="chip">保存先 <b id="chipStore">—</b></span>
+      <button class="iconbtn" id="btnTheme" type="button" title="表示テーマを切り替え">◐ テーマ</button>
+    </div>
+  </div>
+</header>
+
+<div class="band">
+  <div class="wrap">
+    <div class="band-in">
+      <div class="stat" id="statOverdue"><span class="k">期限超過・未実施</span><span class="v">0</span><span class="u">件 — 直ちに対応</span></div>
+      <div class="stat" id="statSoon"><span class="k">30日以内に期限</span><span class="v">0</span><span class="u">件</span></div>
+      <div class="stat" id="statUnknown"><span class="k">要確認データ</span><span class="v">0</span><span class="u">件 — SDSで裏取り</span></div>
+      <div class="stat" id="statLaws"><span class="k">該当法令</span><span class="v">0</span><span class="u">法令 / 全21法令中</span></div>
+    </div>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="画面切替">
+  <div class="wrap tabs-in" role="tablist">
+    <button class="tab" role="tab" data-tab="dash" aria-selected="true"><span class="num">01</span>ダッシュボード</button>
+    <button class="tab" role="tab" data-tab="site" aria-selected="false"><span class="num">02</span>事業場の条件</button>
+    <button class="tab" role="tab" data-tab="chem" aria-selected="false"><span class="num">03</span>化学品台帳</button>
+    <button class="tab" role="tab" data-tab="law" aria-selected="false"><span class="num">04</span>法令該当判定</button>
+    <button class="tab" role="tab" data-tab="task" aria-selected="false"><span class="num">05</span>年間チェック表<span class="badge" id="tabBadge" hidden>0</span></button>
+    <button class="tab" role="tab" data-tab="out" aria-selected="false"><span class="num">06</span>書き出し</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 01 ダッシュボード -->
+  <section class="panel" id="panel-dash" role="tabpanel">
+    <div id="sampleNotice"></div>
+
+    <div class="card">
+      <div class="hd">
+        <h2>直近90日にやること</h2>
+        <span class="note">期限の近い順。実施日を入れると次回期限が自動で繰り上がります。</span>
+      </div>
+      <div class="bd flush"><div class="tw"><table id="tblSoon">
+        <thead><tr>
+          <th style="min-width:190px">対応事項</th><th style="min-width:150px">根拠法令</th>
+          <th>周期</th><th>期限</th><th>状態</th><th style="min-width:120px">実施日を記録</th>
+        </tr></thead><tbody></tbody>
+      </table></div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="hd"><h2>消防法 指定数量の倍数</h2><span class="note">品名ごとの倍数の合計</span></div>
+        <div class="bd" id="boxShobo"></div>
+      </div>
+      <div class="card">
+        <div class="hd"><h2>化管法 物質別の年間取扱量</h2><span class="note">PRTR届出の判定に使う数値</span></div>
+        <div class="bd flush" id="boxPrtr"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h2>選任・届出の状況</h2><span class="note">人の配置と行政への届出は、抜けると是正指導に直結します。</span></div>
+      <div class="bd flush"><div class="tw"><table id="tblAppoint">
+        <thead><tr><th style="min-width:180px">選任・届出</th><th style="min-width:150px">根拠</th><th>期限</th><th>状態</th><th style="min-width:120px">完了日</th></tr></thead>
+        <tbody></tbody>
+      </table></div></div>
+    </div>
+  </section>
+
+  <!-- 02 事業場 -->
+  <section class="panel" id="panel-site" role="tabpanel" hidden>
+    <div class="card">
+      <div class="hd"><h2>事業場の条件</h2><span class="note">ここの回答が届出義務の有無を決めます。1回入れれば以後は変更時だけ。</span></div>
+      <div class="bd" style="display:flex; flex-direction:column; gap:18px">
+        <div class="grid2">
+          <div class="field"><label for="fSiteName">事業場名</label><input type="text" id="fSiteName" data-site="name" placeholder="○○製作所 第一工場"></div>
+          <div class="field"><label for="fSiteAddr">所在地（都道府県・市町村）</label><input type="text" id="fSiteAddr" data-site="addr" placeholder="愛知県豊田市"><span class="hint">少量危険物の届出や上乗せ条例は市町村ごとに異なります。</span></div>
+          <div class="field"><label for="fEmp">常時使用する従業員数</label><input type="number" id="fEmp" data-site="employees" min="0" step="1"><span class="hint">21人以上が化管法PRTR届出の要件のひとつです。</span></div>
+          <div class="field"><label for="fArea">敷地面積（m²）</label><input type="number" id="fArea" data-site="area" min="0" step="1"><span class="hint">土壌汚染対策法の形質変更の届出規模の判定に使います。</span></div>
+        </div>
+
+        <div>
+          <p class="sec-label">業種・排水</p>
+          <div class="grid3" id="siteChecks1"></div>
+        </div>
+        <div>
+          <p class="sec-label">設備・作業の有無</p>
+          <div class="grid3" id="siteChecks2"></div>
+        </div>
+        <div>
+          <p class="sec-label">廃棄物・その他</p>
+          <div class="grid3" id="siteChecks3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 化学品台帳 -->
+  <section class="panel" id="panel-chem" role="tabpanel" hidden>
+    <div class="card">
+      <div class="hd">
+        <h2>化学品台帳</h2>
+        <span class="note">入力はSDSの第1項・第3項・第15項から写すだけです。</span>
+      </div>
+      <div class="bd" style="display:flex; flex-direction:column; gap:14px">
+        <p class="lead">SDS第3項の成分とCAS番号を入れると、内蔵の物質マスタ（<span id="masterCount">0</span>物質）と突き合わせて特化則・有機則・化管法・毒劇法などの該当を自動で判定します。マスタにない物質は「要確認」として必ずタスクに残るので、黙って対象外になることはありません。</p>
+        <div class="btnrow">
+          <button class="btn" id="btnAddProd" type="button">＋ 化学品を追加</button>
+          <button class="btn ghost" id="btnImportCsv" type="button">CSVから取り込み</button>
+          <input type="file" id="fileCsv" accept=".csv,text/csv" hidden>
+          <button class="btn danger" id="btnClearSample" type="button" hidden>サンプルを消して空から始める</button>
+        </div>
+        <div id="prodList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 法令判定 -->
+  <section class="panel" id="panel-law" role="tabpanel" hidden>
+    <div class="card">
+      <div class="hd"><h2>法令該当判定</h2><span class="note">該当と判定した根拠を物質名まで遡って表示します。</span></div>
+      <div class="bd" style="display:flex; flex-direction:column; gap:16px">
+        <div id="lawUnknownBox"></div>
+        <div><p class="sec-label">該当あり</p><div class="laws" id="lawsHit"></div></div>
+        <div><p class="sec-label">現在の入力では該当なし</p><div class="laws" id="lawsOff"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 チェック表 -->
+  <section class="panel" id="panel-task" role="tabpanel" hidden>
+    <div class="card">
+      <div class="hd">
+        <h2>年間チェック表</h2>
+        <span class="note">該当と判定された義務だけを並べています。実施日を入れれば次回期限が自動計算されます。</span>
+      </div>
+      <div class="bd" style="display:flex; flex-direction:column; gap:12px">
+        <div class="btnrow no-print">
+          <select id="filterCat" style="width:auto"><option value="">分類：すべて</option></select>
+          <select id="filterLaw" style="width:auto"><option value="">法令：すべて</option></select>
+          <select id="filterStat" style="width:auto">
+            <option value="">状態：すべて</option>
+            <option value="crit">要対応のみ</option>
+            <option value="warn">期限接近のみ</option>
+            <option value="ok">適合のみ</option>
+          </select>
+          <button class="btn ghost" id="btnPrint" type="button">印刷 / PDF</button>
+        </div>
+        <div class="tw"><table id="tblTask">
+          <thead><tr>
+            <th style="min-width:210px">対応事項</th><th style="min-width:160px">根拠条文</th>
+            <th>分類</th><th>周期</th><th>期限</th><th>状態</th>
+            <th style="min-width:118px">実施日</th><th style="min-width:110px">担当</th><th>記録保存</th>
+          </tr></thead><tbody></tbody>
+        </table></div>
+        <p class="note" style="font-size:11.5px; color:var(--muted)">記録保存年数は法定の最短年数です。特別管理物質・がん原性物質に関する記録は30年保存のものがあります。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 書き出し -->
+  <section class="panel" id="panel-out" role="tabpanel" hidden>
+    <div class="card">
+      <div class="hd"><h2>書き出し</h2><span class="note">この画面のデータはこのブラウザに保存されます。共有・保管は書き出しで行ってください。</span></div>
+      <div class="bd" style="display:flex; flex-direction:column; gap:18px">
+        <div class="grid2">
+          <div class="field">
+            <p class="sec-label">Excel・共有用</p>
+            <div class="btnrow">
+              <button class="btn" data-dl="tasks-csv" type="button">チェック表をCSVで保存</button>
+              <button class="btn ghost" data-dl="subs-csv" type="button">物質別の判定をCSVで保存</button>
+            </div>
+            <span class="hint">Excelで文字化けしないようBOM付きUTF-8で出力します。</span>
+          </div>
+          <div class="field">
+            <p class="sec-label">カレンダー登録</p>
+            <div class="btnrow">
+              <button class="btn" data-dl="ics" type="button">年間予定をICSで保存</button>
+            </div>
+            <span class="hint">Googleカレンダーの「設定 → インポート」から取り込むと、点検・測定・健診・届出が繰り返し予定として入ります。</span>
+          </div>
+          <div class="field">
+            <p class="sec-label">バックアップ・引き継ぎ</p>
+            <div class="btnrow">
+              <button class="btn ghost" data-dl="json" type="button">全データをJSONで保存</button>
+              <button class="btn ghost" id="btnImportJson" type="button">JSONから復元</button>
+              <input type="file" id="fileJson" accept=".json,application/json" hidden>
+            </div>
+            <span class="hint">別のPCへ移すとき、担当者が替わるときはこれ1つで引き継げます。</span>
+          </div>
+          <div class="field">
+            <p class="sec-label">監査・是正対応</p>
+            <div class="btnrow">
+              <button class="btn ghost" id="btnPrint2" type="button">チェック表を印刷 / PDF</button>
+            </div>
+            <span class="hint">労基署・消防・自治体の立入時に、そのまま提示できる体裁で印刷されます。</span>
+          </div>
+        </div>
+
+        <div class="callout">
+          <b>物質マスタの照合について。</b> 内蔵マスタは代表的な工場用薬品を収録した出発点で、各行は「暫定」の状態です。実際に使う物質については、SDS第15項の適用法令と公式リスト（厚生労働省 職場のあんぜんサイト、NITE-CHRIP、化管法政令、消防法別表第一、毒物及び劇物指定令）で1度だけ突き合わせ、台帳の各成分を「照合済」にしてください。照合が済んでいない物質は要確認としてチェック表に残り続けます。
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot"><div class="wrap">
+  <p><b>この台帳の位置づけ。</b> 法令の該当判定を機械的に行い、対応漏れを可視化するための実務ツールです。最終的な適法性の判断、所轄官庁への確認、専門家（衛生管理者・作業環境測定士・危険物取扱者・行政書士等）への相談に代わるものではありません。</p>
+  <p>収録法令：労働安全衛生法／特化則／有機則／鉛則／粉じん則・じん肺法／石綿則／作業環境測定法／女性則／化管法（PRTR・SDS）／毒物及び劇物取締法／消防法／化審法／廃棄物処理法／水質汚濁防止法／下水道法／大気汚染防止法／土壌汚染対策法／フロン排出抑制法／PCB特別措置法／高圧ガス保安法／化学兵器禁止法。</p>
+  <p id="footVer"></p>
+</div></footer>
+<script>
+"use strict";
+/* ============================================================
+   化学物質法令チェック台帳 — 単一ファイル版
+   構成: ①物質マスタ ②法令タスク定義 ③判定エンジン ④画面 ⑤保存・書き出し
+   ============================================================ */
+const APP_VER = "1.0.0";
+const MASTER_REV = "2026-09 暫定シード";
+
+/* ---------- ① 物質マスタ ----------
+   an   : 安衛法 表示・通知対象 (1該当 / 0非該当 / 2要確認)
+   skin : 皮膚等障害化学物質等   cancer: がん原性物質
+   tokka: 特化則 ("1"第1類 "2T"特定第2類 "2K"管理第2類 "2S"特別管理物質 "3"第3類)
+   yuki : 有機則 ("1""2""3")  lead: 鉛則  dust: 粉じん則
+   kakan: 化管法 ("1"第一種 "1T"特定第一種 "2"第二種 "?"要確認)
+   doku : 毒劇法 ("毒""劇")   shi: 消防法品名キー
+   sui  : 水濁法有害物質 (1/0/2要確認)  dojo: 土対法特定有害物質  josei: 女性則
+------------------------------------ */
+const M_KEYS=["cas","name","an","skin","cancer","tokka","yuki","lead","dust","kakan","doku","shi","kashin","taiki","sui","dojo","josei","note"];
+const M_ROWS=[
+["108-88-3","トルエン",1,1,0,"","2",0,0,"1","劇","4|第1石油類(非水溶性)","","VOC/有害大気",0,0,1,""],
+["1330-20-7","キシレン",1,1,0,"","2",0,0,"1","","4|第2石油類(非水溶性)","","VOC/有害大気",0,0,1,"o-/m-/p-混合"],
+["67-56-1","メタノール",1,1,0,"","2",0,0,"","劇","4|アルコール類","","VOC",0,0,1,""],
+["64-17-5","エタノール",1,0,0,"","",0,0,"","","4|アルコール類","","VOC",0,0,0,"有機則の対象外"],
+["67-63-0","2-プロパノール(IPA)",1,0,0,"","2",0,0,"?","","4|アルコール類","","VOC",0,0,0,"化管法の区分は要確認"],
+["67-64-1","アセトン",1,0,0,"","2",0,0,"","","4|第1石油類(水溶性)","","VOC",0,0,0,""],
+["78-93-3","メチルエチルケトン(MEK)",1,1,0,"","2",0,0,"?","","4|第1石油類(非水溶性)","","VOC",0,0,0,"消防法上は非水溶性区分"],
+["108-10-1","メチルイソブチルケトン(MIBK)",1,1,0,"","2",0,0,"?","","4|第1石油類(非水溶性)","","VOC",0,0,0,""],
+["141-78-6","酢酸エチル",1,0,0,"","2",0,0,"","","4|第1石油類(非水溶性)","","VOC",0,0,0,""],
+["123-86-4","酢酸ノルマル-ブチル",1,0,0,"","2",0,0,"","","4|第1石油類(非水溶性)","","VOC",0,0,0,""],
+["110-54-3","ノルマルヘキサン",1,1,0,"","2",0,0,"1","","4|第1石油類(非水溶性)","","VOC",0,0,1,"末梢神経障害"],
+["110-82-7","シクロヘキサン",1,0,0,"","2",0,0,"?","","4|第1石油類(非水溶性)","","VOC",0,0,0,""],
+["108-94-1","シクロヘキサノン",1,1,0,"","2",0,0,"?","","4|第2石油類(非水溶性)","","VOC",0,0,0,""],
+["109-99-9","テトラヒドロフラン",1,1,0,"","2",0,0,"?","","4|第1石油類(水溶性)","","VOC",0,0,0,""],
+["71-36-3","1-ブタノール",1,1,0,"","2",0,0,"","","4|第2石油類(非水溶性)","","VOC",0,0,0,"炭素数4のためアルコール類に該当しない"],
+["78-83-1","イソブチルアルコール",1,1,0,"","2",0,0,"","","4|第2石油類(非水溶性)","","VOC",0,0,0,""],
+["68-12-2","N,N-ジメチルホルムアミド(DMF)",1,1,0,"","2",0,0,"1","","4|第2石油類(水溶性)","","VOC",0,0,1,"女性則の就業制限対象"],
+["872-50-4","N-メチル-2-ピロリドン(NMP)",1,1,0,"","",0,0,"1","","4|第3石油類(水溶性)","","VOC",0,0,1,"女性則の就業制限対象"],
+["110-80-5","2-エトキシエタノール",1,1,0,"","2",0,0,"1","","4|第2石油類(水溶性)","","VOC",0,0,1,"セロソルブ類"],
+["109-86-4","2-メトキシエタノール",1,1,0,"","2",0,0,"1","","4|第2石油類(水溶性)","","VOC",0,0,1,"メチルセロソルブ"],
+["111-76-2","2-ブトキシエタノール",1,1,0,"","2",0,0,"1","","4|第3石油類(水溶性)","","VOC",0,0,0,"ブチルセロソルブ"],
+["107-21-1","エチレングリコール",1,0,0,"","",0,0,"1","","4|第3石油類(水溶性)","","",0,0,0,""],
+["75-09-2","ジクロロメタン",1,1,1,"2S","",0,0,"1","","","","有害大気",0,0,1,"H26に有機則から特化則へ移行"],
+["79-01-6","トリクロロエチレン",1,1,1,"2S","",0,0,"1T","劇","","","有害大気",1,1,1,"地下水汚染の代表物質"],
+["127-18-4","テトラクロロエチレン",1,1,1,"2S","",0,0,"1T","劇","","","有害大気",1,1,1,""],
+["67-66-3","クロロホルム",1,1,1,"2S","",0,0,"1","劇","","","有害大気",1,1,1,""],
+["107-06-2","1,2-ジクロロエタン",1,1,1,"2S","",0,0,"1T","劇","4|第1石油類(非水溶性)","","有害大気",1,1,1,""],
+["78-87-5","1,2-ジクロロプロパン",1,1,1,"2S","",0,0,"1","","4|第1石油類(非水溶性)","","",0,0,1,"胆管がん事案を受けH26追加"],
+["71-43-2","ベンゼン",1,1,1,"2S","",0,0,"1T","劇","4|第1石油類(非水溶性)","","有害大気",1,1,1,"含有1%超で特化則適用"],
+["100-41-4","エチルベンゼン",1,1,1,"2S","",0,0,"1","","4|第1石油類(非水溶性)","","VOC/有害大気",0,0,1,"塗装業務で特化則適用"],
+["100-42-5","スチレン",1,1,0,"2K","",0,0,"1","","4|第2石油類(非水溶性)","","VOC/有害大気",0,0,1,""],
+["50-00-0","ホルムアルデヒド",1,1,1,"2S","",0,0,"1T","劇","","","有害大気",0,0,1,"ホルマリン水溶液も対象"],
+["75-01-4","塩化ビニル",1,0,1,"2S","",0,0,"1T","","","","有害大気",0,0,1,"高圧ガス保安法も要確認"],
+["79-06-1","アクリルアミド",1,1,1,"2S","",0,0,"1","劇","","","",0,0,1,""],
+["107-13-1","アクリロニトリル",1,1,1,"2T","",0,0,"1T","劇","4|第1石油類(非水溶性)","","有害大気",0,0,1,""],
+["302-01-2","ヒドラジン",1,1,1,"2S","",0,0,"1","劇","","","",0,0,1,""],
+["77-78-1","硫酸ジメチル",1,1,1,"2T","",0,0,"1","毒","","","",0,0,1,""],
+["7664-39-3","ふっ化水素",1,1,0,"2T","",0,0,"1","毒","","","特定物質",1,0,0,"ふっ素として排水規制"],
+["143-33-9","シアン化ナトリウム",1,1,0,"2T","",0,0,"1","毒","","","特定物質",1,0,0,"毒劇法の業務上取扱者届出の対象となる場合あり"],
+["151-50-8","シアン化カリウム",1,1,0,"2T","",0,0,"1","毒","","","特定物質",1,0,0,"毒劇法の業務上取扱者届出の対象となる場合あり"],
+["7778-50-9","重クロム酸カリウム",1,1,1,"2S","",0,0,"1T","劇","1|酸化性固体 第2種","","",1,1,1,"六価クロム化合物"],
+["7789-00-6","クロム酸カリウム",1,1,1,"2S","",0,0,"1T","劇","1|酸化性固体 第2種","","",1,1,1,"六価クロム化合物"],
+["7786-81-4","硫酸ニッケル",1,1,1,"2S","",0,0,"1","劇","","","",2,0,1,"ニッケル化合物"],
+["7440-43-9","カドミウム及びその化合物",1,0,1,"2K","",0,0,"1T","毒","","","",1,1,1,""],
+["7439-92-1","鉛及びその化合物",1,0,1,"","",1,0,"1","劇","","","",1,1,1,"鉛則の対象業務に該当するか要確認"],
+["7440-38-2","砒素及びその化合物",1,0,1,"2S","",0,0,"1T","毒","","","",1,1,1,""],
+["7439-97-6","水銀及びその無機化合物",1,0,0,"2K","",0,0,"1","毒","","","水銀等",1,1,1,"水銀に関する水俣条約の対応も要確認"],
+["7439-96-5","マンガン及びその化合物",1,0,0,"2K","",0,0,"1","","","","",0,0,0,""],
+["7440-48-4","コバルト及びその無機化合物",1,1,1,"2S","",0,0,"1","","","","",0,0,1,""],
+["-","溶接ヒューム",1,0,1,"2K","",0,0,"","","","","",0,0,0,"金属アーク溶接等作業。R3.4から特化則。じん肺法も対象"],
+["14808-60-7","結晶質シリカ(石英)",1,0,1,"","",0,1,"","","","","",0,0,0,"じん肺法の対象"],
+["1332-21-4","石綿",1,0,1,"","",0,0,"","","","1特","特定粉じん",0,0,1,"製造等禁止。石綿則および大防法の事前調査対象"],
+["7664-93-9","硫酸",1,0,0,"3","",0,0,"","劇","","","",0,0,0,"水濁法は水素イオン濃度で規制"],
+["7647-01-0","塩化水素(塩酸)",1,0,0,"3","",0,0,"1","劇","","","特定物質",0,0,0,""],
+["7697-37-2","硝酸",1,0,0,"3","",0,0,"","劇","6|酸化性液体","","特定物質",0,0,0,""],
+["7664-41-7","アンモニア",1,0,0,"3","",0,0,"1","劇","","","特定物質",0,0,0,"高圧ガス保安法・悪臭防止法も要確認"],
+["630-08-0","一酸化炭素",1,0,0,"3","",0,0,"","","","","",0,0,1,""],
+["7446-09-5","二酸化硫黄",1,0,0,"3","",0,0,"","","","","特定物質",0,0,0,"ばい煙の硫黄酸化物も要確認"],
+["108-95-2","フェノール",1,1,0,"3","",0,0,"1","劇","4|第3石油類(非水溶性)","","",0,0,0,""],
+["75-44-5","ホスゲン",1,0,0,"3","",0,0,"1","毒","","","特定物質",0,0,0,""],
+["7782-50-5","塩素",1,0,0,"2K","",0,0,"1","劇","","","特定物質",0,0,0,"高圧ガス保安法も要確認"],
+["7783-06-4","硫化水素",1,0,0,"2K","",0,0,"1","劇","","","特定物質",0,0,0,"酸素欠乏症等防止規則も要確認"],
+["1310-73-2","水酸化ナトリウム",1,0,0,"","",0,0,"","劇","","","",0,0,0,"水濁法は水素イオン濃度で規制"],
+["1310-58-3","水酸化カリウム",1,0,0,"","",0,0,"","劇","","","",0,0,0,""],
+["7722-84-1","過酸化水素",1,0,0,"","",0,0,"","劇","6|酸化性液体","","",0,0,0,"6%以下は劇物から除外。消防法は36%以上"],
+["7722-64-7","過マンガン酸カリウム",1,0,0,"","",0,0,"","劇","1|酸化性固体 第2種","","",0,0,0,""],
+["64-19-7","酢酸",1,0,0,"","",0,0,"","劇","4|第2石油類(水溶性)","","",0,0,0,"90%以下は劇物から除外"],
+["7664-38-2","りん酸",1,0,0,"","",0,0,"","劇","","","",0,0,0,""],
+["-","ガソリン",1,0,0,"","",0,0,"","","4|第1石油類(非水溶性)","","VOC",0,0,0,"ベンゼン含有により特化則の適用を要確認"],
+["-","灯油",1,0,0,"","",0,0,"","","4|第2石油類(非水溶性)","","VOC",0,0,0,""],
+["-","軽油",1,0,0,"","",0,0,"","","4|第2石油類(非水溶性)","","VOC",0,0,0,""],
+["-","重油",1,0,0,"","",0,0,"","","4|第3石油類(非水溶性)","","",0,0,0,"燃料として燃焼させる場合は大防法のばい煙を要確認"],
+["8052-41-3","ミネラルスピリット(石油系溶剤)",1,0,0,"","3",0,0,"","","4|第2石油類(非水溶性)","","VOC",0,0,0,"有機則第3種の石油ベンジン等に該当するか要確認"],
+["-","潤滑油・鉱油",0,0,0,"","",0,0,"","","4|第4石油類","","",0,0,0,"廃棄時は廃油として産業廃棄物"],
+["-","切削油(水溶性)",2,2,0,"","",0,0,"?","","","","",0,0,0,"配合成分のSDSで個別に判定が必要"]
+];
+const MASTER = M_ROWS.map(r => Object.fromEntries(M_KEYS.map((k,i)=>[k,r[i]])));
+const MASTER_BY_CAS = {};
+MASTER.forEach(m => { if(m.cas && m.cas!=="-") MASTER_BY_CAS[m.cas] = m; });
+
+/* ---------- 消防法 指定数量 ---------- */
+const SHOBO = [
+  ["4|特殊引火物","第4類 特殊引火物",50,"L"],
+  ["4|第1石油類(非水溶性)","第4類 第1石油類 非水溶性",200,"L"],
+  ["4|第1石油類(水溶性)","第4類 第1石油類 水溶性",400,"L"],
+  ["4|アルコール類","第4類 アルコール類",400,"L"],
+  ["4|第2石油類(非水溶性)","第4類 第2石油類 非水溶性",1000,"L"],
+  ["4|第2石油類(水溶性)","第4類 第2石油類 水溶性",2000,"L"],
+  ["4|第3石油類(非水溶性)","第4類 第3石油類 非水溶性",2000,"L"],
+  ["4|第3石油類(水溶性)","第4類 第3石油類 水溶性",4000,"L"],
+  ["4|第4石油類","第4類 第4石油類",6000,"L"],
+  ["4|動植物油類","第4類 動植物油類",10000,"L"],
+  ["1|酸化性固体 第1種","第1類 酸化性固体 第1種",50,"kg"],
+  ["1|酸化性固体 第2種","第1類 酸化性固体 第2種",300,"kg"],
+  ["1|酸化性固体 第3種","第1類 酸化性固体 第3種",1000,"kg"],
+  ["2|硫黄・赤りん・硫化りん","第2類 硫黄・赤りん・硫化りん",100,"kg"],
+  ["2|金属粉・マグネシウム 第1種","第2類 金属粉・マグネシウム 第1種",100,"kg"],
+  ["2|鉄粉","第2類 鉄粉",500,"kg"],
+  ["2|金属粉・マグネシウム 第2種","第2類 金属粉・マグネシウム 第2種",500,"kg"],
+  ["2|引火性固体","第2類 引火性固体",1000,"kg"],
+  ["3|黄りん","第3類 黄りん",20,"kg"],
+  ["3|自然発火性・禁水性 第1種","第3類 自然発火性物質・禁水性物質 第1種",10,"kg"],
+  ["3|自然発火性・禁水性 第2種","第3類 自然発火性物質・禁水性物質 第2種",50,"kg"],
+  ["3|自然発火性・禁水性 第3種","第3類 自然発火性物質・禁水性物質 第3種",300,"kg"],
+  ["5|自己反応性 第1種","第5類 自己反応性物質 第1種",10,"kg"],
+  ["5|自己反応性 第2種","第5類 自己反応性物質 第2種",100,"kg"],
+  ["6|酸化性液体","第6類 酸化性液体",300,"kg"]
+].map(r=>({key:r[0],label:r[1],qty:r[2],unit:r[3]}));
+const SHOBO_BY_KEY = Object.fromEntries(SHOBO.map(s=>[s.key,s]));
+
+/* ---------- 事業場の条件 ---------- */
+const SITE_Q = [
+  ["g1","prtrIndustry","化管法の対象業種である","製造業、燃料小売業、洗濯業など政令で定める24業種"],
+  ["g1","sewer","排水を公共下水道に排除している","下水道法の特定施設・除害施設の判定に使います"],
+  ["g1","publicWater","排水を河川・海域等の公共用水域に排出している","水質汚濁防止法の排水基準の適用判定に使います"],
+  ["g2","localExhaust","局所排気装置・プッシュプル型換気装置がある","1年以内ごとの定期自主検査の対象になります"],
+  ["g2","waterFacility","水質汚濁防止法の特定施設がある","洗浄施設・めっき施設・酸洗施設・表面処理施設など"],
+  ["g2","hazardWater","有害物質使用特定施設・有害物質貯蔵指定施設がある","地下浸透防止の構造基準と年1回以上の定期点検の対象"],
+  ["g2","vocFacility","大気汚染防止法のVOC排出施設がある","塗装・接着・印刷・洗浄・乾燥の各施設で規模要件あり"],
+  ["g2","boiler","ばい煙発生施設がある","ボイラー・加熱炉・乾燥炉など"],
+  ["g2","freon","業務用エアコン・冷凍冷蔵機器がある","フロン排出抑制法の第一種特定製品"],
+  ["g2","gas","高圧ガスの容器を貯蔵・消費している","窒素・アルゴン・酸素・アセチレン等のボンベを含む"],
+  ["g2","plating","電気めっき業または金属熱処理業を営んでいる","毒劇法の業務上取扱者の届出義務に関わります"],
+  ["g2","welding","金属アーク溶接等の作業がある","溶接ヒュームは特化則の対象です"],
+  ["g2","dustWork","粉じん作業がある","研磨・切削・粉体の投入や袋詰めなど"],
+  ["g2","demolition","建築物・工作物の解体または改修の予定がある","石綿の事前調査と結果報告の対象になります"],
+  ["g3","waste","産業廃棄物を排出している","廃油・廃酸・廃アルカリ・汚泥・廃プラスチック類など"],
+  ["g3","wasteLarge","前年度の産業廃棄物が1,000t以上（特別管理産業廃棄物は50t以上）","多量排出事業者の処理計画の提出義務が生じます"],
+  ["g3","pcb","PCB含有機器を保管または使用している","トランス・コンデンサ・安定器。低濃度は2027年3月末が処分期限"],
+  ["g3","manufacture","化学物質を製造または輸入している","化審法の数量届出、化学兵器禁止法の届出に関わります"],
+  ["g3","shipping","化学品を他社へ出荷・販売している","化管法・安衛法のSDS提供義務が生じます"],
+  ["g3","ordinance","自治体の化学物質適正管理条例の対象地域である","東京都・神奈川県など。管理方針・管理計画書の提出があります"],
+  ["g3","freonLarge","フロン類の年間漏えい量が1,000t-CO2以上","算定漏えい量の報告義務が生じます"]
+];
+
+/* ---------- ② 法令タスク定義 ----------
+   cyc : once(選任・届出) / 1m / 3m / 6m / 12m / 36m / 60m / y:MM-DD(毎年の期限) / event(事象発生時)
+   when: いずれかの条件が成立すれば該当。配列内の配列はAND条件。
+------------------------------------ */
+const TASKS = [
+/* === 労働安全衛生法（本体・安衛則） === */
+["ANZ-01","労働安全衛生法","安衛則第12条の5","化学物質管理者の選任と職務の周知","選任","once",["ra"],0,"リスクアセスメント対象物を製造・取り扱う事業場ごとに選任。選任すべき事由が生じた日から14日以内。製造事業場は専門的講習の修了者に限られます。"],
+["ANZ-02","労働安全衛生法","安衛則第12条の6","保護具着用管理責任者の選任","選任","once",["ra"],0,"リスクアセスメントの結果に基づき労働者に保護具を使用させるときに選任。14日以内。"],
+["ANZ-03","労働安全衛生法","法第57条","容器・包装へのラベル表示の点検","表示・保管","12m",["ra"],0,"譲渡・提供時だけでなく、事業場内で小分けした容器にも表示または同等の措置が必要です。"],
+["ANZ-04","労働安全衛生法","法第57条の2","SDSの入手と作業場への常時掲示・備付け","表示・保管","12m",["ra"],0,"作業場の見やすい場所への掲示、備付け、磁気ディスク等いずれかの方法で常時確認できる状態にします。"],
+["ANZ-05","労働安全衛生法","安衛則第34条の2の5","SDS「人体に及ぼす作用」の定期確認と更新","記録","60m",["ra"],5,"5年以内ごとに確認し、変更があるときは1年以内に更新します。更新したら提供先へも通知します。"],
+["ANZ-06","労働安全衛生法","法第57条の3","化学物質のリスクアセスメントの実施","評価","12m",["ra"],3,"新規採用時・作業変更時は都度実施。定期見直しと、災害発生時の再実施が必要です。"],
+["ANZ-07","労働安全衛生法","安衛則第34条の2の8","リスクアセスメント結果と措置内容の記録・保存・労働者への周知","記録","12m",["ra"],3,"次回のリスクアセスメントまで、または3年間保存します。"],
+["ANZ-08","労働安全衛生法","安衛則第577条の2第1項","ばく露を最小限度にする措置の実施と検証","評価","12m",["ra"],0,"代替・工学的対策・管理的対策・保護具の優先順位で検討した記録を残します。"],
+["ANZ-09","労働安全衛生法","安衛則第577条の2第2項","濃度基準値以下であることの確認（測定等）","測定","12m",["ra"],3,"濃度基準値が定められた物質が対象です。対象物質は厚生労働省告示で段階的に追加されているため、使用物質ごとに最新の告示を確認してください。"],
+["ANZ-10","労働安全衛生法","安衛則第594条の2","皮膚等障害化学物質等に対する不浸透性保護具の使用","表示・保管","12m",["skin"],0,"皮膚・眼への障害または皮膚吸収による健康影響のおそれがある物質は、保護手袋・保護眼鏡・保護衣の使用が義務です。材質の耐透過性の確認も行います。"],
+["ANZ-11","労働安全衛生法","安衛則第577条の2第11項","がん原性物質に係る作業記録の作成","記録","1m",["cancer"],30,"1か月以内ごとに、作業した労働者の氏名・従事期間・作業概要・ばく露低減措置を記録し30年間保存します。"],
+["ANZ-12","労働安全衛生法","安衛則第577条の2第3項・第4項","リスクアセスメント対象物健康診断の要否判断と実施","健診","12m",["ra"],5,"ばく露の程度から医師等が必要と認めるときに実施。記録は5年（がん原性物質に係るものは30年）保存です。"],
+["ANZ-13","労働安全衛生法","法第59条第1項・第2項","雇入れ時・作業内容変更時の安全衛生教育","教育","event",["ra"],0,"化学物質の危険性・有害性、取扱方法、保護具の使用、事故時の措置を含めます。"],
+["ANZ-14","労働安全衛生法","法第88条","局所排気装置等の設置・移転・変更に係る計画届","届出","event",["localExhaust"],0,"特化則・有機則・粉じん則の対象設備は、工事開始の30日前までに所轄労働基準監督署長へ届け出ます。"],
+["ANZ-15","労働安全衛生法","安衛則第22条","衛生委員会における化学物質のばく露低減対策の調査審議","評価","1m",["ra"],3,"毎月1回以上開催し、議事録を3年保存します。"],
+["ANZ-16","労働安全衛生法","安衛則第97条","労働者死傷病報告・化学物質による健康障害の報告","届出","event",["ra"],0,"休業4日以上は遅滞なく、4日未満は四半期ごとに報告します。"],
+
+/* === 特定化学物質障害予防規則 === */
+["TOK-01","特定化学物質障害予防規則","特化則第27条","特定化学物質作業主任者の選任と氏名の掲示","選任","once",["tokka"],0,"特定化学物質及び四アルキル鉛等作業主任者技能講習の修了者から選任します。"],
+["TOK-02","特定化学物質障害予防規則","特化則第36条","作業環境測定の実施","測定","6m",["tokka"],3,"6か月以内ごとに1回。作業環境測定士または登録測定機関が行います。特別管理物質に係る記録は30年保存です。"],
+["TOK-03","特定化学物質障害予防規則","特化則第36条の2","作業環境測定結果の評価と第2・第3管理区分時の改善措置","評価","6m",["tokka"],3,"第3管理区分となった場合は、令和6年4月から作業環境管理専門家への意見聴取等の追加措置が必要です。"],
+["TOK-04","特定化学物質障害予防規則","特化則第30条","局所排気装置等の定期自主検査","点検","12m",[["tokka","localExhaust"]],3,"1年以内ごとに1回。検査項目・実施者・結果・補修内容を記録します。"],
+["TOK-05","特定化学物質障害予防規則","特化則第34条の2","除じん装置・排ガス処理装置等の定期自主検査","点検","12m",[["tokka","localExhaust"]],3,"1年以内ごとに1回。"],
+["TOK-06","特定化学物質障害予防規則","特化則第39条","特定化学物質健康診断の実施","健診","6m",["tokka"],5,"原則6か月以内ごとに1回。特別管理物質に係る記録は30年保存です。"],
+["TOK-07","特定化学物質障害予防規則","特化則第41条","特定化学物質健康診断結果報告書の提出","届出","6m",["tokka"],0,"健康診断を行ったときは遅滞なく所轄労働基準監督署長へ提出します。"],
+["TOK-08","特定化学物質障害予防規則","特化則第38条の4","特別管理物質に係る作業記録の作成","記録","1m",["tokkaS"],30,"1か月以内ごとに、従事した労働者の氏名・作業概要・従事期間・異常事態の概要を記録し30年保存します。"],
+["TOK-09","特定化学物質障害予防規則","特化則第38条の3","特別管理物質を取り扱う旨・注意事項の掲示","表示・保管","12m",["tokkaS"],0,"名称、人体に及ぼす作用、取扱い上の注意事項、使用すべき保護具を見やすい箇所に掲示します。"],
+["TOK-10","特定化学物質障害予防規則","特化則第24条・第25条","関係者以外の立入禁止表示と容器・貯蔵の管理","表示・保管","12m",["tokka"],0,"立入禁止の表示、容器への名称表示、空容器の密閉・専用置場の設置を行います。"],
+["TOK-11","特定化学物質障害予防規則","特化則第37条・第38条","洗眼・洗身・洗浄設備と休憩室の設置","点検","12m",["tokka"],0,"設備の設置だけでなく、使用可能な状態に保たれているかの点検を含みます。"],
+["TOK-12","特定化学物質障害予防規則","特化則第53条","事業廃止時の特別管理物質関係記録の所轄労働基準監督署長への提出","届出","event",["tokkaS"],0,"事業を廃止しようとするときに、測定記録・健診記録・作業記録を提出します。"],
+
+/* === 有機溶剤中毒予防規則 === */
+["YUK-01","有機溶剤中毒予防規則","有機則第19条","有機溶剤作業主任者の選任と氏名の掲示","選任","once",["yuki"],0,"有機溶剤作業主任者技能講習の修了者から選任します。"],
+["YUK-02","有機溶剤中毒予防規則","有機則第25条","有機溶剤等の区分の色分け表示","表示・保管","12m",["yuki"],0,"第1種は赤、第2種は黄、第3種は青で、見やすい場所に区分を表示します。"],
+["YUK-03","有機溶剤中毒予防規則","有機則第24条","有機溶剤の取扱い上の注意事項等の掲示","表示・保管","12m",["yuki"],0,"人体に及ぼす作用、取扱上の注意事項、中毒発生時の応急処置を掲示します。"],
+["YUK-04","有機溶剤中毒予防規則","有機則第28条","作業環境測定の実施","測定","6m",["yuki12"],3,"第1種・第2種有機溶剤等が対象。6か月以内ごとに1回です。"],
+["YUK-05","有機溶剤中毒予防規則","有機則第28条の2","作業環境測定結果の評価と改善措置","評価","6m",["yuki12"],3,"評価結果に基づき、第2・第3管理区分の場合は施設・設備等の点検と改善を行います。"],
+["YUK-06","有機溶剤中毒予防規則","有機則第20条・第21条","局所排気装置・プッシュプル型換気装置の定期自主検査","点検","12m",[["yuki","localExhaust"]],3,"1年以内ごとに1回。"],
+["YUK-07","有機溶剤中毒予防規則","有機則第29条","有機溶剤等健康診断の実施","健診","6m",["yuki12"],5,"6か月以内ごとに1回。屋内作業場等における第1種・第2種の業務が対象です。"],
+["YUK-08","有機溶剤中毒予防規則","有機則第30条の3","有機溶剤等健康診断結果報告書の提出","届出","6m",["yuki12"],0,"遅滞なく所轄労働基準監督署長へ提出します。"],
+["YUK-09","有機溶剤中毒予防規則","有機則第2条・第3条","消費量による適用除外の判定の見直し","評価","12m",["yuki"],3,"作業場の気積から算出した許容消費量と1時間あたりの消費量を比較します。生産量が変わったら再判定が必要です。"],
+
+/* === 鉛則・粉じん則・じん肺法・石綿則 === */
+["PBD-01","鉛中毒予防規則","鉛則第33条ほか","鉛作業主任者の選任、作業環境測定（1年以内ごと）、鉛健康診断（6か月または1年以内ごと）","選任","6m",["lead"],5,"鉛業務の種類により測定・健診の周期が異なります。対象業務に該当するかの確認から行ってください。"],
+["FUN-01","粉じん障害防止規則","粉じん則第22条","粉じん作業に係る特別教育の実施","教育","event",["dust"],3,"特定粉じん作業に労働者を就かせるときに実施し、記録を3年保存します。"],
+["FUN-02","粉じん障害防止規則","粉じん則第26条","粉じんの作業環境測定の実施","測定","6m",["dust"],7,"特定粉じん作業を行う屋内作業場が対象。記録は7年保存です。"],
+["FUN-03","粉じん障害防止規則","粉じん則第17条","除じん装置等の定期自主検査","点検","12m",[["dust","localExhaust"]],3,"1年以内ごとに1回。"],
+["FUN-04","じん肺法","じん肺法第7条〜第9条の2","じん肺健康診断の実施と管理区分の申請","健診","36m",["dust"],7,"常時粉じん作業に従事する労働者は3年以内ごと、じん肺管理区分2・3の者は1年以内ごとに実施します。記録は7年保存です。"],
+["FUN-05","じん肺法","じん肺法第44条","じん肺健康管理実施状況報告の提出","届出","y:12-31",["dust"],0,"毎年、所轄労働基準監督署長へ提出します。"],
+["SEK-01","石綿障害予防規則","石綿則第3条・大気汚染防止法第18条の15","建築物等の解体・改修工事に係る石綿の事前調査と結果報告","届出","event",["demolition"],3,"一定規模以上の工事は、着工前に電子システムで労働基準監督署と自治体へ報告します。調査記録は3年保存です。"],
+["SEK-02","石綿障害予防規則","石綿則第35条ほか","石綿作業主任者の選任、作業記録の作成（40年保存）","選任","event",["demolition"],40,"石綿等を取り扱う作業に該当する場合に必要です。"],
+["WEL-01","特定化学物質障害予防規則","特化則第38条の21","金属アーク溶接等作業に係る個人ばく露測定と呼吸用保護具の選択","測定","event",["welding"],3,"作業方法を変更したときに濃度測定を行い、結果に応じた要求防護係数を満たす呼吸用保護具を選定します。フィットテストは1年以内ごとに1回です。"],
+["WEL-02","特定化学物質障害予防規則","特化則第38条の21","呼吸用保護具のフィットテストの実施","点検","12m",["welding"],3,"1年以内ごとに1回、記録を3年保存します。"],
+
+/* === 作業環境測定法・女性則 === */
+["SAK-01","作業環境測定法","作業環境測定法第3条","指定作業場の測定を作業環境測定士または登録測定機関に行わせる","測定","12m",["measure"],3,"特化則・有機則・鉛則・粉じん則の対象作業場は指定作業場に該当します。委託契約の有効性を年1回確認してください。"],
+["JOS-01","女性労働基準規則","女性則第2条・第3条","女性労働者の就業制限対象物質の取扱い状況の確認","評価","12m",["josei"],0,"妊娠の有無にかかわらず、対象物質を扱う一定の業務には女性を就かせることができません。作業環境測定の管理区分と併せて確認します。"],
+
+/* === 化管法（PRTR・SDS） === */
+["KAK-01","化管法","化管法第5条","第一種指定化学物質の年間取扱量の把握と帳簿への記録","記録","12m",["kakan"],5,"製品ごとの使用量と含有率から物質単位の取扱量を算出します。この台帳の集計値をそのまま使えます。"],
+["KAK-02","化管法","化管法第5条","PRTR（排出量・移動量）の届出","届出","y:06-30",["prtr"],5,"対象業種・常時使用従業員21人以上・年間取扱量1t以上（特定第一種指定化学物質は0.5t以上）の全てを満たす場合。前年度分を4月1日から6月30日までに電子届出します。"],
+["KAK-03","化管法","化管法第14条","指定化学物質等を含む製品を出荷する際のSDS交付とラベル表示","表示・保管","12m",[["kakan","shipping"]],0,"第一種・第二種指定化学物質を1質量%以上（特定第一種指定化学物質は0.1質量%以上）含有する製品が対象です。"],
+
+/* === 毒物及び劇物取締法 === */
+["DOK-01","毒物及び劇物取締法","法第12条","「医薬用外毒物」「医薬用外劇物」の容器・貯蔵場所への表示","表示・保管","12m",["dokugeki"],0,"毒物は赤地に白文字、劇物は白地に赤文字で表示します。小分け容器も対象です。"],
+["DOK-02","毒物及び劇物取締法","法第11条","盗難・紛失および飛散・漏えい防止措置の点検","点検","1m",["dokugeki"],3,"かぎのかかる堅固な設備での保管、在庫数量の照合を毎月行い記録します。"],
+["DOK-03","毒物及び劇物取締法","法第14条","譲受書（譲渡手続書面）の作成と保存","記録","event",["dokugeki"],5,"譲受人の氏名・住所・職業、品名・数量、譲渡年月日を記載した書面を5年間保存します。"],
+["DOK-04","毒物及び劇物取締法","法第22条","業務上取扱者の届出","届出","once",[["dokugeki","plating"]],0,"シアン化ナトリウム等を使用する電気めっき業・金属熱処理業、しろあり防除業、大量運搬業は、事業場ごとに30日以内に都道府県知事へ届け出ます。"],
+["DOK-05","毒物及び劇物取締法","法第15条の2","廃棄の技術上の基準の遵守","記録","12m",["dokugeki"],0,"中和・加水分解・酸化・還元・希釈等により毒物及び劇物に該当しない物にしてから廃棄します。処理委託先の許可の有無も確認します。"],
+
+/* === 消防法 === */
+["SHO-01","消防法","法第9条の4・市町村条例","指定数量の倍数の算定と管理","記録","1m",["shAny"],0,"品名ごとに（貯蔵量÷指定数量）を求め、その合計が倍数です。同一敷地内の複数場所は合算します。"],
+["SHO-02","消防法","市町村火災予防条例","少量危険物貯蔵取扱いの届出と技術上の基準の遵守","届出","once",["shMinor"],0,"倍数が5分の1以上1未満の場合。所轄消防長または消防署長へ届け出ます。基準は市町村条例で定められています。"],
+["SHO-03","消防法","法第11条","危険物製造所・貯蔵所・取扱所の設置許可","届出","once",["shOver"],0,"倍数が1以上の場合。許可を受けずに貯蔵・取扱いを行うことはできません。"],
+["SHO-04","消防法","法第13条","危険物保安監督者の選任と届出","選任","once",["shOver"],0,"甲種または乙種危険物取扱者で、6か月以上の実務経験を有する者から選任し、市町村長等へ届け出ます。"],
+["SHO-05","消防法","法第14条の3の2","危険物施設の定期点検の実施","点検","12m",["shOver"],3,"1年に1回以上実施し、点検記録を3年間保存します。"],
+["SHO-06","消防法","法第14条の2","予防規程の作成と認可申請","届出","once",["shOver"],0,"一定規模以上の製造所等が対象です。作成後は市町村長等の認可を受けます。"],
+["SHO-07","消防法","法第13条","危険物取扱者による取扱いまたは立会いの体制確保","選任","12m",["shOver"],0,"危険物取扱者以外の者が取り扱う場合は、甲種または乙種危険物取扱者の立会いが必要です。"],
+["SHO-08","消防法","危険物の規制に関する規則","標識・掲示板の設置と表示内容の点検","表示・保管","12m",["shAny"],0,"品名、最大数量、指定数量の倍数、危険物保安監督者の氏名、注意事項を表示します。"],
+
+/* === 廃棄物処理法 === */
+["HAI-01","廃棄物処理法","法第12条","産業廃棄物の種類の判定と特別管理産業廃棄物の該当確認","評価","12m",["waste"],0,"廃溶剤・廃酸（pH2.0以下）・廃アルカリ（pH12.5以上）・引火点70℃未満の廃油は特別管理産業廃棄物に該当します。"],
+["HAI-02","廃棄物処理法","法第12条の2第8項","特別管理産業廃棄物管理責任者の設置","選任","once",["spWaste"],0,"事業場ごとに設置します。資格要件があります。"],
+["HAI-03","廃棄物処理法","法第12条第6項","委託契約書の書面による締結と保存","記録","12m",["waste"],5,"収集運搬業者・処分業者それぞれと直接、書面で契約します。許可証の写しを添付し、契約終了日から5年間保存します。"],
+["HAI-04","廃棄物処理法","法第12条の3","マニフェストの交付・返送確認・保存","記録","1m",["waste"],5,"返送期限は、収集運搬・中間処理が90日（特別管理産業廃棄物は60日）、最終処分が180日です。期限内に返送がないときは30日以内に都道府県へ報告します。"],
+["HAI-05","廃棄物処理法","法第12条の3第7項","産業廃棄物管理票交付等状況報告書の提出","届出","y:06-30",["waste"],5,"前年度に交付したマニフェストの状況を、毎年6月30日までに都道府県知事へ報告します。電子マニフェストのみの場合は不要です。"],
+["HAI-06","廃棄物処理法","法第12条第9項","多量排出事業者の処理計画および実施状況報告の提出","届出","y:06-30",["wasteLarge"],5,"前年度の発生量が1,000t以上（特別管理産業廃棄物は50t以上）の場合、毎年6月30日までに提出します。"],
+["HAI-07","廃棄物処理法","法第12条の3","産業廃棄物の帳簿の備付けと記載","記録","1m",["waste"],5,"種類・数量・運搬先を毎月末までに記載し、1年ごとに閉鎖して5年間保存します。"],
+
+/* === 水質汚濁防止法・下水道法 === */
+["SUI-01","水質汚濁防止法","法第5条","特定施設の設置・構造等変更の届出","届出","event",["waterFacility"],3,"設置または変更の60日前までに都道府県知事へ届け出ます。"],
+["SUI-02","水質汚濁防止法","法第12条の4・施行規則第8条の3","有害物質使用特定施設等の構造基準の遵守と定期点検","点検","12m",["hazardWater"],3,"床面の不浸透性、防液堤、地下配管の漏えい点検を1年に1回以上行い、記録を3年間保存します。"],
+["SUI-03","水質汚濁防止法","法第14条","排出水の汚染状態の測定と記録","測定","12m",["publicWater"],3,"測定頻度は排水量と項目により異なります。測定結果は3年間保存します。"],
+["SUI-04","水質汚濁防止法","法第14条の2","事故時の措置と応急措置・届出体制の整備","評価","12m",["hazardWater"],0,"有害物質を含む水の排出・地下浸透事故が生じたときは、直ちに応急措置を講じ都道府県知事へ届け出ます。手順書と連絡体制を年1回確認します。"],
+["GES-01","下水道法","法第12条の3・第12条の12","公共下水道への特定施設の設置届出と除害施設の管理・水質測定","測定","12m",[["sewer","waterFacility"]],5,"下水道法の水質測定は年1回以上（項目により異なる）で、記録は5年間保存です。"],
+
+/* === 大気汚染防止法 === */
+["TAI-01","大気汚染防止法","法第17条の5・第17条の11","揮発性有機化合物（VOC）排出施設の届出と排出濃度の測定","測定","12m",["vocFacility"],3,"塗装・接着・印刷・洗浄・乾燥の各施設で規模要件があります。測定は年1回以上、記録は3年間保存です。"],
+["TAI-02","大気汚染防止法","法第6条・第16条","ばい煙発生施設の届出とばい煙量・ばい煙濃度の測定","測定","12m",["boiler"],3,"設置の60日前までに届出。測定頻度は施設規模により異なります。記録は3年間保存です。"],
+["TAI-03","大気汚染防止法","有害大気汚染物質対策","有害大気汚染物質（優先取組物質）の排出抑制の自主的取組","評価","12m",["haz_air"],0,"ベンゼン、トリクロロエチレン、テトラクロロエチレン、ジクロロメタン、ホルムアルデヒド等が該当します。法的義務ではありませんが、排出抑制の努力義務が課されています。"],
+
+/* === 土壌汚染対策法 === */
+["DOJ-01","土壌汚染対策法","法第3条","有害物質使用特定施設の使用廃止時の土壌汚染状況調査","届出","event",["hazardWater"],0,"施設の使用を廃止したときは、120日以内に調査結果を都道府県知事へ報告します。廃止予定がある場合は早期に着手してください。"],
+["DOJ-02","土壌汚染対策法","法第4条","一定規模以上の土地の形質変更の届出","届出","event",["area900"],0,"有害物質使用特定施設に係る工場・事業場の敷地では900m²以上、その他は3,000m²以上の形質変更で、着手の30日前までに届け出ます。"],
+
+/* === フロン排出抑制法 === */
+["FRO-01","フロン排出抑制法","法第16条・判断基準省令","第一種特定製品の簡易点検","点検","3m",["freon"],0,"全ての第一種特定製品について3か月に1回以上、目視等により点検します。"],
+["FRO-02","フロン排出抑制法","法第16条・判断基準省令","第一種特定製品の定期点検（有資格者による）","点検","12m",["freon"],0,"圧縮機の定格出力7.5kW以上50kW未満の空調機器は3年に1回以上、50kW以上の空調機器および7.5kW以上の冷凍冷蔵機器は1年に1回以上です。"],
+["FRO-03","フロン排出抑制法","法第16条","点検・整備記録簿の作成と保存","記録","12m",["freon"],0,"機器ごとに作成し、機器を廃棄した日から3年間保存します。"],
+["FRO-04","フロン排出抑制法","法第19条","算定漏えい量の報告","届出","y:07-31",["freonLarge"],5,"事業者全体の年間漏えい量が1,000t-CO2以上の場合、前年度分を7月31日までに事業所管大臣へ報告します。"],
+["FRO-05","フロン排出抑制法","法第41条・第43条","機器廃棄時の充塡回収業者への引渡しと行程管理票の保存","記録","event",["freon"],3,"引取証明書は3年間保存します。"],
+
+/* === PCB・化審法・高圧ガス・化学兵器禁止法・条例 === */
+["PCB-01","PCB特別措置法","法第8条","PCB廃棄物の保管等の状況の届出","届出","y:06-30",["pcb"],0,"毎年度、前年度の保管・処分状況を6月30日までに都道府県知事へ届け出ます。"],
+["PCB-02","PCB特別措置法","法第10条","低濃度PCB廃棄物の処分","届出","event",["pcb"],0,"処分期間の末日は2027年3月31日です。処理業者の確保と処分委託の手配を計画的に進めてください。"],
+["KAS-01","化審法","法第4条・第17条","第一種特定化学物質の使用制限の確認","評価","12m",["kashin1"],0,"原則として製造・輸入・使用が禁止されています。在庫や設備内の残留がないか確認してください。"],
+["KAS-02","化審法","法第35条","一般化学物質等の製造・輸入数量の届出","届出","y:06-30",["manufacture"],0,"前年度に製造・輸入した数量を毎年度6月末までに届け出ます。使用のみの事業場は対象外です。"],
+["GAS-01","高圧ガス保安法","法第15条・第20条の5ほか","高圧ガスの貯蔵・消費に係る届出と容器の管理","点検","12m",["gas"],0,"貯蔵量が政令で定める数量以上の場合の届出、特定高圧ガス消費者の届出、容器置場の標識・転倒防止・容器再検査期限の管理が必要です。"],
+["CWC-01","化学兵器禁止法","法第31条ほか","特定物質・指定物質の製造・使用数量の届出","届出","y:06-30",["manufacture"],0,"該当物質を製造・使用する場合、毎年度、経済産業大臣へ届け出ます。該当の有無をSDS第15項で確認してください。"],
+["JOR-01","自治体条例","化学物質適正管理条例等","化学物質管理方針・管理計画書・実績報告の提出","届出","y:06-30",["ordinance"],5,"東京都環境確保条例、神奈川県生活環境保全条例など、自治体ごとに対象物質・数量要件・様式が異なります。所在地の自治体の要綱を確認してください。"],
+
+/* === データ品質 === */
+["CHK-01","本台帳の運用","—","物質マスタの公式リストとの照合","記録","event",["unknown"],0,"CAS番号がマスタにない、または「要確認」となっている成分について、SDS第15項と公式リスト（厚生労働省 職場のあんぜんサイト、NITE-CHRIP、化管法政令、消防法別表第一、毒物及び劇物指定令）で該当法令を確認し、台帳に反映します。"],
+["CHK-02","本台帳の運用","—","化学品台帳の棚卸し（新規採用品・廃止品の反映）","記録","6m",["anySub"],0,"現場に新しい薬品が入っていないか、使わなくなった薬品が残っていないかを6か月ごとに確認します。台帳と現物が合っていることが全ての判定の前提です。"]
+].map(r=>({id:r[0],law:r[1],art:r[2],title:r[3],cat:r[4],cyc:r[5],when:r[6],keep:r[7],memo:r[8]}));
+
+/* ---------- ③ 判定エンジン ---------- */
+const TODAY = (()=>{const d=new Date(); d.setHours(0,0,0,0); return d;})();
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const parseD = s => { if(!s) return null; const p=s.split("-").map(Number); if(p.length!==3||!p[0]) return null; const d=new Date(p[0],p[1]-1,p[2]); d.setHours(0,0,0,0); return isNaN(d)?null:d; };
+const addMonths = (d,n) => { const x=new Date(d); const day=x.getDate(); x.setMonth(x.getMonth()+n); if(x.getDate()<day) x.setDate(0); return x; };
+const days = (a,b) => Math.round((a-b)/86400000);
+const fmtNum = n => (Math.round(n*100)/100).toLocaleString("ja-JP");
+
+const CYC_LABEL = {"once":"随時（1回）","1m":"毎月","3m":"3か月ごと","6m":"6か月ごと","12m":"1年ごと","36m":"3年ごと","60m":"5年ごと","event":"事由発生時"};
+const cycLabel = c => c.startsWith("y:") ? `毎年 ${c.slice(2).replace("-","月")}日まで` : (CYC_LABEL[c]||c);
+
+function analyze(st){
+  const flags = {}, why = {};
+  const hit = (f, reason) => { flags[f]=true; (why[f]=why[f]||[]).push(reason); };
+  const sf = st.site.flags||{};
+
+  // --- 事業場の回答をそのままフラグに ---
+  Object.keys(sf).forEach(k => { if(sf[k]) hit(k, "事業場の条件で「はい」と回答"); });
+
+  // --- 成分の突き合わせ ---
+  const subs = new Map();      // 物質単位の集計
+  const issues = [];           // 要確認事項
+  (st.products||[]).forEach(p => {
+    const kg = Number(p.annualKg)||0;
+    (p.comps||[]).forEach(c => {
+      const pct = Number(c.pct)||0;
+      const m = MASTER_BY_CAS[(c.cas||"").trim()] || MASTER.find(x => x.name === (c.name||"").trim()) || null;
+      const label = (m ? m.name : (c.name || c.cas || "名称未入力"));
+      const src = `${label}（${p.name}に${pct}%）`;
+      if(!m){
+        issues.push({type:"マスタ未収録", sub:label, prod:p.name, msg:"CAS番号が内蔵マスタにありません。SDS第15項で適用法令を確認し、備考へ記録してください。"});
+        hit("unknown", src);
+        return;
+      }
+      const key = m.cas!=="-" ? m.cas : m.name;
+      if(!subs.has(key)) subs.set(key, {m, kg:0, maxPct:0, prods:[]});
+      const s = subs.get(key);
+      s.kg += kg*pct/100; s.maxPct = Math.max(s.maxPct, pct); if(!s.prods.includes(p.name)) s.prods.push(p.name);
+
+      // 安衛法（表示・通知・リスクアセスメント対象物）
+      if(m.an===1 && pct>=0.1){ hit("ra", src); if(pct<1) issues.push({type:"裾切り値", sub:m.name, prod:p.name, msg:"含有率が1%未満です。物質ごとに定められた裾切り値を確認してください。"}); }
+      if(m.an===2){ hit("unknown", src); issues.push({type:"対象性が不明", sub:m.name, prod:p.name, msg:"配合成分ごとのSDSで安衛法の対象物かどうかを判定してください。"}); }
+      if(m.skin===1 && pct>=0.1) hit("skin", src);
+      if(m.skin===2){ hit("unknown", src); }
+      if(m.cancer===1 && pct>=0.1) hit("cancer", src);
+
+      // 特化則（原則1%超。0.1〜1%は物質ごとの裾切り値を要確認）
+      if(m.tokka){
+        if(pct>1){ hit("tokka", src); if(m.tokka==="2S") hit("tokkaS", src); }
+        else if(pct>0.1){ hit("unknown", src); issues.push({type:"特化則の裾切り値", sub:m.name, prod:p.name, msg:`含有率${pct}%。特化則別表第3の裾切り値（1%超または0.1%超）を確認してください。`}); }
+      }
+      // 有機則（有機溶剤等＝5%超）
+      if(m.yuki){
+        if(pct>5){ hit("yuki", src); if(m.yuki==="1"||m.yuki==="2") hit("yuki12", src); }
+        else if(pct>0) issues.push({type:"有機則の裾切り値", sub:m.name, prod:p.name, msg:`含有率${pct}%。他の有機溶剤との合計が5%を超えないか確認してください。`});
+      }
+      if(m.lead===1 && pct>0) hit("lead", src);
+      if(m.dust===1) hit("dust", src);
+      if(m.kashin==="1特") hit("kashin1", src);
+      if(m.josei===1 && pct>=1) hit("josei", src);
+      if(m.taiki && m.taiki.indexOf("有害大気")>=0) hit("haz_air", src);
+      if(m.sui===1) hit("sui_sub", src);
+      if(m.sui===2){ hit("unknown", src); }
+
+      // 化管法
+      const need = m.kakan==="1T" ? 0.1 : 1;
+      if((m.kakan==="1"||m.kakan==="1T"||m.kakan==="2") && pct>=need) hit("kakan", src);
+      if(m.kakan==="?"){ hit("unknown", src); issues.push({type:"化管法の区分が不明", sub:m.name, prod:p.name, msg:"化管法の指定化学物質の政令別表で第一種・第二種の別を確認してください。"}); }
+
+      // 毒劇法
+      if(m.doku==="毒"){ hit("doku", src); hit("dokugeki", src); }
+      if(m.doku==="劇"){ hit("geki", src); hit("dokugeki", src); }
+    });
+  });
+
+  // --- 化管法PRTR ---
+  const prtrRows = [];
+  subs.forEach((s,k) => {
+    if(!(s.m.kakan==="1"||s.m.kakan==="1T")) return;
+    const need = s.m.kakan==="1T" ? 0.1 : 1;
+    if(s.maxPct < need) return;
+    const th = s.m.kakan==="1T" ? 500 : 1000;
+    prtrRows.push({name:s.m.name, cas:s.m.cas, kg:s.kg, th, cls:s.m.kakan==="1T"?"特定第一種":"第一種", over:s.kg>=th});
+  });
+  prtrRows.sort((a,b)=>b.kg-a.kg);
+  const emp = Number(st.site.employees)||0;
+  if(emp>=21) hit("emp21", `常時使用する従業員数 ${emp}人`);
+  if(sf.prtrIndustry && emp>=21 && prtrRows.some(r=>r.over)){
+    prtrRows.filter(r=>r.over).forEach(r => hit("prtr", `${r.name} 年間 ${fmtNum(r.kg)}kg（届出要件 ${r.th}kg以上）`));
+  }
+
+  // --- 消防法 指定数量の倍数 ---
+  const shoboRows = new Map();
+  (st.products||[]).forEach(p => {
+    if(!p.shobo || !SHOBO_BY_KEY[p.shobo]) return;
+    const q = Number(p.stockQty)||0; if(q<=0) return;
+    const s = SHOBO_BY_KEY[p.shobo];
+    if(!shoboRows.has(p.shobo)) shoboRows.set(p.shobo, {...s, qty:0, prods:[]});
+    const r = shoboRows.get(p.shobo); r.qty += q; r.prods.push(p.name);
+  });
+  let bai = 0;
+  shoboRows.forEach(r => { r.bai = r.qty / SHOBO_BY_KEY[r.key].qty; bai += r.bai; });
+  bai = Math.round(bai*1000)/1000;
+  if(bai>0) hit("shAny", `指定数量の倍数の合計 ${bai}`);
+  if(bai>=1) hit("shOver", `指定数量の倍数の合計 ${bai}（1以上）`);
+  else if(bai>=0.2) hit("shMinor", `指定数量の倍数の合計 ${bai}（5分の1以上1未満）`);
+
+  // --- 派生フラグ ---
+  if(flags.tokka||flags.yuki12||flags.lead||flags.dust) hit("measure", "作業環境測定の対象作業場に該当");
+  if((st.products||[]).length) hit("anySub", `登録化学品 ${st.products.length}件`);
+  if(sf.waste && (flags.shAny||flags.dokugeki||flags.yuki)) hit("spWaste", "引火性の廃油・廃酸・廃アルカリが生じる可能性（推定：現物のpHと引火点で確認）");
+  const area = Number(st.site.area)||0;
+  if((sf.hazardWater && area>=900) || area>=3000) hit("area900", `敷地面積 ${fmtNum(area)}m²`);
+  if(flags.sui_sub && !sf.hazardWater) issues.push({type:"施設区分の確認", sub:"水質汚濁防止法の有害物質", prod:"—", msg:"有害物質に該当する成分を使用しています。洗浄・めっき等の施設が有害物質使用特定施設に当たらないか、事業場の条件で確認してください。"});
+  if(flags.unknown) hit("unknown", "内容が確定していない成分があります");
+
+  return {flags, why, subs, prtrRows, shoboRows:[...shoboRows.values()], bai, issues};
+}
+
+function taskApplies(t, flags){
+  return t.when.some(cond => Array.isArray(cond) ? cond.every(f=>flags[f]) : !!flags[cond]);
+}
+function reasonsFor(t, why){
+  const out=[];
+  t.when.forEach(cond => {
+    const list = Array.isArray(cond)?cond:[cond];
+    list.forEach(f => (why[f]||[]).slice(0,3).forEach(r => { if(!out.includes(r)) out.push(r); }));
+  });
+  return out.slice(0,4);
+}
+
+function dueOf(t, st){
+  const rec = st.done[t.id]||{}, last = parseD(rec.date);
+  if(t.cyc==="event") return {due:null, status:"info", label:"事由発生時"};
+  if(t.cyc==="once"){
+    if(last) return {due:null, status:"ok", label:"完了 "+rec.date};
+    return {due:TODAY, status:"crit", label:"未実施"};
+  }
+  let due;
+  if(t.cyc.startsWith("y:")){
+    const [mm,dd] = t.cyc.slice(2).split("-").map(Number);
+    due = new Date(TODAY.getFullYear(), mm-1, dd);
+    if(last && last >= new Date(TODAY.getFullYear(),0,1)) due = new Date(TODAY.getFullYear()+1, mm-1, dd);
+  } else {
+    const n = {"1m":1,"3m":3,"6m":6,"12m":12,"36m":36,"60m":60}[t.cyc]||12;
+    if(!last) return {due:TODAY, status:"crit", label:"未実施"};
+    due = addMonths(last, n);
+  }
+  const d = days(due, TODAY);
+  return {due, status: d<0?"crit":(d<=30?"warn":"ok"), label: iso(due) + (d<0?`（${-d}日超過）`:(d<=30?`（あと${d}日）`:""))};
+}
+
+function buildTasks(st, an){
+  return TASKS.filter(t => taskApplies(t, an.flags)).map(t => {
+    const d = dueOf(t, st);
+    return {...t, ...d, reasons: reasonsFor(t, an.why), rec: st.done[t.id]||{}};
+  }).sort((a,b)=>{
+    const rank = {crit:0, warn:1, ok:2, info:3};
+    if(rank[a.status]!==rank[b.status]) return rank[a.status]-rank[b.status];
+    if(a.due&&b.due) return a.due-b.due;
+    return a.id.localeCompare(b.id);
+  });
+}
+
+/* ---------- ④ 状態と保存 ---------- */
+const LS_KEY = "chem-compliance-v1";
+const uid = () => "p"+Math.random().toString(36).slice(2,9);
+
+function sampleState(){
+  return {v:1, sample:true,
+    site:{name:"（例）豊田金属加工 第一工場", addr:"愛知県豊田市", employees:45, area:4200,
+      flags:{prtrIndustry:true, sewer:true, localExhaust:true, waterFacility:true, hazardWater:true,
+             vocFacility:true, freon:true, gas:true, welding:true, waste:true}},
+    products:[
+      {id:uid(), name:"ウレタン塗料用シンナー", maker:"（例）A化成", sdsDate:"2023-04-01", use:"塗装ブースでの希釈",
+       annualKg:3000, stockQty:150, shobo:"4|第1石油類(非水溶性)",
+       comps:[{cas:"108-88-3",name:"トルエン",pct:40},{cas:"1330-20-7",name:"キシレン",pct:25},
+              {cas:"141-78-6",name:"酢酸エチル",pct:20},{cas:"108-10-1",name:"メチルイソブチルケトン(MIBK)",pct:15}]},
+      {id:uid(), name:"脱脂洗浄剤 DC-70", maker:"（例）B工業薬品", sdsDate:"2021-09-15", use:"部品の浸漬脱脂",
+       annualKg:800, stockQty:0, shobo:"",
+       comps:[{cas:"75-09-2",name:"ジクロロメタン",pct:95},{cas:"67-56-1",name:"メタノール",pct:3}]},
+      {id:uid(), name:"洗浄用イソプロピルアルコール", maker:"（例）C商事", sdsDate:"2024-06-01", use:"仕上げ拭き取り",
+       annualKg:400, stockQty:80, shobo:"4|アルコール類",
+       comps:[{cas:"67-63-0",name:"2-プロパノール(IPA)",pct:99}]},
+      {id:uid(), name:"アルカリ脱脂剤 AC-5", maker:"（例）B工業薬品", sdsDate:"2022-11-20", use:"前処理槽",
+       annualKg:500, stockQty:0, shobo:"",
+       comps:[{cas:"1310-73-2",name:"水酸化ナトリウム",pct:20}]},
+      {id:uid(), name:"水溶性切削油 W-20", maker:"（例）D油化", sdsDate:"", use:"マシニングセンタ",
+       annualKg:2000, stockQty:0, shobo:"",
+       comps:[{cas:"",name:"切削油(水溶性)",pct:100}]}
+    ],
+    done:(()=>{ const D=m=>iso(addMonths(TODAY,m)); const o={};
+      [["ANZ-01",-14,"品質保証課"],["ANZ-02",-14,"品質保証課"],["ANZ-03",-4,"製造課"],["ANZ-04",-4,"品質保証課"],
+       ["ANZ-05",-30,"品質保証課"],["ANZ-06",-11,"安全衛生委員会"],["ANZ-07",-11,"安全衛生委員会"],["ANZ-08",-6,"製造課"],
+       ["ANZ-09",-13,"外部測定機関"],["ANZ-10",-3,"製造課"],["ANZ-11",-1,"製造課"],["ANZ-12",-8,"産業医"],["ANZ-15",0,"安全衛生委員会"],
+       ["TOK-01",-20,"製造課"],["TOK-02",-5,"外部測定機関"],["TOK-03",-5,"衛生管理者"],["TOK-04",-7,"設備課"],["TOK-05",-7,"設備課"],
+       ["TOK-06",-4,"産業医"],["TOK-07",-4,"品質保証課"],["TOK-08",0,"製造課"],["TOK-09",-3,"製造課"],["TOK-10",-3,"製造課"],["TOK-11",-3,"設備課"],
+       ["YUK-01",-20,"製造課"],["YUK-02",-3,"製造課"],["YUK-03",-3,"製造課"],["YUK-04",-5,"外部測定機関"],["YUK-05",-5,"衛生管理者"],
+       ["YUK-06",-7,"設備課"],["YUK-07",-4,"産業医"],["YUK-08",-4,"品質保証課"],["YUK-09",-9,"衛生管理者"],
+       ["SAK-01",-5,"品質保証課"],["JOS-01",-6,"人事課"],["KAK-01",-3,"資材課"],["KAK-02",-3,"環境保全課"],
+       ["DOK-01",-2,"資材課"],["DOK-02",-1,"資材課"],["DOK-05",-6,"環境保全課"],["SHO-01",-1,"危険物保安監督者"],["SHO-08",-4,"設備課"],
+       ["HAI-01",-5,"環境保全課"],["HAI-03",-8,"環境保全課"],["HAI-04",-1,"環境保全課"],["HAI-05",-3,"環境保全課"],["HAI-07",-1,"環境保全課"],
+       ["SUI-02",-8,"環境保全課"],["SUI-03",-8,"外部分析機関"],["SUI-04",-6,"環境保全課"],["GES-01",-8,"外部分析機関"],
+       ["TAI-01",-13,"外部測定機関"],["TAI-03",-6,"環境保全課"],
+       ["FRO-01",-2,"設備課"],["FRO-02",-10,"充塡回収業者"],["FRO-03",-2,"設備課"],["GAS-01",-4,"設備課"],["CHK-02",-5,"品質保証課"]
+      ].forEach(([id,m,by])=>{ o[id]={date:D(m), by}; }); return o; })()};
+}
+function emptyState(){ return {v:1, sample:false, site:{name:"",addr:"",employees:0,area:0,flags:{}}, products:[], done:{}}; }
+
+let state = null, A = null, canDownload = null;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const s = JSON.parse(raw); if(s && s.site && Array.isArray(s.products)) return s; }
+  }catch(e){}
+  return sampleState();
+}
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); document.getElementById("chipStore").textContent = "このブラウザ"; }
+    catch(e){ document.getElementById("chipStore").textContent = "保存できません"; }
+  }, 350);
+}
+
+/* ---------- ⑤ 画面 ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){
+  const el = document.createElement("div"); el.className="toast"; el.textContent=msg;
+  document.body.appendChild(el); setTimeout(()=>el.remove(), 3200);
+}
+const SEV_PILL = {crit:'<span class="pill p-crit">要対応</span>', warn:'<span class="pill p-warn">期限接近</span>',
+                  ok:'<span class="pill p-ok">適合</span>', info:'<span class="pill p-info">随時</span>'};
+
+function renderBand(tasks){
+  const c = tasks.filter(t=>t.status==="crit").length;
+  const w = tasks.filter(t=>t.status==="warn").length;
+  const u = A.issues.length;
+  const lawset = new Set(tasks.map(t=>t.law).filter(l=>l!=="本台帳の運用"));
+  const set=(id,v,cls)=>{ const el=$(id); el.querySelector(".v").textContent=v; el.className="stat "+cls; };
+  set("#statOverdue", c, c?"is-crit":"is-ok");
+  set("#statSoon", w, w?"is-warn":"is-ok");
+  set("#statUnknown", u, u?"is-warn":"is-ok");
+  set("#statLaws", lawset.size, "");
+  const b=$("#tabBadge"); b.hidden = !c; b.textContent = c;
+  $("#chipSite").textContent = state.site.name || "未設定";
+}
+
+function taskRow(t, withCat){
+  const rec = t.rec||{};
+  const rs = withCat ? t.reasons : t.reasons.slice(0,2);
+  return `<tr class="sev sev-${t.status}" data-tid="${t.id}">
+    <td><b>${esc(t.title)}</b>${rs.length?`<div style="color:var(--muted);font-size:11px;margin-top:2px">根拠：${esc(rs.join(" / "))}${t.reasons.length>rs.length?" ほか":""}</div>`:""}
+        <div style="color:var(--muted);font-size:11px;margin-top:3px">${esc(t.memo)}</div></td>
+    <td>${esc(t.law)}<div style="color:var(--muted);font-size:11px">${esc(t.art)}</div></td>
+    ${withCat?`<td><span class="pill p-mute">${esc(t.cat)}</span></td>`:""}
+    <td class="mono">${esc(cycLabel(t.cyc))}</td>
+    <td class="mono">${esc(t.label)}</td>
+    <td>${SEV_PILL[t.status]}</td>
+    <td><input type="date" data-done="${t.id}" value="${esc(rec.date||"")}"></td>
+    ${withCat?`<td><input type="text" data-by="${t.id}" value="${esc(rec.by||"")}" placeholder="担当"></td>
+    <td class="num">${t.keep?esc(t.keep)+"年":"—"}</td>`:""}
+  </tr>`;
+}
+
+function renderDash(tasks){
+  // サンプル通知
+  $("#sampleNotice").innerHTML = state.sample
+    ? `<div class="callout warn"><b>いまはサンプルデータです。</b> 金属加工工場を想定した例が入っています。「化学品台帳」タブの<b>「サンプルを消して空から始める」</b>で自社のデータに切り替えてください。</div>`
+    : "";
+
+  const soonAll = tasks.filter(t => t.status==="crit" || (t.due && days(t.due,TODAY)<=90));
+  const soon = soonAll.slice(0,10);
+  const rest = soonAll.length - soon.length;
+  $("#tblSoon tbody").innerHTML = (soon.length ? soon.map(t=>taskRow(t,false)).join("")
+    : `<tr><td colspan="6" class="empty">90日以内に期限を迎える事項はありません。</td></tr>`)
+    + (rest>0 ? `<tr><td colspan="6" style="text-align:center;padding:12px">
+        <button class="btn ghost" data-goto="task" type="button">ほか${rest}件を年間チェック表で見る</button></td></tr>` : "");
+
+  // 消防法ゲージ
+  const bai = A.bai, pct = Math.min(bai/1.25, 1)*100;
+  const cls = bai>=1 ? "crit" : (bai>=0.2 ? "warn" : "");
+  const msg = bai>=1 ? "指定数量以上です。危険物施設の設置許可と保安監督者の選任が必要です。"
+            : bai>=0.2 ? "少量危険物に該当します。市町村の火災予防条例に基づく届出が必要です。"
+            : bai>0 ? "指定数量の5分の1未満です。届出は不要ですが、条例上の管理は必要です。" : "消防法の危険物として登録された化学品がありません。";
+  $("#boxShobo").innerHTML = `
+    <div class="gauge">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-family:var(--mono);font-size:32px;font-weight:600">${bai}</span>
+        <span style="font-size:12px;color:var(--muted)">倍</span>
+      </div>
+      <div class="gauge-bar"><div class="gauge-fill ${cls}" style="width:${pct}%"></div>
+        <div class="gauge-tick" style="left:16%"></div><div class="gauge-tick" style="left:80%"></div></div>
+      <div class="gauge-scale" style="position:relative">
+        <span style="position:absolute;left:16%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--muted)">0.2 少量危険物</span>
+        <span style="position:absolute;left:80%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--muted)">1.0 許可</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--ink-2);margin-top:8px">${esc(msg)}</p>
+      ${A.shoboRows.length?`<div class="tw" style="margin-top:6px"><table><thead><tr><th>品名</th><th class="num">貯蔵量</th><th class="num">指定数量</th><th class="num">倍数</th></tr></thead><tbody>
+        ${A.shoboRows.map(r=>`<tr><td>${esc(r.label)}</td><td class="num">${fmtNum(r.qty)}${r.unit}</td><td class="num">${fmtNum(r.qty0||SHOBO_BY_KEY[r.key].qty)}${r.unit}</td><td class="num">${Math.round(r.bai*1000)/1000}</td></tr>`).join("")}
+      </tbody></table></div>`:""}
+    </div>`;
+
+  // PRTR
+  const rows = A.prtrRows;
+  $("#boxPrtr").innerHTML = rows.length ? `<div class="tw"><table><thead><tr>
+      <th>物質</th><th>区分</th><th class="num">年間取扱量</th><th class="num">届出要件</th><th>判定</th></tr></thead><tbody>
+      ${rows.map(r=>`<tr><td>${esc(r.name)}<div style="color:var(--muted);font-size:11px" class="mono">${esc(r.cas)}</div></td>
+        <td><span class="pill ${r.cls==="特定第一種"?"p-crit":"p-info"}">${esc(r.cls)}</span></td>
+        <td class="num">${fmtNum(r.kg)} kg</td><td class="num">${fmtNum(r.th)} kg</td>
+        <td>${r.over?'<span class="pill p-crit">届出対象</span>':'<span class="pill p-mute">下回る</span>'}</td></tr>`).join("")}
+      </tbody></table></div>
+      <p style="padding:10px 16px;font-size:11.5px;color:var(--muted)">届出には対象業種であることと常時使用する従業員21人以上であることが併せて必要です（現在の設定：${state.site.flags&&state.site.flags.prtrIndustry?"対象業種":"対象業種でない"}／${Number(state.site.employees)||0}人）。</p>`
+    : `<div class="empty">化管法の指定化学物質は登録されていません。</div>`;
+
+  // 選任・届出
+  const ap = tasks.filter(t=>t.cat==="選任"||t.cat==="届出");
+  $("#tblAppoint tbody").innerHTML = ap.length ? ap.map(t=>taskRow(t,false)).join("")
+    : `<tr><td colspan="6" class="empty">該当する選任・届出はありません。</td></tr>`;
+}
+
+const LAW_LIST = ["労働安全衛生法","特定化学物質障害予防規則","有機溶剤中毒予防規則","鉛中毒予防規則","粉じん障害防止規則","じん肺法","石綿障害予防規則","作業環境測定法","女性労働基準規則","化管法","毒物及び劇物取締法","消防法","廃棄物処理法","水質汚濁防止法","下水道法","大気汚染防止法","土壌汚染対策法","フロン排出抑制法","PCB特別措置法","化審法","高圧ガス保安法","化学兵器禁止法","自治体条例"];
+
+function renderLaws(tasks){
+  const byLaw = {};
+  tasks.forEach(t => { (byLaw[t.law] = byLaw[t.law]||[]).push(t); });
+  const card = (law, ts) => {
+    const crit = ts.filter(t=>t.status==="crit").length;
+    const reasons = [...new Set(ts.flatMap(t=>t.reasons))].slice(0,3);
+    return `<div class="law hit">
+      <div class="law-hd"><h3>${esc(law)}</h3>${crit?`<span class="pill p-crit">${crit}件 要対応</span>`:`<span class="pill p-ok">対応済</span>`}</div>
+      <div class="why">${reasons.length?"根拠： "+reasons.map(r=>`<b>${esc(r)}</b>`).join(" ／ "):"事業場の条件により該当"}</div>
+      <div class="cnt">義務 ${ts.length}件（${[...new Set(ts.map(t=>t.cat))].join("・")}）</div></div>`;
+  };
+  const hitLaws = LAW_LIST.filter(l=>byLaw[l]);
+  const offLaws = LAW_LIST.filter(l=>!byLaw[l]);
+  $("#lawsHit").innerHTML = hitLaws.length ? hitLaws.map(l=>card(l,byLaw[l])).join("")
+    : `<div class="empty">化学品を登録すると判定が始まります。</div>`;
+  $("#lawsOff").innerHTML = offLaws.map(l=>`<div class="law off"><div class="law-hd"><h3>${esc(l)}</h3><span class="pill p-mute">該当なし</span></div>
+    <div class="why">現在の台帳と事業場の条件では義務が生じていません。取扱物質や設備が変わったら再判定してください。</div></div>`).join("");
+
+  $("#lawUnknownBox").innerHTML = A.issues.length ? `<div class="callout warn">
+    <b>${A.issues.length}件の要確認事項があります。</b> 該当なしと判定するにはSDSでの裏取りが必要です。
+    <div class="tw" style="margin-top:8px"><table><thead><tr><th>種別</th><th>物質</th><th>化学品</th><th>確認すること</th></tr></thead><tbody>
+    ${A.issues.map(i=>`<tr><td><span class="pill p-warn">${esc(i.type)}</span></td><td>${esc(i.sub)}</td><td>${esc(i.prod)}</td><td>${esc(i.msg)}</td></tr>`).join("")}
+    </tbody></table></div></div>` : `<div class="callout"><b>要確認事項はありません。</b> 登録された全成分が内蔵マスタと一致しています。</div>`;
+}
+
+function renderTasks(tasks){
+  const fc=$("#filterCat").value, fl=$("#filterLaw").value, fs=$("#filterStat").value;
+  const cats=[...new Set(TASKS.map(t=>t.cat))], laws=[...new Set(tasks.map(t=>t.law))];
+  const fill=(sel,arr,cur,pre)=>{ sel.innerHTML=`<option value="">${pre}</option>`+arr.map(v=>`<option value="${esc(v)}"${v===cur?" selected":""}>${esc(v)}</option>`).join(""); };
+  fill($("#filterCat"),cats,fc,"分類：すべて"); fill($("#filterLaw"),laws,fl,"法令：すべて");
+  const list = tasks.filter(t => (!fc||t.cat===fc) && (!fl||t.law===fl) && (!fs||t.status===fs));
+  $("#tblTask tbody").innerHTML = list.length ? list.map(t=>taskRow(t,true)).join("")
+    : `<tr><td colspan="9" class="empty">条件に合う項目がありません。</td></tr>`;
+}
+
+function renderSite(){
+  $("#fSiteName").value = state.site.name||""; $("#fSiteAddr").value = state.site.addr||"";
+  $("#fEmp").value = state.site.employees||""; $("#fArea").value = state.site.area||"";
+  const groups = {g1:"#siteChecks1", g2:"#siteChecks2", g3:"#siteChecks3"};
+  Object.entries(groups).forEach(([g,sel]) => {
+    $(sel).innerHTML = SITE_Q.filter(q=>q[0]===g).map(q =>
+      `<label class="check"><input type="checkbox" data-siteflag="${q[1]}"${state.site.flags[q[1]]?" checked":""}>
+       <span>${esc(q[2])}<small>${esc(q[3])}</small></span></label>`).join("");
+  });
+}
+
+const SHOBO_OPTS = `<option value="">危険物に該当しない</option>` + SHOBO.map(s=>`<option value="${esc(s.key)}">${esc(s.label)}（${s.qty}${s.unit}）</option>`).join("");
+const CAS_DATALIST = `<datalist id="casList">${MASTER.map(m=>`<option value="${esc(m.cas)}">${esc(m.name)}</option>`).join("")}</datalist>`;
+
+function prodTags(p){
+  const t=[]; let anyTokka=false, anyYuki=false, anyDoku="", anyKakan=false, unknown=false;
+  (p.comps||[]).forEach(c=>{
+    const m = MASTER_BY_CAS[(c.cas||"").trim()] || MASTER.find(x=>x.name===(c.name||"").trim());
+    if(!m){ unknown=true; return; }
+    const pct=Number(c.pct)||0;
+    if(m.tokka && pct>1) anyTokka=true;
+    if(m.yuki && pct>5) anyYuki=true;
+    if(m.doku==="毒") anyDoku="毒物"; else if(m.doku==="劇"&&anyDoku!=="毒物") anyDoku="劇物";
+    if(m.kakan==="1"||m.kakan==="1T"||m.kakan==="2") anyKakan=true;
+    if(m.an===2||m.kakan==="?") unknown=true;
+  });
+  if(anyTokka) t.push('<span class="pill p-crit">特化則</span>');
+  if(anyYuki) t.push('<span class="pill p-warn">有機則</span>');
+  if(anyDoku) t.push(`<span class="pill p-crit">${anyDoku}</span>`);
+  if(anyKakan) t.push('<span class="pill p-info">化管法</span>');
+  if(p.shobo) t.push('<span class="pill p-warn">危険物</span>');
+  if(unknown) t.push('<span class="pill p-mute">要確認</span>');
+  if(!p.sdsDate) t.push('<span class="pill p-mute">SDS未登録</span>');
+  return t.join(" ");
+}
+
+function renderProducts(){
+  $("#masterCount").textContent = MASTER.length;
+  $("#btnClearSample").hidden = !state.sample;
+  const el = $("#prodList");
+  if(!state.products.length){ el.innerHTML = `<div class="empty">化学品がまだありません。「＋ 化学品を追加」から登録してください。</div>`; return; }
+  el.innerHTML = CAS_DATALIST + state.products.map(p => `
+    <div class="prod" data-pid="${p.id}">
+      <div class="prod-hd">
+        <span class="nm">${esc(p.name||"（名称未入力）")}</span>
+        <span class="tags">${prodTags(p)}</span>
+        <button class="iconbtn" data-delprod="${p.id}" type="button">削除</button>
+      </div>
+      <div class="prod-bd">
+        <div class="grid3">
+          <div class="field"><label>製品名（SDS第1項）</label><input type="text" data-pf="name" value="${esc(p.name)}"></div>
+          <div class="field"><label>供給者</label><input type="text" data-pf="maker" value="${esc(p.maker||"")}"></div>
+          <div class="field"><label>SDS発行・改訂日</label><input type="date" data-pf="sdsDate" value="${esc(p.sdsDate||"")}"></div>
+          <div class="field"><label>用途・作業</label><input type="text" data-pf="use" value="${esc(p.use||"")}" placeholder="塗装ブースでの希釈"></div>
+          <div class="field"><label>年間取扱量（kg）</label><input type="number" data-pf="annualKg" min="0" step="1" value="${p.annualKg||0}"><span class="hint">化管法の取扱量の算定に使います</span></div>
+          <div class="field"><label>最大貯蔵量（L または kg）</label><input type="number" data-pf="stockQty" min="0" step="1" value="${p.stockQty||0}"><span class="hint">消防法の指定数量の倍数に使います</span></div>
+          <div class="field" style="grid-column:1/-1"><label>消防法の品名（SDS第15項）</label>
+            <select data-pf="shobo">${SHOBO_OPTS.replace(`value="${p.shobo}"`, `value="${p.shobo}" selected`)}</select></div>
+        </div>
+        <div>
+          <p class="sec-label">成分（SDS第3項）</p>
+          <div class="comp-row" style="color:var(--muted);font-size:11px"><span>CAS番号</span><span>成分名</span><span>含有率 %</span><span></span></div>
+          ${(p.comps||[]).map((c,i)=>`<div class="comp-row" data-ci="${i}" style="margin-bottom:6px">
+            <input type="text" list="casList" data-cf="cas" value="${esc(c.cas||"")}" placeholder="108-88-3">
+            <input type="text" data-cf="name" value="${esc(c.name||"")}" placeholder="トルエン">
+            <input type="number" data-cf="pct" min="0" max="100" step="0.1" value="${c.pct||0}">
+            <button class="rm" data-delcomp="${i}" type="button" title="この成分を削除">×</button>
+          </div>`).join("")}
+          <button class="btn ghost" data-addcomp="${p.id}" type="button" style="margin-top:4px">＋ 成分を追加</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function refresh(withProducts){
+  A = analyze(state);
+  const tasks = buildTasks(state, A);
+  window.__tasks = tasks;
+  renderBand(tasks); renderDash(tasks); renderLaws(tasks); renderTasks(tasks);
+  if(withProducts) renderProducts();
+  save();
+}
+
+/* ---------- ⑥ 書き出し ---------- */
+async function download(filename, text){
+  if(canDownload){
+    try{ await canDownload.save({filename, data:text}); toast("保存しました"); return; }
+    catch(err){
+      const code = err && err.code;
+      if(code==="rejected_extension" && /\.ics$/.test(filename)){
+        try{ await canDownload.save({filename:filename.replace(/\.ics$/,".txt"), data:text});
+             toast("この画面では .txt で保存されます。ファイル名を .ics に変えてから取り込んでください。"); return; }catch(e){}
+      }
+      if(code==="declined") return;
+      toast("保存できませんでした" + (err&&err.message?"："+err.message:""));
+      return;
+    }
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], {type:"text/plain;charset=utf-8"}));
+  a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+  toast("保存しました");
+}
+const csvCell = v => `"${String(v==null?"":v).replace(/"/g,'""')}"`;
+const toCsv = rows => "\uFEFF" + rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
+
+function csvTasks(){
+  const rows = [["ID","根拠法令","条文","対応事項","分類","周期","次回期限","状態","前回実施日","担当","記録保存年数","該当根拠","留意事項"]];
+  (window.__tasks||[]).forEach(t => rows.push([t.id,t.law,t.art,t.title,t.cat,cycLabel(t.cyc),t.due?iso(t.due):"",
+    {crit:"要対応",warn:"期限接近",ok:"適合",info:"随時"}[t.status], (t.rec||{}).date||"", (t.rec||{}).by||"",
+    t.keep?t.keep+"年":"", t.reasons.join(" / "), t.memo]));
+  return toCsv(rows);
+}
+function csvSubs(){
+  const rows=[["CAS番号","物質名","化学品","最大含有率%","年間取扱量kg","安衛法","皮膚等障害","がん原性","特化則","有機則","化管法","毒劇法","水濁法有害物質","備考"]];
+  A.subs.forEach(s => { const m=s.m; rows.push([m.cas,m.name,s.prods.join(" / "),s.maxPct,Math.round(s.kg*100)/100,
+    m.an===1?"対象物":(m.an===2?"要確認":"—"), m.skin===1?"該当":"—", m.cancer===1?"該当":"—",
+    m.tokka||"—", m.yuki?("第"+m.yuki+"種"):"—",
+    m.kakan==="1T"?"特定第一種":(m.kakan==="1"?"第一種":(m.kakan==="2"?"第二種":(m.kakan==="?"?"要確認":"—"))),
+    m.doku||"—", m.sui===1?"該当":(m.sui===2?"要確認":"—"), m.note||""]); });
+  A.issues.forEach(i => rows.push(["","要確認：" + i.sub, i.prod,"","","","","","","","","","", i.type+"："+i.msg]));
+  return toCsv(rows);
+}
+function fold(line){
+  const enc = new TextEncoder(); let out="", cur="", bytes=0;
+  for(const ch of line){
+    const b = enc.encode(ch).length;
+    if(bytes + b > 72){ out += cur + "\r\n "; cur=""; bytes=1; }
+    cur += ch; bytes += b;
+  }
+  return out + cur;
+}
+function icsCal(){
+  const RR = {"1m":"FREQ=MONTHLY","3m":"FREQ=MONTHLY;INTERVAL=3","6m":"FREQ=MONTHLY;INTERVAL=6",
+              "12m":"FREQ=YEARLY","36m":"FREQ=YEARLY;INTERVAL=3","60m":"FREQ=YEARLY;INTERVAL=5"};
+  const stamp = new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+  const esc2 = s => String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n");
+  const L = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//chemical-compliance//JP//","CALSCALE:GREGORIAN",
+             "X-WR-CALNAME:"+esc2("化学物質法令チェック "+(state.site.name||""))];
+  (window.__tasks||[]).forEach(t => {
+    if(t.cyc==="event") return;
+    if(t.cyc==="once" && t.status==="ok") return;
+    const d = t.due || TODAY, e = new Date(d); e.setDate(e.getDate()+1);
+    const ymd = x => `${x.getFullYear()}${String(x.getMonth()+1).padStart(2,"0")}${String(x.getDate()).padStart(2,"0")}`;
+    const rr = t.cyc.startsWith("y:") ? "FREQ=YEARLY" : RR[t.cyc];
+    L.push("BEGIN:VEVENT", `UID:${t.id}-${ymd(d)}@chem-compliance`, `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${ymd(d)}`, `DTEND;VALUE=DATE:${ymd(e)}`,
+      fold(`SUMMARY:${esc2("【"+t.law+"】"+t.title)}`),
+      fold(`DESCRIPTION:${esc2(t.art+"\n"+t.memo+(t.keep?"\n記録保存："+t.keep+"年":"")+(t.reasons.length?"\n該当根拠："+t.reasons.join(" / "):""))}`),
+      "BEGIN:VALARM","TRIGGER:-P14D","ACTION:DISPLAY",fold(`DESCRIPTION:${esc2(t.title)}`),"END:VALARM");
+    if(rr) L.push(`RRULE:${rr}`);
+    L.push("END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  return L.join("\r\n");
+}
+function importProductCsv(text){
+  const lines = text.replace(/^\uFEFF/,"").split(/\r?\n/).filter(l=>l.trim());
+  if(!lines.length) return toast("行がありません");
+  const parseLine = l => { const o=[]; let cur="", q=false;
+    for(let i=0;i<l.length;i++){ const ch=l[i];
+      if(q){ if(ch==='"'){ if(l[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+      else if(ch==='"') q=true; else if(ch===","){ o.push(cur); cur=""; } else cur+=ch; }
+    o.push(cur); return o.map(s=>s.trim()); };
+  const head = parseLine(lines[0]);
+  const idx = n => head.findIndex(h=>h.replace(/\s/g,"").includes(n));
+  const iName=idx("製品名"), iCas=idx("CAS"), iPct=idx("含有率"), iComp=idx("成分名"),
+        iKg=idx("年間"), iStock=idx("貯蔵"), iShobo=idx("消防"), iMaker=idx("供給者"), iSds=idx("SDS");
+  if(iName<0||iCas<0) return toast("「製品名」と「CAS番号」の列が必要です");
+  const map = new Map();
+  lines.slice(1).forEach(l => {
+    const c = parseLine(l); const nm = c[iName]; if(!nm) return;
+    if(!map.has(nm)) map.set(nm, {id:uid(), name:nm, maker:iMaker>=0?c[iMaker]:"", sdsDate:iSds>=0?c[iSds]:"",
+      use:"", annualKg:iKg>=0?Number(c[iKg])||0:0, stockQty:iStock>=0?Number(c[iStock])||0:0,
+      shobo:iShobo>=0&&SHOBO_BY_KEY[c[iShobo]]?c[iShobo]:"", comps:[]});
+    const cas=(c[iCas]||"").trim();
+    if(cas || (iComp>=0&&c[iComp])) map.get(nm).comps.push({cas, name:iComp>=0?c[iComp]:(MASTER_BY_CAS[cas]?MASTER_BY_CAS[cas].name:""), pct:iPct>=0?Number(c[iPct])||0:0});
+  });
+  state.products = state.products.concat([...map.values()]); state.sample = false;
+  refresh(true); toast(`${map.size}件の化学品を取り込みました`);
+}
+
+/* ---------- ⑦ イベント ---------- */
+function bind(){
+  document.addEventListener("click", e => {
+    const g = e.target.closest("[data-goto]"); if(!g) return;
+    const tab = $$(".tab").find(x => x.dataset.tab === g.dataset.goto); if(tab) tab.click();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+  $$(".tab").forEach(b => b.addEventListener("click", () => {
+    $$(".tab").forEach(x => x.setAttribute("aria-selected", String(x===b)));
+    $$(".panel").forEach(p => p.hidden = p.id !== "panel-"+b.dataset.tab);
+  }));
+  $("#btnTheme").addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    const next = cur==="dark" ? "light" : (cur==="light" ? null : "dark");
+    if(next) document.documentElement.setAttribute("data-theme", next);
+    else document.documentElement.removeAttribute("data-theme");
+    try{ localStorage.setItem(LS_KEY+"-theme", next||""); }catch(e){}
+  });
+
+  $("#panel-site").addEventListener("input", e => {
+    const t = e.target;
+    if(t.dataset.site){ state.site[t.dataset.site] = t.type==="number" ? Number(t.value)||0 : t.value; state.sample=false; refresh(false); }
+  });
+  $("#panel-site").addEventListener("change", e => {
+    const t = e.target;
+    if(t.dataset.siteflag){ state.site.flags[t.dataset.siteflag] = t.checked; state.sample=false; refresh(false); }
+  });
+
+  const prodOf = el => state.products.find(p => p.id === el.closest("[data-pid]").dataset.pid);
+  $("#prodList").addEventListener("input", e => {
+    const t = e.target, host = t.closest("[data-pid]"); if(!host) return;
+    const p = prodOf(t); if(!p) return;
+    state.sample = false;
+    if(t.dataset.pf){ p[t.dataset.pf] = t.type==="number" ? Number(t.value)||0 : t.value; refresh(false); }
+    else if(t.dataset.cf){
+      const i = Number(t.closest("[data-ci]").dataset.ci); const c = p.comps[i]; if(!c) return;
+      c[t.dataset.cf] = t.dataset.cf==="pct" ? Number(t.value)||0 : t.value;
+      if(t.dataset.cf==="cas" && MASTER_BY_CAS[t.value.trim()] && !c.name){
+        c.name = MASTER_BY_CAS[t.value.trim()].name;
+        const nf = t.closest("[data-ci]").querySelector('[data-cf="name"]'); if(nf) nf.value = c.name;
+      }
+      refresh(false);
+    }
+  });
+  $("#prodList").addEventListener("change", e => {
+    const t = e.target; if(!t.dataset.pf || t.tagName!=="SELECT") return;
+    const p = prodOf(t); if(!p) return;
+    p[t.dataset.pf] = t.value; state.sample=false; refresh(true);
+  });
+  $("#prodList").addEventListener("click", e => {
+    const b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.delprod){
+      const p = state.products.find(x=>x.id===b.dataset.delprod);
+      if(!confirm(`「${p?p.name:""}」を台帳から削除します。よろしいですか。`)) return;
+      state.products = state.products.filter(x=>x.id!==b.dataset.delprod); state.sample=false; refresh(true);
+    }
+    if(b.dataset.addcomp){
+      const p = state.products.find(x=>x.id===b.dataset.addcomp);
+      p.comps = p.comps||[]; p.comps.push({cas:"",name:"",pct:0}); state.sample=false; refresh(true);
+    }
+    if(b.dataset.delcomp!==undefined && b.dataset.delcomp!==""){
+      const p = prodOf(b); p.comps.splice(Number(b.dataset.delcomp),1); state.sample=false; refresh(true);
+    }
+  });
+
+  document.addEventListener("change", e => {
+    const t = e.target;
+    if(t.dataset.done!==undefined && t.dataset.done!==""){
+      const id=t.dataset.done; state.done[id] = state.done[id]||{}; state.done[id].date = t.value; refresh(false);
+    }
+    if(t.dataset.by!==undefined && t.dataset.by!==""){
+      const id=t.dataset.by; state.done[id] = state.done[id]||{}; state.done[id].by = t.value; save();
+    }
+  });
+  ["#filterCat","#filterLaw","#filterStat"].forEach(s => $(s).addEventListener("change", () => renderTasks(window.__tasks||[])));
+
+  $("#btnAddProd").addEventListener("click", () => {
+    state.products.push({id:uid(), name:"", maker:"", sdsDate:"", use:"", annualKg:0, stockQty:0, shobo:"", comps:[{cas:"",name:"",pct:0}]});
+    state.sample=false; refresh(true);
+    const list=$("#prodList").lastElementChild; if(list) list.scrollIntoView({block:"center"});
+  });
+  $("#btnClearSample").addEventListener("click", () => {
+    if(!confirm("サンプルデータを全て消して、空の台帳から始めます。よろしいですか。")) return;
+    state = emptyState(); refresh(true); renderSite(); toast("空の台帳にしました");
+  });
+  $("#btnImportCsv").addEventListener("click", ()=>$("#fileCsv").click());
+  $("#fileCsv").addEventListener("change", e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader(); r.onload = () => importProductCsv(String(r.result)); r.readAsText(f, "UTF-8"); e.target.value="";
+  });
+  $("#btnImportJson").addEventListener("click", ()=>$("#fileJson").click());
+  $("#fileJson").addEventListener("change", e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => { try{ const s = JSON.parse(String(r.result));
+        if(!s || !s.site || !Array.isArray(s.products)) throw new Error("形式が違います");
+        state = s; state.done = state.done||{}; refresh(true); renderSite(); toast("復元しました");
+      }catch(err){ toast("読み込めませんでした：" + err.message); } };
+    r.readAsText(f, "UTF-8"); e.target.value="";
+  });
+  $$("[data-dl]").forEach(b => b.addEventListener("click", () => {
+    const site = (state.site.name||"事業場").replace(/[\\/:*?"<>|]/g,"_");
+    const d = iso(TODAY);
+    if(b.dataset.dl==="tasks-csv") download(`化学物質法令チェック表_${site}_${d}.csv`, csvTasks());
+    if(b.dataset.dl==="subs-csv")  download(`物質別法令判定_${site}_${d}.csv`, csvSubs());
+    if(b.dataset.dl==="ics")       download(`化学物質法令年間予定_${site}.ics`, icsCal());
+    if(b.dataset.dl==="json")      download(`化学物質台帳_${site}_${d}.json`, JSON.stringify(state,null,2));
+  }));
+  const doPrint = () => { $$(".tab").forEach(x=>x.setAttribute("aria-selected", String(x.dataset.tab==="task")));
+    $$(".panel").forEach(p=>p.hidden = p.id!=="panel-task"); setTimeout(()=>window.print(), 60); };
+  $("#btnPrint").addEventListener("click", doPrint);
+  $("#btnPrint2").addEventListener("click", doPrint);
+}
+
+/* ---------- ⑧ 起動 ---------- */
+(function init(){
+  try{ const th = localStorage.getItem(LS_KEY+"-theme"); if(th) document.documentElement.setAttribute("data-theme", th); }catch(e){}
+  state = load(); state.done = state.done||{}; state.site.flags = state.site.flags||{};
+  document.getElementById("lawCountInline").textContent = LAW_LIST.length;
+  document.querySelector("#statLaws .u").textContent = `法令 / 全${LAW_LIST.length}法令中`;
+  document.getElementById("footVer").textContent = `版 ${APP_VER}／物質マスタ ${MASTER_REV}（収録 ${MASTER.length}物質）／チェック項目 ${TASKS.length}件。判定日 ${iso(TODAY)}。`;
+  document.getElementById("chipStore").textContent = "このブラウザ";
+  bind(); renderSite(); refresh(true);
+  if(window.claude && typeof window.claude.use === "function"){
+    window.claude.use("downloads").then(d => { if(d) canDownload = d; }).catch(()=>{});
+  }
+})();
+</script>
+</body>
+</html>
