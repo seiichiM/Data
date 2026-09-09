@@ -415,6 +415,8 @@ table.p-gantt td.n{font-family:var(--font-num);font-variant-numeric:tabular-nums
 table.p-gantt td.c{text-align:center}
 table.p-gantt tr{page-break-inside:avoid;break-inside:avoid}
 table.p-gantt tr.sum td{background:#f2f5f9;font-weight:600}
+table.p-gantt tr.blankrow td{background:#f8fafc;color:#5a6a78}
+table.p-gantt tr.blankrow .p-track{height:3.6mm}
 table.p-gantt td.trk{padding:0}
 .p-tlh{position:relative;height:9mm}
 .p-tlh .maj,.p-tlh .min{position:absolute;left:0;right:0;height:4.5mm}
@@ -456,6 +458,7 @@ table.p-gantt td.trk{padding:0}
 .p-two>*{flex:1;min-width:0}
 /* 印刷ダイアログのプレビュー */
 dialog.wide{max-width:min(96vw,940px)}
+.note-blocked{border-left:3px solid var(--warn);background:var(--warn-soft);color:var(--ink);padding:9px 12px;border-radius:0 5px 5px 0;font-size:12px;line-height:1.7}
 .pv-wrap{background:#6f7d8b;padding:10px;overflow:auto;max-height:48vh;border-radius:4px;border:1px solid var(--line)}
 .pv-scale{transform-origin:top left;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
@@ -655,7 +658,7 @@ dialog.wide{max-width:min(96vw,940px)}
 <dialog id="dlgPrint" class="wide"><h3>工程表の印刷 — 範囲の自動抽出</h3>
   <div class="dlg-body" id="dlgPrintBody"></div>
   <div class="dlg-foot"><span id="prInfo" class="hint" style="margin-right:auto"></span>
-    <button class="btn" data-close>閉じる</button><button class="btn pri" id="prGo">印刷 / PDF 出力</button></div></dialog>
+    <button class="btn" data-close>閉じる</button><button class="btn" id="prHtml" title="この紙面を印刷用の HTML ファイルとして保存します">HTML で保存</button><button class="btn pri" id="prGo">印刷 / PDF 出力</button></div></dialog>
 
 <style id="pageStyle">@page{size:A4 landscape;margin:10mm}</style>
 <div id="printdoc"></div>
@@ -747,6 +750,8 @@ function sampleState(){
 
 /* ============================ 状態 ============================ */
 const LS="kotei-workbench.v1";
+const IN_FRAME=(function(){ try{ return window.self!==window.top; }catch(e){ return true; } })();
+let PRBLOCK=false, confirmArm=0;
 let D=sampleState();
 let U={view:"gantt",zoom:"day",dayW:28,sel:[],showCritical:true,showBaseline:false,showSlack:false,showLabel:true,
        filter:"all",query:"",gw:520,collapsed:{},inspector:true,loadRes:"all",tab:"task"};
@@ -1820,7 +1825,11 @@ const ACT={
     U.view="load"; render(); toast(o.map(x=>x.name+"（最大 "+x.peak+"%／"+x.days.length+"日）").join(" / ")); },
   setBaseline:()=>{ mutate(()=>{ D.baseline={}; D.tasks.forEach(t=>{ D.baseline[t.id]={s:t.start,f:t.finish,p:t.pct||0}; }); }); U.showBaseline=true; render(); toast("現在の日程をベースラインとして保存しました"); },
   clearBaseline:()=>{ mutate(()=>{ D.baseline=null; }); U.showBaseline=false; render(); toast("ベースラインを解除しました"); },
-  sample:()=>{ if(!confirm("サンプル工程（新社屋 内装リニューアル工事）を読み込みます。現在の内容は失われます。"))return;
+  sample:()=>{
+    if(IN_FRAME){ const now=Date.now();
+      if(now-confirmArm>4000){ confirmArm=now; return toast("もう一度押すとサンプル工程を読み込みます（現在の内容は元に戻すで復帰できます）"); }
+      confirmArm=0;
+    } else if(!confirm("サンプル工程（新社屋 内装リニューアル工事）を読み込みます。現在の内容は失われます。"))return;
     pushUndo(); D=sampleState(); seedProgress(); U.sel=[]; U.collapsed={}; render(); toast("サンプル工程を読み込みました"); },
   print:openPrint,
   theme:()=>{ const cur=document.documentElement.getAttribute("data-theme");
@@ -1861,7 +1870,7 @@ $("#fileInput").addEventListener("change",e=>{
       if(!o||!Array.isArray(o.tasks))throw 0;
       pushUndo(); D=o; D.cal=D.cal||{work:[false,true,true,true,true,true,false],holidays:{}};
       D.nextTask=D.nextTask||Math.max.apply(null,D.tasks.map(t=>t.id))+1; U.sel=[]; render(); toast("読み込みました："+(D.meta&&D.meta.name||f.name));
-    }catch(err){ alert("この JSON は読み込めませんでした。"); } e.target.value=""; };
+    }catch(err){ toast("この JSON は読み込めませんでした"); } e.target.value=""; };
   rd.readAsText(f);
 });
 /* ============================ キーボード ============================ */
@@ -1989,8 +1998,13 @@ function printRows(rg){
     else if(P==="wip") ok=ok&&(t.pct||0)<100;
     else if(P==="sel") ok=selIds.has(t.id);
     if(ok)keep.add(t.id); });
-  D.tasks.forEach((t,i)=>{ if(!keep.has(t.id))return; let lv=t.level;
-    for(let j=i-1;j>=0;j--){ if(D.tasks[j].level<lv){ keep.add(D.tasks[j].id); lv=D.tasks[j].level; if(!lv)break; } } });
+  D.tasks.forEach((t,i)=>{ if(!keep.has(t.id)||t.blank)return; let lv=t.level;
+    for(let j=i-1;j>=0;j--){ if(!D.tasks[j].blank&&D.tasks[j].level<lv){ keep.add(D.tasks[j].id); lv=D.tasks[j].level; if(!lv)break; } } });
+  D.tasks.forEach((t,i)=>{ if(!t.blank)return;
+    let before=false,after=false;
+    for(let j=i-1;j>=0;j--) if(!D.tasks[j].blank&&keep.has(D.tasks[j].id)){ before=true; break; }
+    for(let j=i+1;j<D.tasks.length;j++) if(!D.tasks[j].blank&&keep.has(D.tasks[j].id)){ after=true; break; }
+    if(before&&after) keep.add(t.id); });
   return D.tasks.filter(t=>keep.has(t.id));
 }
 function pScale(dayMM){ if(PR.scale!=="auto")return PR.scale;
@@ -2018,6 +2032,7 @@ function pTimeline(rg,days,dayMM,scale){
 }
 function pTrack(t,rg,days,dayMM,scale,chartW){
   let h="";
+  if(t.blank)return h;
   if(PR.shade&&dayMM>=1.4){ for(let i=0;i<days;i++){ const d=addD(rg.s,i),k=ymd(d);
       if(isHoli(d)) h+='<div class="p-hd" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm"></div>';
       else if(!isWork(d)) h+='<div class="p-nw" style="left:'+(i*dayMM)+'mm;width:'+dayMM+'mm"></div>'; } }
@@ -2044,6 +2059,7 @@ function pTrack(t,rg,days,dayMM,scale,chartW){
   return h;
 }
 function pCell(t,c){
+  if(t.blank) return c.k!=="name"?"":'<span style="padding-left:'+(t.level*3)+'mm;color:#5a6a78">'+esc(t.name||"")+'</span>';
   switch(c.k){
     case "wbs": return esc(t.wbs);
     case "name": return '<span style="padding-left:'+(t.level*3)+'mm">'+(t.ms?"◆ ":"")+esc(t.name)+'</span>';
@@ -2088,7 +2104,7 @@ function buildPrint(){
     '<col style="width:'+m.chartW+'mm"></colgroup>'+
     '<thead><tr>'+m.cols.map(c=>'<th>'+c.n+'</th>').join("")+
     '<th class="tl">'+pTimeline(rg,m.days,m.dayMM,m.scale)+'</th></tr></thead><tbody>'+
-    m.rows.map(t=>'<tr'+(t.isSummary?' class="sum"':"")+'>'+
+    m.rows.map(t=>'<tr'+(t.blank?' class="blankrow"':(t.isSummary?' class="sum"':""))+'>'+
       m.cols.map(c=>'<td class="'+(["dur","start","finish","pct"].indexOf(c.k)>=0?"n":"")+'">'+pCell(t,c)+'</td>').join("")+
       '<td class="trk"><div class="p-track">'+pTrack(t,rg,m.days,m.dayMM,m.scale,m.chartW)+'</div></td></tr>').join("")+
     '</tbody></table>';
@@ -2131,6 +2147,25 @@ function printReportSheet(m,s){
      :'<p class="p-note">遅延しているタスクはありません。</p>')+'</div></div>'+
    '<div class="p-foot"><span>'+esc(D.meta.name)+'　進捗レポート</span><span>工程表ワークベンチ　'+ymd(new Date())+'</span></div></div>';
 }
+function printSheetHTML(){
+  const m=printMeta();
+  const css=Array.prototype.map.call(document.querySelectorAll("style"),x=>x.textContent).join("\n");
+  return '<!doctype html>\n<html lang="ja"><head><meta charset="utf-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>'+esc(D.meta.name+" "+m.rg.label)+'</title>'+
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700&family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">'+
+    '<style>'+css+'</style><style>'+
+    '@page{size:'+m.pg.w+'mm '+m.pg.h+'mm;margin:10mm}'+
+    'html,body{background:#fff!important;height:auto!important;margin:0;padding:8mm;overflow:visible!important}'+
+    '#printdoc{display:block!important}'+
+    '.printbar{display:flex;gap:12px;align-items:center;margin:0 0 6mm;padding:9px 12px;background:#eef2f7;border:1px solid #b6c3d0;border-radius:5px;font-family:"IBM Plex Sans JP",sans-serif;font-size:13px;color:#16222e}'+
+    '.printbar button{font:inherit;padding:6px 16px;border:1px solid #1d4e76;background:#1d4e76;color:#fff;border-radius:4px;cursor:pointer}'+
+    '@media print{.printbar{display:none!important}html,body{padding:0}}'+
+    '</style></head><body>'+
+    '<div class="printbar"><button onclick="window.print()">🖨 印刷する</button>'+
+    '<span>'+esc(m.pg.n)+' ／ '+ymd(m.rg.s)+' 〜 '+ymd(m.rg.f)+' ／ '+m.rows.length+' 行　（このバーは印刷されません）</span></div>'+
+    '<div id="printdoc">'+buildPrint()+'</div></body></html>';
+}
 /* --- 印刷ダイアログ --- */
 function openPrint(){ renderPrintDlg(); if(!$("#dlgPrint").open)$("#dlgPrint").showModal(); }
 function renderPrintDlg(){
@@ -2138,6 +2173,9 @@ function renderPrintDlg(){
   const cur=PRESETS.filter(p=>p.k===PR.preset)[0]||PRESETS[0];
   const chk=(k,lab)=>'<label style="display:flex;align-items:center;gap:6px;font-size:11.5px"><input type="checkbox" data-pr="'+k+'"'+(PR[k]?" checked":"")+'>'+lab+'</label>';
   $("#dlgPrintBody").innerHTML=
+   (PRBLOCK?'<div class="note-blocked">この表示（ブラウザに埋め込まれた画面）では、ブラウザが印刷ダイアログの呼び出しを禁止しているため印刷できません。'+
+     '<b>「HTML で保存」</b>で紙面ファイルを保存し、それを開いて印刷してください。'+
+     'アプリを .html ファイルとしてダウンロードし、直接開いた場合は「印刷 / PDF 出力」がそのまま使えます。</div>':"")+
    '<div class="pgrid">'+
     '<div class="fset"><h4>抽出する範囲</h4><div class="radio-list">'+
       PRESETS.map(p=>'<label class="'+(p.k===PR.preset?"on":"")+'"><input type="radio" name="prp" data-preset="'+p.k+'"'+(p.k===PR.preset?" checked":"")+'>'+p.n+'<small>'+p.d+'</small></label>').join("")+
@@ -2180,8 +2218,18 @@ window.addEventListener("beforeprint",()=>{ try{ $("#printdoc").innerHTML=buildP
 $("#prGo").addEventListener("click",()=>{
   $("#printdoc").innerHTML=buildPrint();
   const m=printMeta(); $("#pageStyle").textContent="@page{size:"+m.pg.w+"mm "+m.pg.h+"mm;margin:10mm}";
-  $("#dlgPrint").close();
-  setTimeout(()=>window.print(),60);
+  let fired=false; const h=()=>{ fired=true; };
+  window.addEventListener("beforeprint",h);
+  try{ window.print(); }catch(e){}
+  window.removeEventListener("beforeprint",h);
+  if(fired){ PRBLOCK=false; $("#dlgPrint").close(); }
+  else { PRBLOCK=true; renderPrintDlg();
+    toast("この表示では印刷ダイアログを開けません。「HTML で保存」から出力してください"); }
+});
+$("#prHtml").addEventListener("click",()=>{
+  const m=printMeta();
+  const name=((D.meta.name||"project")+"_"+m.rg.label).replace(/[\\/:*?"<>|]/g,"_")+".html";
+  saveFile(name,printSheetHTML(),"text/html");
 });
 
 /* ============================ 初期化 ============================ */
