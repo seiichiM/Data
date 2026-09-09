@@ -512,7 +512,8 @@ footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px
   <div class="tw"><table>
     <thead><tr><th>項目</th><th>内容</th></tr></thead>
     <tbody>
-      <tr><td class="k">タイムスケール</td><td>日／週／月／四半期。全体を俯瞰するなら月、日々の管理は日</td></tr>
+      <tr><td class="k">タイムスケール</td><td>日／週／月／四半期のプリセット。全体を俯瞰するなら月、日々の管理は日</td></tr>
+      <tr><td class="k">表示範囲</td><td>拡大／縮小／全体を表示。プリセットの間の倍率にも無段階で変えられます（下記）</td></tr>
       <tr><td class="k">今日へ</td><td>今日の位置まで横スクロール。<span class="chip">タスク</span> の「バーへ移動」は選択タスクの位置へ</td></tr>
       <tr><td class="k">クリティカルパス</td><td>赤い強調の入／切</td></tr>
       <tr><td class="k">ベースライン</td><td>基準計画のバーをグレーで下に並べて表示（→ <a href="#s11">11 章</a>）</td></tr>
@@ -523,6 +524,19 @@ footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px
     </tbody>
   </table></div>
   <p>フィルターや検索で絞り込んでいる間も、親の集計タスクは文脈として残ります。解除は「すべてのタスク」に戻し、検索欄を空にしてください。</p>
+  <h3>表示範囲の拡大・縮小</h3>
+  <p>ガントの横方向の倍率は、日／週／月／四半期の 4 段階だけでなく、その間も<b>無段階</b>で変えられます。目盛（日・週・月・四半期）は倍率に応じて自動で切り替わります。</p>
+  <div class="tw"><table>
+    <thead><tr><th>操作</th><th>できること</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><kbd>Ctrl</kbd>＋マウスホイール</td><td>チャートの上で拡大・縮小。<b>カーソルの下の日付を動かさずに</b>拡大するので、見たい時期を保ったまま寄れます（Mac は <kbd>⌘</kbd>、トラックパッドのピンチ操作も同じ）</td></tr>
+      <tr><td class="k">ステータスバーのスライダー</td><td>画面右下の <span class="chip">− ▬▬●▬▬ ＋</span> で連続的に変更。右の表示（例「日 28px」）は現在の目盛と 1 日あたりの幅</td></tr>
+      <tr><td class="k"><span class="chip">表示</span> → 拡大／縮小</td><td>1 段階ずつ（約 1.35 倍）変更</td></tr>
+      <tr><td class="k"><span class="chip">表示</span> → 全体を表示<br>／ ステータスバーの「全体」</td><td><b>工期の全体がチャートの幅に収まる倍率</b>を自動計算して合わせます。全体像を 1 画面で見たいときに</td></tr>
+      <tr><td class="k">日／週／月／四半期</td><td>従来どおりのプリセット倍率に戻します</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><b>倍率は保存されます</b><p>設定した倍率は自動保存され、次に開いたときも同じ見え方で始まります。狭くしすぎて分からなくなったら「全体を表示」か、プリセットの「日」を押してください。</p></div>
 </section>
 
 <section id="s08">
@@ -650,6 +664,7 @@ footer.doc{padding:34px 52px 0;color:var(--ink3);font-size:11.5px;border-top:1px
       <tr><td class="k"><kbd>Esc</kbd></td><td>入力を取り消す</td><td>セル編集中</td></tr>
       <tr><td class="k"><kbd>Ctrl</kbd>+クリック</td><td>選択に追加／解除</td><td>表・ガント</td></tr>
       <tr><td class="k"><kbd>Shift</kbd>+クリック</td><td>範囲を選択</td><td>表・ガント</td></tr>
+      <tr><td class="k"><kbd>Ctrl</kbd>＋ホイール</td><td>ガントの表示範囲を拡大・縮小</td><td>ガント</td></tr>
       <tr><td class="k">右クリック</td><td>コンテキストメニュー</td><td>表・ガント・ネットワーク図</td></tr>
     </tbody>
   </table></div>

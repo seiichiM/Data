@@ -111,10 +111,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 ::-webkit-scrollbar-thumb{background:var(--line3);border:3px solid var(--panel2);border-radius:8px}
 ::-webkit-scrollbar-track{background:var(--panel2)}
 
-#app{height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;overflow:hidden}
+#app{height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;overflow:hidden;min-width:0}
+#app>*{min-width:0}
 
 /* ---- title bar ---- */
-.titlebar{display:flex;align-items:center;gap:14px;padding:0 12px;height:42px;background:var(--accent);color:#EAF2FA;border-bottom:1px solid var(--line)}
+.titlebar{display:flex;align-items:center;gap:14px;min-width:0;padding:0 12px;height:42px;background:var(--accent);color:#EAF2FA;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:baseline;gap:9px;font-family:var(--font-disp);font-weight:700;letter-spacing:.02em}
 .brand .mark{width:15px;height:15px;border:2px solid #EAF2FA;border-radius:2px;position:relative;transform:translateY(2px)}
 .brand .mark::after{content:"";position:absolute;left:1px;top:3px;width:9px;height:3px;background:#EAF2FA}
@@ -123,7 +124,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .pjname input{background:transparent;border:1px solid transparent;color:#fff;padding:3px 7px;border-radius:3px;width:100%;max-width:420px;font-weight:500}
 .pjname input:hover{border-color:rgba(255,255,255,.28)}
 .pjname input:focus{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.5);outline:none}
-.qat{display:flex;gap:3px}
+.qat{display:flex;gap:3px;flex:none}
 .qat button{background:transparent;border:1px solid transparent;color:#DCE9F5;border-radius:3px;padding:4px 8px;cursor:pointer;font-size:11.5px}
 .qat button:hover:not(:disabled){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
 .qat button:disabled{opacity:.34;cursor:default}
@@ -299,7 +300,15 @@ svg.links path.crit{stroke:var(--crit);stroke-width:1.4}
 .btnrow{display:flex;gap:6px;flex-wrap:wrap}
 
 /* ---- statusbar ---- */
-.statusbar{display:flex;align-items:center;gap:0;background:var(--panel2);border-top:1px solid var(--line);padding:0 6px;height:30px;overflow-x:auto}
+.statusbar{display:flex;align-items:center;gap:0;min-width:0;background:var(--panel2);border-top:1px solid var(--line);padding:0 6px;height:30px}
+.stmain{display:flex;align-items:center;flex:1;min-width:0;height:100%;overflow-x:auto}
+.zoomctl{display:flex;align-items:center;gap:6px;padding-left:12px;margin-left:6px;border-left:1px solid var(--line);flex:none}
+.zoomctl .k{font-size:9.5px;color:var(--ink3);letter-spacing:.04em}
+.zbtn{width:20px;height:18px;border:1px solid var(--line);border-radius:3px;background:var(--panel);color:var(--ink2);cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center}
+.zbtn.wide{width:auto;padding:0 8px;font-size:10.5px}
+.zbtn:hover{background:var(--accent-soft);border-color:var(--accent-ring);color:var(--accent)}
+#zslider{width:116px;height:16px;accent-color:var(--accent2);cursor:ew-resize}
+#zval{font-family:var(--font-num);font-size:10.5px;color:var(--ink2);min-width:62px;text-align:right}
 .st{display:flex;align-items:baseline;gap:5px;padding:0 11px;border-right:1px solid var(--line2);white-space:nowrap}
 .st:last-of-type{border-right:none}
 .st .k{font-size:9.5px;color:var(--ink3);letter-spacing:.05em}
@@ -533,6 +542,11 @@ dialog.wide{max-width:min(96vw,940px)}
         <button class="rb wide" data-act="today"><span class="ic">▾</span>今日へ</button>
       </div><div class="glabel">タイムスケール</div></div>
       <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="zoomIn"><span class="ic">＋</span>拡大</button>
+        <button class="rb" data-act="zoomOut"><span class="ic">−</span>縮小</button>
+        <button class="rb" data-act="zoomFit"><span class="ic">⇔</span>全体を<br>表示</button>
+      </div><div class="glabel">表示範囲</div></div>
+      <div class="rgroup"><div class="rrow">
         <button class="rb" data-act="tgl" data-v="showCritical"><span class="ic">▰</span>クリティカル<br>パス</button>
         <button class="rb" data-act="tgl" data-v="showBaseline"><span class="ic">▭</span>ベース<br>ライン</button>
         <button class="rb" data-act="tgl" data-v="showSlack"><span class="ic">┄</span>余裕<br>時間</button>
@@ -609,7 +623,17 @@ dialog.wide{max-width:min(96vw,940px)}
     <aside class="inspector" id="inspector"></aside>
   </div>
 
-  <div class="statusbar" id="statusbar"></div>
+  <div class="statusbar">
+    <div class="stmain" id="statusbar"></div>
+    <div class="zoomctl">
+      <span class="k">表示倍率</span>
+      <button class="zbtn" data-act="zoomOut" title="縮小（Ctrl＋ホイール下でも可）" aria-label="縮小">−</button>
+      <input type="range" id="zslider" min="0" max="1000" step="1" value="700" aria-label="ガントチャートの表示倍率">
+      <button class="zbtn" data-act="zoomIn" title="拡大（Ctrl＋ホイール上でも可）" aria-label="拡大">＋</button>
+      <span class="v" id="zval">日 28px</span>
+      <button class="zbtn wide" data-act="zoomFit" title="工期全体を画面幅に収める">全体</button>
+    </div>
+  </div>
 </div>
 
 <div id="tip" role="tooltip"></div>
@@ -718,7 +742,7 @@ function sampleState(){
 /* ============================ 状態 ============================ */
 const LS="kotei-workbench.v1";
 let D=sampleState();
-let U={view:"gantt",zoom:"day",sel:[],showCritical:true,showBaseline:false,showSlack:false,showLabel:true,
+let U={view:"gantt",zoom:"day",dayW:28,sel:[],showCritical:true,showBaseline:false,showSlack:false,showLabel:true,
        filter:"all",query:"",gw:520,collapsed:{},inspector:true,loadRes:"all",tab:"task"};
 let undoStack=[],redoStack=[],suspend=false;
 
@@ -726,8 +750,9 @@ function snap(){return JSON.stringify(D);}
 function pushUndo(){ if(suspend)return; undoStack.push(snap()); if(undoStack.length>80)undoStack.shift(); redoStack.length=0; }
 function doUndo(){ if(!undoStack.length)return; redoStack.push(snap()); D=JSON.parse(undoStack.pop()); U.sel=U.sel.filter(id=>D.tasks.some(t=>t.id===id)); render(); toast("元に戻しました"); }
 function doRedo(){ if(!redoStack.length)return; undoStack.push(snap()); D=JSON.parse(redoStack.pop()); render(); toast("やり直しました"); }
-function persist(){ try{localStorage.setItem(LS,JSON.stringify({D:D,U:{zoom:U.zoom,view:U.view,gw:U.gw,showCritical:U.showCritical,showBaseline:U.showBaseline,showSlack:U.showSlack,showLabel:U.showLabel,collapsed:U.collapsed,inspector:U.inspector}}));}catch(e){} }
-function restore(){ try{const s=JSON.parse(localStorage.getItem(LS)||"null"); if(s&&s.D&&Array.isArray(s.D.tasks)&&s.D.tasks.length){D=s.D; Object.assign(U,s.U||{}); return true;} }catch(e){} return false; }
+function persist(){ try{localStorage.setItem(LS,JSON.stringify({D:D,U:{zoom:U.zoom,dayW:U.dayW,view:U.view,gw:U.gw,showCritical:U.showCritical,showBaseline:U.showBaseline,showSlack:U.showSlack,showLabel:U.showLabel,collapsed:U.collapsed,inspector:U.inspector}}));}catch(e){} }
+function restore(){ try{const s=JSON.parse(localStorage.getItem(LS)||"null"); if(s&&s.D&&Array.isArray(s.D.tasks)&&s.D.tasks.length){D=s.D; Object.assign(U,s.U||{});
+      if(!(U.dayW>0))U.dayW=ZOOMW[U.zoom]||28; U.dayW=clamp(U.dayW,ZMIN,ZMAX); return true;} }catch(e){} return false; }
 
 /* ============================ カレンダー ============================ */
 function isHoli(d){ return !D.cal.ignore && !!D.cal.holidays[ymd(d)]; }
@@ -836,6 +861,24 @@ function overAlloc(){
 /* ============================ 表示対象の抽出 ============================ */
 const ROWH=30, HEADH=48;
 const ZOOMW={day:28,week:11,month:3.6,quarter:1.25};
+const ZMIN=0.35, ZMAX=90;
+function zscale(w){ return w>=12?"day":(w>=4?"week":(w>=1.5?"month":"quarter")); }
+function zpos(w){ return Math.round(1000*(Math.log(w)-Math.log(ZMIN))/(Math.log(ZMAX)-Math.log(ZMIN))); }
+function zfrom(pos){ return Math.exp(Math.log(ZMIN)+(pos/1000)*(Math.log(ZMAX)-Math.log(ZMIN))); }
+function setZoom(nw,anchorX){
+  nw=clamp(nw,ZMIN,ZMAX); const old=U.dayW||28; if(Math.abs(nw-old)<1e-6)return;
+  const r=cp.getBoundingClientRect();
+  const ax=(anchorX==null)?cp.clientWidth/2:clamp(anchorX-r.left,0,cp.clientWidth);
+  const dayIdx=(cp.scrollLeft+ax)/old;
+  U.dayW=nw; render();
+  cp.scrollLeft=Math.max(0,dayIdx*nw-ax);
+}
+function zoomStep(f,anchorX){ setZoom((U.dayW||28)*f,anchorX); }
+function zoomFit(){
+  const avail=Math.max(120,cp.clientWidth-18);
+  setZoom(avail/Math.max(1,RANGE.days));
+  cp.scrollLeft=0;
+}
 const MODEN={auto:"自動（稼働カレンダー）",cont:"連続（土日祝も稼働）",manual:"手動"};
 const CTYPE={ASAP:"できるだけ早く",SNET:"開始日以降",SNLT:"開始日以前",MSO:"開始日固定",MFO:"終了日固定",FNLT:"終了日以前"};
 
@@ -943,9 +986,9 @@ function chartRange(){
   f=addD(new Date(f.getFullYear(),f.getMonth()+1,0),10);
   return {s:s,f:f,days:dayDiff(s,f)+1};
 }
-const X=d=>dayDiff(RANGE.s,d)*ZOOMW[U.zoom];
+const X=d=>dayDiff(RANGE.s,d)*U.dayW;
 function timelineHTML(){
-  const w=ZOOMW[U.zoom], z=U.zoom, t0=ymd(todayD());
+  const w=U.dayW, z=zscale(w), t0=ymd(todayD());
   let major="",minor="";
   const days=[]; for(let i=0;i<RANGE.days;i++) days.push(addD(RANGE.s,i));
   const grp=(keyFn,labFn,cls)=>{ let out="",st=0;
@@ -958,7 +1001,8 @@ function timelineHTML(){
   if(z==="day"){
     major=grp(d=>d.getFullYear()+"-"+d.getMonth(),d=>d.getFullYear()+"年"+(d.getMonth()+1)+"月");
     minor=days.map((d,i)=>{ const k=ymd(d); const c=k===t0?"td":(isHoli(d)?"hd":(isWork(d)?"":"we"));
-      return '<div class="tl-cell '+c+'" style="left:'+(i*w)+'px;width:'+w+'px" title="'+jdate(d)+(isHoli(d)?" "+esc(D.cal.holidays[k]):"")+'">'+d.getDate()+'<br>'+WD[d.getDay()]+'</div>'; }).join("");
+      const lab=w>=19?(d.getDate()+'<br>'+WD[d.getDay()]):(w>=10?String(d.getDate()):"");
+      return '<div class="tl-cell '+c+'" style="left:'+(i*w)+'px;width:'+w+'px" title="'+jdate(d)+(isHoli(d)?" "+esc(D.cal.holidays[k]):"")+'">'+lab+'</div>'; }).join("");
   } else if(z==="week"){
     major=grp(d=>d.getFullYear()+"-"+d.getMonth(),d=>d.getFullYear()+"年"+(d.getMonth()+1)+"月");
     minor=grp(d=>{const x=addD(d,-((d.getDay()+6)%7));return ymd(x);},(d,n)=>n*w>28?md(addD(d,-((d.getDay()+6)%7))):"");
@@ -973,13 +1017,13 @@ function timelineHTML(){
 }
 
 function chartHTML(rows){
-  const w=ZOOMW[U.zoom], W=RANGE.days*w, H=Math.max(rows.length*ROWH+30,180), sel=new Set(U.sel);
+  const w=U.dayW, sc=zscale(w), W=RANGE.days*w, H=Math.max(rows.length*ROWH+30,180), sel=new Set(U.sel);
   let bg="",bars="",lab="";
   if(w>=8){ for(let i=0;i<RANGE.days;i++){ const d=addD(RANGE.s,i),k=ymd(d);
       if(isHoli(d)) bg+='<div class="bg-holiday" style="left:'+(i*w)+'px;width:'+w+'px"></div>';
       else if(!isWork(d)) bg+='<div class="bg-nonwork" style="left:'+(i*w)+'px;width:'+w+'px"></div>'; } }
   for(let i=0;i<RANGE.days;i++){ const d=addD(RANGE.s,i);
-    const line=(U.zoom==="day"&&d.getDay()===1)||(U.zoom!=="day"&&d.getDate()===1);
+    const line=(sc==="day"&&d.getDay()===1)||(sc!=="day"&&d.getDate()===1);
     if(line) bg+='<div class="bg-vline" style="left:'+(i*w)+'px"></div>'; }
   rows.forEach((t,i)=>{ bg+='<div class="bg-hline" style="top:'+((i+1)*ROWH-1)+'px"></div>'; });
   const rects=new Map();
@@ -1067,6 +1111,11 @@ function renderStatus(){
    (SCH.cyclic?'<div class="st"><span class="v warnv">⚠ 循環参照があります</span></div>':"")+
    st("表示",{gantt:"ガントチャート",res:"リソースシート",load:"リソースグラフ",net:"ネットワーク図",report:"進捗レポート"}[U.view]);
 }
+function renderZoomUI(){
+  const zs=$("#zslider"), zv=$("#zval");
+  if(zs&&document.activeElement!==zs) zs.value=zpos(U.dayW);
+  if(zv) zv.textContent={day:"日",week:"週",month:"月",quarter:"四半期"}[zscale(U.dayW)]+" "+(U.dayW>=10?Math.round(U.dayW):U.dayW.toFixed(1))+"px";
+}
 const st=(k,v,c)=>'<div class="st"><span class="k">'+k+'</span><span class="v '+(c||"")+'">'+v+'</span></div>';
 
 /* ============================ タスク情報パネル ============================ */
@@ -1130,7 +1179,7 @@ function render(){
   $("#pjname").value=D.meta.name;
   $$("#viewrail button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===U.view?"true":"false"));
   $$(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+U.view));
-  $$("#seg-zoom button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===U.zoom?"true":"false"));
+  $$("#seg-zoom button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===zscale(U.dayW)?"true":"false"));
   const st1=U.sel.length?SCH.byId.get(U.sel[U.sel.length-1]):null;
   const curMode=(st1&&!st1.isSummary)?(st1.mode||"auto"):null;
   $$("#seg-mode button").forEach(b=>{ b.setAttribute("aria-pressed",b.dataset.v===curMode?"true":"false"); b.disabled=!curMode; });
@@ -1142,7 +1191,7 @@ function render(){
   else if(U.view==="load") renderLoad();
   else if(U.view==="net") renderNet();
   else if(U.view==="report") renderReport();
-  renderInspector(); renderStatus(); persist();
+  renderInspector(); renderStatus(); renderZoomUI(); persist();
 }
 function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("on"),1700); }
 
@@ -1562,7 +1611,7 @@ function startLink(el,side,e){
 }
 document.addEventListener("mousemove",e=>{
   if(!drag)return;
-  const w=ZOOMW[U.zoom];
+  const w=U.dayW;
   if(drag.kind==="link"){ const r=chartBodyRect(); if(!r)return;
     const dx=e.clientX-r.left-drag.ox, dy=e.clientY-r.top-drag.oy;
     drag.rb.style.width=Math.sqrt(dx*dx+dy*dy)+"px";
@@ -1592,6 +1641,14 @@ document.addEventListener("mouseup",e=>{
       const nd=Math.max(1,workDays(ns,d.f0,fr)); t.dur=nd; setStartByDrag(t,ns); }); }
   else if(d.kind==="pct"){ if(d.pct!==(t.pct||0)) mutate(()=>{ t.pct=d.pct; }); else render(); }
 });
+/* ============================ 表示倍率 ============================ */
+cp.addEventListener("wheel",e=>{ if(!(e.ctrlKey||e.metaKey))return; e.preventDefault();
+  zoomStep(e.deltaY<0?1.12:1/1.12,e.clientX); },{passive:false});
+(function(){ const zs=$("#zslider"); if(!zs)return; let raf=0;
+  zs.addEventListener("input",()=>{ if(raf)return;
+    raf=requestAnimationFrame(()=>{ raf=0; setZoom(zfrom(+zs.value)); }); });
+})();
+
 /* ============================ ツールチップ ============================ */
 const tip=$("#tip");
 cp.addEventListener("mousemove",e=>{
@@ -1714,6 +1771,7 @@ const ACT={
   info:()=>{ U.inspector=!U.inspector; render(); },
   scrollTo:()=>{ const t=selTasks()[0]; if(!t)return; cp.scrollLeft=Math.max(0,X(t._s)-160); },
   today:()=>{ cp.scrollLeft=Math.max(0,X(todayD())-cp.clientWidth/2); },
+  zoomIn:()=>zoomStep(1.35), zoomOut:()=>zoomStep(1/1.35), zoomFit:()=>zoomFit(),
   expandAll:()=>{ U.collapsed={}; render(); },
   collapseAll:()=>{ D.tasks.forEach(t=>{ if(t.isSummary)U.collapsed[t.id]=true; }); render(); },
   addRes:()=>{ mutate(()=>{ D.resources.push({id:uid("r"),name:"新しいリソース",init:"新規",group:"未分類",max:100,rate:0}); }); U.view="res"; render(); },
@@ -1745,7 +1803,7 @@ document.addEventListener("click",e=>{
   const a=el.dataset.act;
   if(a==="pct"){ setPct(+el.dataset.v); return; }
   if(a==="mode"){ setMode(el.dataset.v); return; }
-  if(a==="zoom"){ U.zoom=el.dataset.v; render(); return; }
+  if(a==="zoom"){ setZoom(ZOOMW[el.dataset.v]); return; }
   if(a==="tgl"){ U[el.dataset.v]=!U[el.dataset.v]; render(); return; }
   if(ACT[a]){ ctx.classList.remove("on"); ACT[a](el); }
 });
