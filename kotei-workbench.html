@@ -1379,7 +1379,7 @@ function renderReport(){
     .map(t=>({t:t,d:workDays(t._f,t0)-1})).sort((a,b)=>b.d-a.d);
   const tops=D.tasks.filter(t=>t.isSummary&&t.level===0);
   $("#reportInner").innerHTML=
-  '<div class="vhead"><div><h2>進捗レポート</h2><p>'+esc(D.meta.name)+' ／ 監督：'+esc(D.meta.manager||"—")+' ／ 基準日 '+jdate(t0)+'</p></div></div>'+
+  '<div class="vhead"><div><h2>進捗レポート</h2><p>'+esc(D.meta.name)+' ／ 作成者：'+esc(D.meta.manager||"—")+' ／ 基準日 '+jdate(t0)+'</p></div></div>'+
   '<div class="tiles">'+
    tile("全体進捗",s.pct+"%","出来高（作業日）ベース")+
    tile("計画比",(gap>0?"+":"")+gap+" pt",gap<0?"計画を下回っています":"計画どおり",gap<0)+
@@ -1902,7 +1902,7 @@ function openProj(){
   $("#dlgProjBody").innerHTML=
    '<div class="frow"><label>プロジェクト名</label><input id="pi-name" value="'+esc(D.meta.name)+'"></div>'+
    '<div class="frow"><label>開始日</label><input id="pi-start" type="date" value="'+D.meta.start+'"></div>'+
-   '<div class="frow"><label>監督者</label><input id="pi-mgr" value="'+esc(D.meta.manager||"")+'"></div>'+
+   '<div class="frow"><label>作成者</label><input id="pi-mgr" value="'+esc(D.meta.manager||"")+'"></div>'+
    '<div class="frow"><label>備考</label><input id="pi-note" value="'+esc(D.meta.note||"")+'"></div>'+
    '<p class="hint">現在の集計：完了予定 '+jdate(s.finish)+' ／ 工期 '+s.days+' 稼働日 ／ タスク '+s.total+' 件 ／ 総コスト '+yen(s.cost)+
    '<br>開始日を変更すると、制約のない自動スケジュールのタスクがすべて再計算されます。</p>';
@@ -2090,7 +2090,7 @@ function buildPrint(){
     '<div class="p-sub">'+esc(D.meta.name)+(D.meta.note?'　'+esc(D.meta.note):"")+
     (rg.note?'<br>'+esc(rg.note):"")+'</div></div>'+
     '<div class="p-meta">対象期間　'+jdate(rg.s)+' 〜 '+jdate(rg.f)+'（'+m.days+' 日／稼働 '+workDays(rg.s,rg.f)+' 日）<br>'+
-    '基準日　'+jdate(t0)+'　／　監督　'+esc(D.meta.manager||"—")+'<br>'+
+    '基準日　'+jdate(t0)+'　／　作成者　'+esc(D.meta.manager||"—")+'<br>'+
     '出力　'+jdate(new Date())+'　／　'+m.pg.n+'　／　抽出 '+inRange.length+' タスク</div></div>';
   const stats=PR.stats?'<div class="p-stats">'+
     pstat("この範囲の進捗",pctR+"%")+pstat("抽出タスク",inRange.length+" 件")+
