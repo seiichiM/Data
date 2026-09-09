@@ -485,6 +485,7 @@ dialog.wide{max-width:min(96vw,940px)}
     <div class="qat">
       <button data-act="undo" id="b-undo" title="元に戻す (Ctrl+Z)">↩ 元に戻す</button>
       <button data-act="redo" id="b-redo" title="やり直し (Ctrl+Y)">↪ やり直し</button>
+      <button data-act="newProj" title="すべてのタスクを削除して新しい工程表を作る">▢ 新規</button>
       <button data-act="save" title="この工程表を .json で保存">⤓ 保存</button>
       <button data-act="open" title="保存した .json を読み込む">⤒ 開く</button>
       <button data-act="csv" title="CSV に書き出す">CSV</button>
@@ -594,6 +595,7 @@ dialog.wide{max-width:min(96vw,940px)}
       <div class="rgroup"><div class="rrow">
         <button class="rb" data-act="dlgProj"><span class="ic">ⓘ</span>プロジェクト<br>情報</button>
         <button class="rb" data-act="dlgCal"><span class="ic">▦</span>稼働<br>カレンダー</button>
+        <button class="rb" data-act="newProj"><span class="ic">▢</span>新規<br>作成</button>
       </div><div class="glabel">設定</div></div>
       <div class="rgroup"><div class="rrow">
         <button class="rb" data-act="setBaseline"><span class="ic">▭</span>ベースライン<br>設定</button>
@@ -659,6 +661,9 @@ dialog.wide{max-width:min(96vw,940px)}
   <div class="dlg-body" id="dlgPrintBody"></div>
   <div class="dlg-foot"><span id="prInfo" class="hint" style="margin-right:auto"></span>
     <button class="btn" data-close>閉じる</button><button class="btn" id="prHtml" title="この紙面を印刷用の HTML ファイルとして保存します">HTML で保存</button><button class="btn pri" id="prGo">印刷 / PDF 出力</button></div></dialog>
+
+<dialog id="dlgNew"><h3>新規作成</h3><div class="dlg-body" id="dlgNewBody"></div>
+  <div class="dlg-foot"><button class="btn" data-close>キャンセル</button><button class="btn pri" id="dlgNewOk">作成する</button></div></dialog>
 
 <style id="pageStyle">@page{size:A4 landscape;margin:10mm}</style>
 <div id="printdoc"></div>
@@ -1571,10 +1576,11 @@ function startEdit(td){
   });
   inp.addEventListener("blur",()=>{ if(editing&&editing.td===td) commitEdit(inp.value); });
 }
-function cancelEdit(){ if(!editing)return; editing.td.innerHTML=editing.html; editing=null; }
+function cancelEdit(){ if(!editing)return; const e=editing; editing=null; e.td.innerHTML=e.html; }
 function commitEdit(val){
   if(!editing)return; const {id,col}=editing; editing=null;
   const t=SCH.byId.get(id); if(!t)return render();
+  if(String(val)===String(rawValue(t,col))){ render(); return; }
   pushUndo();
   if(col==="name") t.name=String(val).trim()||t.name;
   else if(col==="dur"){ const n=Math.max(0,parseInt(String(val).replace(/[^\d-]/g,""),10)||0);
@@ -1842,7 +1848,7 @@ const ACT={
     const rows=D.tasks.map(t=>t.blank?["","",t.name||"","","","","","","","","",""]:[t.id,t.wbs,t.name,t.dur|0,t.start,t.finish,predsText(t),resText(t),t.pct||0,Math.round(t.cost||0),t.isSummary?"":t.slack,t.critical?"○":""]);
     const csv="\ufeff"+[head].concat(rows).map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(",")).join("\r\n");
     saveFile((D.meta.name||"project")+"_工程表.csv",csv,"text/csv"); },
-  dlgProj:openProj, dlgCal:openCal
+  dlgProj:openProj, dlgCal:openCal, newProj:openNew
 };
 document.addEventListener("click",e=>{
   const el=e.target.closest("[data-act]"); if(!el)return;
@@ -1912,6 +1918,21 @@ $("#dlgProjOk").addEventListener("click",()=>{
   pushUndo(); D.meta.name=$("#pi-name").value; D.meta.start=$("#pi-start").value||D.meta.start;
   D.meta.manager=$("#pi-mgr").value; D.meta.note=$("#pi-note").value; $("#dlgProj").close(); render();
 });
+function openNew(){
+  const t0=todayD(), n=D.tasks.length, b=D.tasks.filter(x=>x.blank).length;
+  $("#dlgNewBody").innerHTML=
+   '<p class="hint" style="font-size:12px;line-height:1.8">現在の工程表（タスク '+(n-b)+' 件'+(b?'・空白行 '+b+' 行':"")+'）を空にして、新しい工程表を作ります。'+
+   '<b>タスク ID は 1 から振り直され</b>、ベースラインも解除されます。'+
+   '取り消したいときは <b>元に戻す（Ctrl+Z）</b> で削除前の状態に戻せます。</p>'+
+   '<div class="frow"><label>プロジェクト名</label><input id="nw-name" value="新しいプロジェクト"></div>'+
+   '<div class="frow"><label>開始日</label><input id="nw-start" type="date" value="'+ymd(t0)+'"></div>'+
+   '<div class="frow"><label>作成者</label><input id="nw-mgr" value="'+esc(D.meta.manager||"")+'"></div>'+
+   '<div style="display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line2);padding-top:10px">'+
+   '<label style="display:flex;align-items:center;gap:7px;font-size:12px"><input type="checkbox" id="nw-res" checked>リソース（協力会社・単価）を引き継ぐ　<span class="hint">'+D.resources.length+' 件</span></label>'+
+   '<label style="display:flex;align-items:center;gap:7px;font-size:12px"><input type="checkbox" id="nw-cal" checked>稼働カレンダー（稼働曜日・休日）を引き継ぐ　<span class="hint">外すと初期設定に戻ります</span></label></div>'+
+   '<p class="hint">保存していない工程表がある場合は、キャンセルして先にタイトルバーの「保存」で .json に書き出してください。</p>';
+  $("#dlgNew").showModal();
+}
 function openCal(){
   const hs=Object.keys(D.cal.holidays).sort();
   $("#dlgCalBody").innerHTML=
@@ -1932,6 +1953,19 @@ function openCal(){
 }
 $("#dlgCalBody").addEventListener("click",e=>{ const k=e.target.dataset.delhol; if(!k)return;
   pushUndo(); D.cal.ignore=$("#cal-ignore").checked; delete D.cal.holidays[k]; openCal(); render(); });
+$("#dlgNewOk").addEventListener("click",()=>{
+  pushUndo();
+  const keepRes=$("#nw-res").checked, keepCal=$("#nw-cal").checked;
+  D={ meta:{name:$("#nw-name").value.trim()||"新しいプロジェクト",
+            start:$("#nw-start").value||ymd(todayD()),
+            manager:$("#nw-mgr").value.trim(), note:""},
+      cal: keepCal?D.cal:{work:[false,true,true,true,true,true,false],holidays:Object.assign({},HOLIDAYS_2026),ignore:false},
+      tasks:[], resources: keepRes?D.resources:[], baseline:null, nextTask:1 };
+  U.sel=[]; U.collapsed={}; U.filter="all"; U.query="";
+  const q=$("#f-search"); if(q)q.value="";
+  $("#dlgNew").close(); render();
+  toast("新規作成しました（タスク ID は 1 から）");
+});
 $("#dlgCalOk").addEventListener("click",()=>{
   pushUndo();
   D.cal.ignore=$("#cal-ignore").checked;
