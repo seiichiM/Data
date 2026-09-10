@@ -662,17 +662,68 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 
         <details>
           <summary style="cursor:pointer;font-size:13px;color:var(--accent)">公式リストの入手先と取り込み手順</summary>
-          <div style="padding:10px 2px 0; font-size:12.5px; color:var(--ink-2); line-height:1.9">
-            <p style="margin-bottom:8px">「マスタをCSVで書き出し」で出力した形式のまま列を埋めて、「CSVで取り込み」で戻してください。CAS番号が一致する行は上書きされ、無い行は追加されます。</p>
-            <ul style="margin:0; padding-left:1.3em">
-              <li><b>労働安全衛生法</b>（ラベル・SDS・リスクアセスメント対象物、濃度基準値、皮膚等障害化学物質等、がん原性物質）… 厚生労働省「職場のあんぜんサイト」の対象物質一覧</li>
-              <li><b>特化則・有機則・鉛則・粉じん則</b>… 各規則の別表。対象が閉じているため内蔵マスタで概ね足ります</li>
-              <li><b>化管法</b>（第一種・第二種指定化学物質）… 経済産業省の政令別表、またはNITEのPRTR対象物質一覧</li>
-              <li><b>毒物及び劇物</b>… 厚生労働省「毒物及び劇物指定令」の別表</li>
-              <li><b>消防法の危険物</b>… 品名と指定数量はSDS第15項に記載があります。別表第一も参照してください</li>
-              <li><b>複数法令の横断確認</b>… NITE-CHRIP（化学物質総合情報提供システム）でCAS番号から一括して確認できます</li>
-            </ul>
-            <p style="margin-top:8px">取り込んだ物質はこのブラウザに保存され、「書き出し」タブのJSONにも含まれます。他の担当者へはJSONごと渡してください。</p>
+          <div style="padding:10px 2px 0; font-size:12.5px; color:var(--ink-2); line-height:1.85">
+
+            <p><b>ダウンロードだけは人が行う必要があります。</b>
+               各省庁のサイトはブラウザからの直接取得（CORS）を許可していないため、
+               このアプリが自動で取りに行くことはできません。落としたファイルを上の取り込みに渡してください。</p>
+
+            <p style="margin-top:10px"><b>取り込む順番</b>　法令ごとに一覧を落として、上から順に重ねていきます。
+               「変更しない」にした項目は既存の値が残るので、重ねても前の取り込みは消えません。</p>
+
+            <div class="tw" style="margin-top:8px"><table>
+              <thead><tr><th style="min-width:150px">何の一覧か</th><th style="min-width:230px">入手先</th><th style="min-width:150px">取り込み時に設定する区分</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>労働安全衛生法</b><br>表示・通知対象物質</td>
+                  <td>厚生労働省「職場のあんぜんサイト」<br>
+                      <span class="mono" style="font-size:11px">anzeninfo.mhlw.go.jp</span><br>
+                      GHSモデルSDS情報のページにある<b>「表示・通知対象物質の一覧をダウンロード」</b>（xlsx）</td>
+                  <td><b>安衛法＝対象物</b></td>
+                </tr>
+                <tr>
+                  <td><b>化管法</b><br>第一種指定化学物質</td>
+                  <td>経済産業省 PRTR制度 対象化学物質<br>
+                      <span class="mono" style="font-size:11px">meti.go.jp/policy/chemical_management/law/prtr/2.html</span><br>
+                      またはNITE 化学物質管理<span class="mono" style="font-size:11px"> nite.go.jp/chem/prtr/</span></td>
+                  <td><b>化管法＝第一種</b></td>
+                </tr>
+                <tr>
+                  <td><b>化管法</b><br>特定第一種指定化学物質</td>
+                  <td>同上（第一種の表のうち特定第一種の欄で絞る）</td>
+                  <td><b>化管法＝特定第一種</b><br>第一種の後に取り込む</td>
+                </tr>
+                <tr>
+                  <td><b>化管法</b><br>第二種指定化学物質</td>
+                  <td>経済産業省 化管法SDS制度 対象化学物質<br>
+                      <span class="mono" style="font-size:11px">meti.go.jp/policy/chemical_management/law/msds/2.html</span></td>
+                  <td><b>化管法＝第二種</b></td>
+                </tr>
+                <tr>
+                  <td>法令の横断確認<br>（1物質ずつ）</td>
+                  <td>NITE-CHRIP　化学物質総合情報提供システム<br>
+                      <span class="mono" style="font-size:11px">chem-info.nite.go.jp</span><br>
+                      CAS番号を入れると各法令の該当が一度に分かります</td>
+                  <td>—</td>
+                </tr>
+              </tbody>
+            </table></div>
+
+            <p style="margin-top:12px"><b>特化則・有機則・鉛則・粉じん則</b>は対象が閉じており、内蔵マスタが全数を収録しています。
+               改正があったときだけ、各規則の別表を見て手で直してください。</p>
+
+            <p style="margin-top:10px"><b>CAS番号で公開されていないもの</b>があります。
+               <b>消防法の品名・指定数量</b>と<b>毒物及び劇物の指定</b>は品名で定められているため、機械的な突き合わせができません。
+               消防法の品名はSDS第15項に書かれているので、実際に使う物質だけ台帳に入れる際に埋めるのが早道です。
+               条文で確認する場合は e-Gov法令検索（<span class="mono" style="font-size:11px">laws.e-gov.go.jp</span>）で
+               「毒物及び劇物指定令」「危険物の規制に関する政令 別表第三」を参照してください。</p>
+
+            <p style="margin-top:10px">取り込んだ物質はこのブラウザに保存され、「書き出し」タブのJSONにも含まれます。
+               他の担当者へはJSONごと渡すか、「マスタをCSVで書き出し」「chem-master.js で書き出し」で作ったファイルを配ってください。</p>
+
+            <p style="margin-top:10px; color:var(--muted); font-size:11.5px">
+               各省庁のページ構成とファイル名は改正のたびに変わります。上の名称で見つからない場合は、
+               サイト内で「対象物質」「指定化学物質」「一覧」を手がかりに探してください。</p>
           </div>
         </details>
       </div>
