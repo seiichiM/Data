@@ -516,6 +516,41 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
         </div>
 
         <div id="msEnv"></div>
+
+        <div class="card" id="msImportPanel" hidden style="border-color:var(--accent)">
+          <div class="hd">
+            <h2>取り込みの確認</h2>
+            <span class="note" id="msImpFile"></span>
+          </div>
+          <div class="bd" style="display:flex; flex-direction:column; gap:16px">
+            <p class="lead" id="msImpDetect"></p>
+
+            <div>
+              <p class="sec-label">どの列を読むか</p>
+              <div class="grid3">
+                <div class="field"><label for="msImpCas">CAS番号の列</label><select id="msImpCas"></select></div>
+                <div class="field"><label for="msImpName">物質名の列</label><select id="msImpName"></select></div>
+                <div class="field"><label for="msImpHead">見出し行（何行目か）</label><input type="number" id="msImpHead" min="0" step="1" value="1"><span class="hint">0にすると見出し無しとして扱います</span></div>
+              </div>
+            </div>
+
+            <div>
+              <p class="sec-label">この表に載っている物質すべてに設定する区分</p>
+              <p class="hint" style="margin-bottom:8px">法令ごとに公開されている一覧を取り込むときに使います。たとえば化管法の第一種指定化学物質の一覧なら「化管法＝第一種」を選びます。「変更しない」にした項目は、既存の値がそのまま残ります。</p>
+              <div class="grid3" id="msImpSet"></div>
+            </div>
+
+            <label class="check"><input type="checkbox" id="msImpByHeader">
+              <span>見出しが一致する列はその値を使う<small>書き出したマスタや、同じ列名を持つ表を戻すときに使います</small></span></label>
+
+            <div id="msImpPreview"></div>
+
+            <div class="btnrow">
+              <button class="btn" id="msImpApply" type="button">この内容で取り込む</button>
+              <button class="btn ghost" id="msImpCancel" type="button">やめる</button>
+            </div>
+          </div>
+        </div>
         <div class="grid3" id="masterStats"></div>
 
         <div class="ms-src">
@@ -526,7 +561,8 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
               サーバから配信している場合は <b style="font-family:var(--mono)">chem-master.csv</b>、
               ファイルを直接開く（ダブルクリックする）場合は <b style="font-family:var(--mono)">chem-master.js</b> を置いてください。
               ブラウザの制約で、直接開いたときに読めるのは後者だけです。どちらも同じ内容で、両方置いておけば環境を問わず動きます。
-              別の場所にあるときは下にURLを入れてください。ファイルをこの画面にドラッグしても取り込めます。
+              別の場所にあるときは下にURLを入れてください。
+              公式サイトのExcel（.xlsx）やCSVは、この画面にドラッグするか「Excel・CSVを取り込み」から読み込めます。
             </p>
           </div>
           <div class="row">
@@ -555,8 +591,9 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
             <option value="user">取り込んだ物質</option>
           </select>
           <button class="btn ghost" id="btnMsExport" type="button">マスタをCSVで書き出し</button>
-          <button class="btn ghost" id="btnMsImport" type="button">CSVで取り込み</button>
-          <input type="file" id="fileMs" accept=".csv,text/csv" hidden>
+          <button class="btn ghost" id="btnMsExportJs" type="button">chem-master.js で書き出し</button>
+          <button class="btn ghost" id="btnMsImport" type="button">Excel・CSVを取り込み</button>
+          <input type="file" id="fileMs" accept=".csv,.xlsx,.xlsm,text/csv" hidden>
           <button class="btn danger" id="btnMsReset" type="button" hidden>取り込んだ物質を全て削除</button>
         </div>
 
@@ -585,6 +622,43 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
           </tr></thead><tbody></tbody>
         </table></div>
         <p id="msCount" style="font-size:11.5px;color:var(--muted)"></p>
+
+        <details>
+          <summary style="cursor:pointer;font-size:13px;color:var(--accent)">取り込むCSVの作り方（列名と書き方）</summary>
+          <div style="padding:10px 2px 0; font-size:12.5px; color:var(--ink-2); line-height:1.85">
+            <p><b>いちばん確実なのは、上の「マスタをCSVで書き出し」で出したファイルに行を足す方法です。</b>
+               列がそのまま揃っているので、書式で迷いません。</p>
+            <p style="margin-top:8px"><b>必須の列は「CAS番号」と「物質名」の2つだけです。</b>
+               他は必要な列だけ書けば足ります。書かなかった列の既存の値は消えません。
+               たとえば化管法の区分だけを直したいときは、<b style="font-family:var(--mono)">CAS番号, 物質名, 化管法</b> の3列だけのCSVで構いません。
+               逆に、ある区分を「該当なし」に変えたいときは、その列を作って空欄にしてください。</p>
+            <div class="tw" style="margin-top:10px"><table>
+              <thead><tr><th>列名</th><th>書く値</th></tr></thead>
+              <tbody>
+                <tr><td>CAS番号</td><td class="mono">108-88-3</td></tr>
+                <tr><td>物質名</td><td>トルエン</td></tr>
+                <tr><td>特化則</td><td>第1類／第2類／第3類</td></tr>
+                <tr><td>有機則</td><td>第1種／第2種／第3種</td></tr>
+                <tr><td>化管法</td><td>第一種／特定第一種／第二種／要確認</td></tr>
+                <tr><td>毒劇法</td><td>毒物／劇物</td></tr>
+                <tr><td>消防法品名</td><td>下の一覧の文字列をそのまま（例：第4類 第1石油類 非水溶性）</td></tr>
+                <tr><td>大防法</td><td>VOC／有害大気／特定物質／水銀等／特定粉じん（複数は「VOC/有害大気」）</td></tr>
+                <tr><td>安衛法</td><td>対象物／要確認／空欄</td></tr>
+                <tr><td>皮膚等障害・がん原性・特別管理物質<br>鉛則・粉じん則・水濁法有害物質・土対法・女性則</td>
+                    <td>該当（○ / 1 / Yes も可）。該当しなければ空欄</td></tr>
+                <tr><td>化審法</td><td>第一種特定</td></tr>
+                <tr><td>備考</td><td>任意の文字列</td></tr>
+              </tbody>
+            </table></div>
+            <p style="margin-top:10px"><b>消防法品名に書ける文字列（この一覧のいずれか）</b></p>
+            <div class="tw"><table>
+              <thead><tr><th>文字列</th><th class="num">指定数量</th><th>文字列</th><th class="num">指定数量</th></tr></thead>
+              <tbody id="shoboRef"></tbody>
+            </table></div>
+            <p style="margin-top:10px">文字コードはUTF-8で保存してください。Excelの「CSV UTF-8（コンマ区切り）」で保存すればそのまま読めます。
+               Shift_JISのCSVは文字化けするため、貼り付け欄を使うか、UTF-8で保存し直してください。</p>
+          </div>
+        </details>
 
         <details>
           <summary style="cursor:pointer;font-size:13px;color:var(--accent)">公式リストの入手先と取り込み手順</summary>
@@ -1820,7 +1894,215 @@ function renderMasterChip(){
            : "内蔵マスタのみ。同じフォルダに chem-master.csv または chem-master.js を置くと自動で読み込みます";
 }
 
+/* ---------- Excel(.xlsx)をブラウザだけで読む ----------
+   工場のPCに追加のソフトを入れなくても、公式サイトのExcelをそのまま
+   取り込めるようにする。ZIPの展開もブラウザの標準機能で行う。 */
+async function inflateRaw(bytes){
+  if(typeof DecompressionStream !== "function")
+    throw new Error("このブラウザはExcelの展開に対応していません。CSV形式で保存し直してください");
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function unzip(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf), out = {};
+  let eocd = -1;
+  for(let i = dv.byteLength - 22; i >= Math.max(0, dv.byteLength - 66000); i--)
+    if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  if(eocd < 0) throw new Error("Excelファイルとして読めません");
+  const count = dv.getUint16(eocd + 10, true), dec = new TextDecoder();
+  let p = dv.getUint32(eocd + 16, true);
+  for(let i = 0; i < count; i++){
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true), compSize = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true), extraLen = dv.getUint16(p + 30, true);
+    const cmtLen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+    const name = dec.decode(u8.subarray(p + 46, p + 46 + nameLen));
+    const start = lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true);
+    out[name] = {method, bytes: u8.subarray(start, start + compSize)};
+    p += 46 + nameLen + extraLen + cmtLen;
+  }
+  return out;
+}
+const colLetter = i => { let s = "", n = i + 1; while(n > 0){ const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); } return s; };
+async function readXlsx(buf){
+  const files = await unzip(buf);
+  const text = async n => {
+    const f = files[n]; if(!f) return null;
+    return new TextDecoder().decode(f.method === 0 ? f.bytes : await inflateRaw(f.bytes));
+  };
+  const shared = [];
+  const ss = await text("xl/sharedStrings.xml");
+  if(ss) new DOMParser().parseFromString(ss, "application/xml").querySelectorAll("si").forEach(si => {
+    let t = ""; si.querySelectorAll("t").forEach(x => t += x.textContent || ""); shared.push(t);
+  });
+  const sheet = Object.keys(files).filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort()[0];
+  if(!sheet) throw new Error("ワークシートが見つかりません");
+  const doc = new DOMParser().parseFromString(await text(sheet), "application/xml");
+  const idxOf = ref => { const m = /^[A-Z]+/.exec(ref || ""); if(!m) return 0;
+    let n = 0; for(const ch of m[0]) n = n * 26 + (ch.charCodeAt(0) - 64); return n - 1; };
+  const rows = [];
+  doc.querySelectorAll("sheetData > row").forEach(row => {
+    const cells = {}; let max = -1;
+    row.querySelectorAll("c").forEach(c => {
+      const i = idxOf(c.getAttribute("r")), t = c.getAttribute("t");
+      const v = c.querySelector("v"), is = c.querySelector("is");
+      let val = "";
+      if(t === "s" && v){ const k = Number(v.textContent); val = shared[k] != null ? shared[k] : ""; }
+      else if(t === "inlineStr" && is){ is.querySelectorAll("t").forEach(x => val += x.textContent || ""); }
+      else if(v) val = v.textContent || "";
+      cells[i] = String(val).trim(); if(i > max) max = i;
+    });
+    if(max >= 0){ const r = []; for(let i = 0; i <= max; i++) r.push(cells[i] || ""); rows.push(r); }
+  });
+  return rows;
+}
+
+/* ---------- 取り込みの確認画面 ---------- */
+const CAS_ONLY = /^\d{2,7}-\d{2}-\d$/;
+const IMP_SET_FIELDS = [
+  ["安衛法",         ["対象物","要確認","該当なし"]],
+  ["特化則",         ["第1類","第2類","第3類","該当なし"]],
+  ["特別管理物質",   ["該当","該当なし"]],
+  ["有機則",         ["第1種","第2種","第3種","該当なし"]],
+  ["化管法",         ["第一種","特定第一種","第二種","要確認","該当なし"]],
+  ["毒劇法",         ["毒物","劇物","該当なし"]],
+  ["鉛則",           ["該当","該当なし"]],
+  ["粉じん則",       ["該当","該当なし"]],
+  ["皮膚等障害",     ["該当","該当なし"]],
+  ["がん原性",       ["該当","該当なし"]],
+  ["水濁法有害物質", ["該当","該当なし"]],
+  ["女性則",         ["該当","該当なし"]]
+];
+let msImp = null;
+
+async function openImportPanel(file){
+  let rows;
+  try{
+    rows = /\.(xlsx|xlsm)$/i.test(file.name)
+      ? await readXlsx(await file.arrayBuffer())
+      : parseCsv(await file.text());
+  }catch(e){ return toast("読み取れませんでした：" + (e.message || e)); }
+  if(!rows.length) return toast("中身が空でした");
+
+  // CAS番号らしい値が最も多い列をCAS列、その近くで文字列が多い列を名称列とみなす
+  const casHits = {}, textHits = {};
+  rows.forEach(r => r.forEach((c, i) => {
+    if(CAS_ONLY.test(normCas(c))) casHits[i] = (casHits[i] || 0) + 1;
+    else if(c && !/^[\d.,\-\s]+$/.test(c)) textHits[i] = (textHits[i] || 0) + 1;
+  }));
+  const keys = Object.keys(casHits);
+  const ci = keys.length ? Number(keys.reduce((a, b) => casHits[a] >= casHits[b] ? a : b)) : 0;
+  const tkeys = Object.keys(textHits);
+  const ni = tkeys.length
+    ? Number(tkeys.reduce((a, b) => (textHits[a] - Math.abs(a - ci) * 3) >= (textHits[b] - Math.abs(b - ci) * 3) ? a : b))
+    : -1;
+  let firstData = rows.findIndex(r => CAS_ONLY.test(normCas(r[ci] || "")));
+  if(firstData < 0) firstData = 1;
+
+  msImp = {name: file.name, rows};
+  const width = rows.reduce((m, r) => Math.max(m, r.length), 0);
+  const opts = sel => { let h = sel === "name" ? '<option value="-1">（使わない）</option>' : "";
+    for(let i = 0; i < width; i++){
+      const sample = (rows[firstData] || [])[i] || (rows[Math.max(0, firstData - 1)] || [])[i] || "";
+      h += `<option value="${i}">${esc(colLetter(i))} 列　${esc(String(sample).slice(0, 18))}</option>`;
+    }
+    return h; };
+  $("#msImpCas").innerHTML = opts("cas");  $("#msImpCas").value = String(ci);
+  $("#msImpName").innerHTML = opts("name"); $("#msImpName").value = String(ni);
+  $("#msImpHead").value = String(firstData);
+  $("#msImpSet").innerHTML = IMP_SET_FIELDS.map(([col, vals]) =>
+    `<div class="field"><label>${esc(col)}</label><select data-impset="${esc(col)}">
+       <option value="">変更しない</option>
+       ${vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("")}
+     </select></div>`).join("");
+  $("#msImpByHeader").checked = (rows[Math.max(0, firstData - 1)] || []).some(h => /安衛法|特化則|有機則|化管法|毒劇/.test(String(h)));
+  $("#msImpFile").textContent = file.name;
+  $("#msImpDetect").textContent =
+    `${rows.length}行を読み込みました。CAS番号らしい値が ${colLetter(ci)} 列に ${casHits[ci] || 0} 件あります。違っていれば下で選び直してください。`;
+  $("#msImportPanel").hidden = false;
+  renderImpPreview();
+  $("#msImportPanel").scrollIntoView({block:"start", behavior:"smooth"});
+}
+
+function impTable(){
+  const cols = ["CAS番号", "物質名"], setVals = {};
+  $$("[data-impset]").forEach(sel => {
+    if(!sel.value) return;
+    const c = sel.dataset.impset;
+    cols.push(c); setVals[c] = (sel.value === "該当なし" ? "" : sel.value);
+  });
+  const headRow = Math.max(0, Number($("#msImpHead").value) || 0);
+  const head = headRow > 0 ? (msImp.rows[headRow - 1] || []) : [];
+  const headerMap = {};
+  if($("#msImpByHeader").checked) head.forEach((h, i) => {
+    const k = String(h).replace(/\s/g, "");
+    MS_COLS.forEach(([name]) => {
+      if(name !== "CAS番号" && name !== "物質名" && name !== "出所" && k && k.indexOf(name) >= 0) headerMap[name] = i;
+    });
+  });
+  Object.keys(headerMap).forEach(n => { if(cols.indexOf(n) < 0) cols.push(n); });
+
+  const ci = Number($("#msImpCas").value), ni = Number($("#msImpName").value);
+  const out = [cols], seen = {};
+  msImp.rows.forEach((r, idx) => {
+    if(idx < headRow) return;
+    const cas = normCas(r[ci] || "");
+    if(!CAS_ONLY.test(cas) || seen[cas]) return;
+    seen[cas] = 1;
+    out.push(cols.map(c => {
+      if(c === "CAS番号") return cas;
+      if(c === "物質名")  return ni >= 0 ? String(r[ni] || "").trim() : "";
+      if(setVals[c] !== undefined) return setVals[c];
+      if(headerMap[c] !== undefined) return String(r[headerMap[c]] || "");
+      return "";
+    }));
+  });
+  return out;
+}
+
+function renderImpPreview(){
+  if(!msImp) return;
+  const t = impTable(), cols = t[0], data = t.slice(1);
+  const known = {};
+  MASTER.forEach(m => { if(m.cas && m.cas !== "-") known[m.cas] = 1; });
+  let add = 0, upd = 0;
+  data.forEach(r => known[r[0]] ? upd++ : add++);
+  const touched = cols.filter(c => c !== "CAS番号" && c !== "物質名");
+  $("#msImpPreview").innerHTML = `
+    <div class="callout ${data.length ? "" : "warn"}">
+      <b>${data.length}物質</b>を取り込みます（新規 ${add} / 既存を更新 ${upd}）。
+      ${touched.length ? `書き換わる項目は <b>${esc(touched.join("・"))}</b> です。他の項目の既存の値はそのまま残ります。`
+                       : "設定する区分を選んでいないため、物質名の補完だけを行います。"}
+      ${data.length ? "" : "<br>CAS番号の列が正しく選ばれているか、見出し行の指定を確認してください。"}
+    </div>
+    ${data.length ? `<div class="tw" style="margin-top:10px"><table>
+      <thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join("")}<th>状態</th></tr></thead>
+      <tbody>${data.slice(0, 6).map(r => `<tr>${r.map((v, i) =>
+        `<td${i === 0 ? ' class="mono"' : ""}>${esc(v)}</td>`).join("")}
+        <td>${known[r[0]] ? '<span class="pill p-info">更新</span>' : '<span class="pill p-ok">新規</span>'}</td></tr>`).join("")}
+      </tbody></table>${data.length > 6 ? `<p class="hint" style="padding:6px 2px">先頭6件を表示しています</p>` : ""}</div>` : ""}`;
+}
+
+function jsMaster(){
+  return "/* 化学物質法令チェック台帳 物質マスタ\n" +
+         "   chemical-compliance.html と同じフォルダに置いてください。\n" +
+         "   ファイルを直接開く場合は、ブラウザの制約によりCSVではなくこのファイルが読み込まれます。 */\n" +
+         "window.CHEM_MASTER_CSV = " + JSON.stringify(csvMaster().replace(/^\uFEFF/, "")) + ";\n";
+}
+
+function renderShoboRef(){
+  const tb = $("#shoboRef"); if(!tb || tb.dataset.done) return;
+  const rows = [];
+  for(let i=0; i<SHOBO.length; i+=2){
+    const a = SHOBO[i], b = SHOBO[i+1];
+    rows.push(`<tr><td class="mono" style="font-size:11.5px">${esc(a.label)}</td><td class="num">${a.qty}${a.unit}</td>` +
+      (b ? `<td class="mono" style="font-size:11.5px">${esc(b.label)}</td><td class="num">${b.qty}${b.unit}</td>` : "<td></td><td></td>") + "</tr>");
+  }
+  tb.innerHTML = rows.join(""); tb.dataset.done = "1";
+}
+
 function renderMaster(){
+  renderShoboRef();
   const n = f => MASTER.filter(f).length;
   $("#masterStats").innerHTML = [
     ["収録物質", MASTER.length],
@@ -1841,7 +2123,7 @@ function renderMaster(){
     ? `<div class="callout"><b>この画面では自動読み込みは使えません。</b>
         claude.ai上では枠外への通信が遮断されており、同じフォルダという概念もないため、
         <b>chem-master.csv / chem-master.js の自動読み込みと、URL指定での取得は働きません</b>。
-        下の<b>「CSVで取り込み」「ドラッグ&amp;ドロップ」「貼り付けて取り込む」</b>のいずれかで取り込んでください。
+        下の<b>「Excel・CSVを取り込み」「ドラッグ&amp;ドロップ」「貼り付けて取り込む」</b>のいずれかで取り込んでください。
         取り込んだ内容はこのブラウザに保存され、次に開いたときも残ります。
         自動読み込みを使いたい場合は、HTMLファイルを社内サーバに置くか、手元に保存して直接開いてください。</div>`
     : "";
@@ -1903,9 +2185,10 @@ async function download(filename, text){
     try{ await canDownload.save({filename, data:text}); toast("保存しました"); return; }
     catch(err){
       const code = err && err.code;
-      if(code==="rejected_extension" && /\.ics$/.test(filename)){
-        try{ await canDownload.save({filename:filename.replace(/\.ics$/,".txt"), data:text});
-             toast("この画面では .txt で保存されます。ファイル名を .ics に変えてから取り込んでください。"); return; }catch(e){}
+      const ext = (filename.match(/\.[^.]+$/) || [""])[0];
+      if(code==="rejected_extension" && ext){
+        try{ await canDownload.save({filename:filename.replace(/\.[^.]+$/, ".txt"), data:text});
+             toast(`この画面では ${ext} で保存できないため .txt で保存します。拡張子を ${ext} に変えてお使いください。`); return; }catch(e){}
       }
       if(code==="declined") return;
       toast("保存できませんでした" + (err&&err.message?"："+err.message:""));
@@ -2180,12 +2463,6 @@ function bind(){
     $("#msUrl").value = ""; save(); renderMaster(); toast("参照元URLを消しました");
   });
 
-  const readCsvFile = f => {
-    const r = new FileReader();
-    r.onload = () => { try{ importMasterCsv(String(r.result)); }
-                       catch(err){ toast("取り込めませんでした：" + err.message); } };
-    r.readAsText(f, "UTF-8");
-  };
   const panel = $("#panel-master");
   ["dragenter","dragover"].forEach(ev => panel.addEventListener(ev, e => {
     if(!e.dataTransfer || ![...e.dataTransfer.types].includes("Files")) return;
@@ -2198,9 +2475,9 @@ function bind(){
   panel.addEventListener("drop", e => {
     if(!e.dataTransfer || !e.dataTransfer.files.length) return;
     e.preventDefault();
-    const f = [...e.dataTransfer.files].find(x => /\.csv$/i.test(x.name)) || e.dataTransfer.files[0];
-    if(!/\.csv$/i.test(f.name)) return toast("CSVファイルを置いてください");
-    readCsvFile(f);
+    const f = [...e.dataTransfer.files].find(x => /\.(csv|xlsx|xlsm)$/i.test(x.name)) || e.dataTransfer.files[0];
+    if(!/\.(csv|xlsx|xlsm)$/i.test(f.name)) return toast("CSVまたはExcelのファイルを置いてください");
+    openImportPanel(f);
   });
 
   $("#btnMsPaste").addEventListener("click", () => {
@@ -2217,11 +2494,22 @@ function bind(){
 
   $("#btnMsImport").addEventListener("click", ()=>$("#fileMs").click());
   $("#fileMs").addEventListener("change", e => {
-    const f = e.target.files[0]; if(!f) return;
-    const r = new FileReader();
-    r.onload = () => { try{ importMasterCsv(String(r.result)); }
-                       catch(err){ toast("取り込めませんでした：" + err.message); } };
-    r.readAsText(f, "UTF-8"); e.target.value = "";
+    const f = e.target.files[0]; if(f) openImportPanel(f);
+    e.target.value = "";
+  });
+  $("#btnMsExportJs").addEventListener("click", () => download("chem-master.js", jsMaster()));
+  ["#msImpCas","#msImpName","#msImpHead"].forEach(sel =>
+    $(sel).addEventListener("change", renderImpPreview));
+  $("#msImpHead").addEventListener("input", renderImpPreview);
+  $("#msImpByHeader").addEventListener("change", renderImpPreview);
+  $("#msImpSet").addEventListener("change", renderImpPreview);
+  $("#msImpCancel").addEventListener("click", () => { $("#msImportPanel").hidden = true; msImp = null; });
+  $("#msImpApply").addEventListener("click", () => {
+    if(!msImp) return;
+    const t = impTable();
+    if(t.length < 2) return toast("取り込める行がありません。CAS番号の列と見出し行を確認してください");
+    const r = importMasterCsv(toCsv(t));
+    if(r){ $("#msImportPanel").hidden = true; msImp = null; }
   });
   $("#btnMsReset").addEventListener("click", async () => {
     const cnt = (state.userSubs||[]).length;
