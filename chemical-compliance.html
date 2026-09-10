@@ -22,6 +22,7 @@
   --accent:#1f3f73;
   --accent-2:#33609f;
   --accent-soft:#e4ebf7;
+  --on-accent:#ffffff;
   --ok:#2a6b48;
   --ok-soft:#e0efe6;
   --warn:#95650a;
@@ -48,6 +49,7 @@
     --accent:#82abec;
     --accent-2:#a2c2f4;
     --accent-soft:#182741;
+    --on-accent:#0d1117;
     --ok:#71c295;
     --ok-soft:#14271d;
     --warn:#dfb257;
@@ -61,7 +63,7 @@
 :root[data-theme="dark"]{
   --paper:#0d1117; --surface:#151c26; --surface-2:#1c2531; --surface-3:#26313f;
   --ink:#e7ecf5; --ink-2:#b9c4d6; --muted:#8e9bb2; --line:#2a3542; --line-2:#3b4859;
-  --accent:#82abec; --accent-2:#a2c2f4; --accent-soft:#182741;
+  --accent:#82abec; --accent-2:#a2c2f4; --accent-soft:#182741; --on-accent:#0d1117;
   --ok:#71c295; --ok-soft:#14271d; --warn:#dfb257; --warn-soft:#2c2413;
   --crit:#f0879b; --crit-soft:#2e141a; --grid:rgba(130,171,236,.09);
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.8);
@@ -182,10 +184,8 @@ textarea{resize:vertical; min-height:56px}
 
 .btn{
   appearance:none; cursor:pointer; border-radius:6px; padding:8px 14px; font-size:13px;
-  border:1px solid var(--accent); background:var(--accent); color:#fff; font-weight:700;
+  border:1px solid var(--accent); background:var(--accent); color:var(--on-accent); font-weight:700;
 }
-:root[data-theme="dark"] .btn, :root:not([data-theme="light"]) .btn{color:#0d1117}
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn{color:#fff}}
 .btn:hover{background:var(--accent-2); border-color:var(--accent-2)}
 .btn.ghost{background:transparent; color:var(--accent); border-color:var(--line-2); font-weight:400}
 .btn.ghost:hover{background:var(--accent-soft); border-color:var(--accent)}
@@ -249,7 +249,13 @@ tr.sev-info td:first-child{border-left-color:var(--line-2)}
 .prod-hd .nm{font-weight:700; font-size:14px}
 .prod-hd .tags{display:flex; gap:5px; flex-wrap:wrap}
 .prod-bd{padding:14px; display:flex; flex-direction:column; gap:14px}
+.comp{margin-bottom:9px}
 .comp-row{display:grid; grid-template-columns:minmax(120px,1.1fr) minmax(140px,1.6fr) 90px 34px; gap:8px; align-items:start}
+.comp-hit{display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:4px; font-size:11px; color:var(--muted); line-height:1.6}
+.comp-hit .nm{color:var(--ink); font-weight:700; font-size:11.5px}
+.comp-hit .miss{color:var(--warn)}
+.comp-hit .use{border:1px solid var(--line-2); background:transparent; color:var(--accent); border-radius:4px; font-size:10.5px; padding:1px 7px; cursor:pointer}
+.comp-hit .use:hover{background:var(--accent-soft); border-color:var(--accent)}
 .comp-row .rm{border:1px solid var(--line-2); background:transparent; color:var(--muted); border-radius:5px; cursor:pointer; height:33px}
 .comp-row .rm:hover{color:var(--crit); border-color:var(--crit)}
 @media (max-width:620px){.comp-row{grid-template-columns:1fr 1fr 80px 34px}}
@@ -611,8 +617,18 @@ const M_ROWS=[
 ["-","切削油(水溶性)",2,2,0,"","",0,0,"?","","","","",0,0,0,"配合成分のSDSで個別に判定が必要"]
 ];
 const MASTER = M_ROWS.map(r => Object.fromEntries(M_KEYS.map((k,i)=>[k,r[i]])));
-const MASTER_BY_CAS = {};
-MASTER.forEach(m => { if(m.cas && m.cas!=="-") MASTER_BY_CAS[m.cas] = m; });
+const MASTER_BY_CAS = {}, MASTER_BY_NAME = {};
+MASTER.forEach(m => { if(m.cas && m.cas!=="-") MASTER_BY_CAS[m.cas] = m; MASTER_BY_NAME[m.name] = m; });
+/* CAS番号の表記ゆれ（全角数字・各種ハイフン・空白）を吸収してから照合する */
+function normCas(v){
+  return String(v==null?"":v)
+    .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+    .replace(/[\u2010-\u2015\u2212\uFF0D\u30FC\u2043]/g, "-")
+    .replace(/[\s\u3000]/g, "");
+}
+const lookupCas  = v => MASTER_BY_CAS[normCas(v)] || null;
+const lookupName = v => MASTER_BY_NAME[String(v==null?"":v).trim()] || null;
+const resolveComp = c => (c ? (lookupCas(c.cas) || lookupName(c.name)) : null);
 
 /* ---------- 消防法 指定数量 ---------- */
 const SHOBO = [
@@ -827,7 +843,7 @@ function analyze(st){
     const kg = Number(p.annualKg)||0;
     (p.comps||[]).forEach(c => {
       const pct = Number(c.pct)||0;
-      const m = MASTER_BY_CAS[(c.cas||"").trim()] || MASTER.find(x => x.name === (c.name||"").trim()) || null;
+      const m = resolveComp(c);
       const label = (m ? m.name : (c.name || c.cas || "名称未入力"));
       const src = `${label}（${p.name}に${pct}%）`;
       if(!m){
@@ -1175,12 +1191,44 @@ function renderSite(){
 }
 
 const SHOBO_OPTS = `<option value="">危険物に該当しない</option>` + SHOBO.map(s=>`<option value="${esc(s.key)}">${esc(s.label)}（${s.qty}${s.unit}）</option>`).join("");
-const CAS_DATALIST = `<datalist id="casList">${MASTER.map(m=>`<option value="${esc(m.cas)}">${esc(m.name)}</option>`).join("")}</datalist>`;
+const CAS_DATALIST =
+  `<datalist id="casList">${MASTER.filter(m=>m.cas&&m.cas!=="-").map(m=>`<option value="${esc(m.cas)}">${esc(m.name)}</option>`).join("")}</datalist>` +
+  `<datalist id="nameList">${MASTER.map(m=>`<option value="${esc(m.name)}">${esc(m.cas==="-"?"CAS番号なし":m.cas)}</option>`).join("")}</datalist>`;
+
+/* 成分1行ぶんの照合結果。CAS番号を打った瞬間に何の法令に当たるかを返す */
+function compHit(c){
+  if(!(c.cas||"").trim() && !(c.name||"").trim()) return "";
+  const m = resolveComp(c);
+  if(!m) return `<span class="miss">マスタ未収録です。SDS第15項の適用法令を確認し、要確認として扱われます。</span>`;
+  const b = [`<span class="nm">${esc(m.name)}</span>`];
+  const add = (cls,txt) => b.push(`<span class="pill ${cls}">${esc(txt)}</span>`);
+  if(m.tokka) add("p-crit", "特化則 " + (m.tokka==="2S"?"第2類 特別管理物質":m.tokka==="2T"?"第2類 特定第2類":m.tokka==="2K"?"第2類 管理第2類":m.tokka==="3"?"第3類":"第"+m.tokka+"類"));
+  if(m.yuki) add("p-warn", "有機則 第"+m.yuki+"種");
+  if(m.lead===1) add("p-crit","鉛則");
+  if(m.dust===1) add("p-warn","粉じん則");
+  if(m.doku) add("p-crit", m.doku+"物");
+  if(m.kakan==="1T") add("p-crit","化管法 特定第一種");
+  else if(m.kakan==="1") add("p-info","化管法 第一種");
+  else if(m.kakan==="2") add("p-info","化管法 第二種");
+  else if(m.kakan==="?") add("p-mute","化管法 要確認");
+  if(m.shi && SHOBO_BY_KEY[m.shi]) add("p-warn", "消防法 " + SHOBO_BY_KEY[m.shi].label.replace(/^第\d類 /,""));
+  if(m.sui===1) add("p-info","水濁法 有害物質");
+  if(m.cancer===1) add("p-crit","がん原性");
+  if(m.skin===1) add("p-warn","皮膚等障害");
+  if(m.kashin==="1特") add("p-crit","化審法 第一種特定");
+  if(m.an===1 && !m.tokka && !m.yuki) add("p-info","安衛法 対象物");
+  if(m.an===2) add("p-mute","安衛法 要確認");
+  if(m.note) b.push(`<span>${esc(m.note)}</span>`);
+  const typed = (c.name||"").trim();
+  if(typed && typed !== m.name)
+    b.push(`<span class="miss">入力名がマスタと異なります</span><button type="button" class="use" data-usename="${esc(m.name)}">「${esc(m.name)}」にする</button>`);
+  return b.join(" ");
+}
 
 function prodTags(p){
   const t=[]; let anyTokka=false, anyYuki=false, anyDoku="", anyKakan=false, unknown=false;
   (p.comps||[]).forEach(c=>{
-    const m = MASTER_BY_CAS[(c.cas||"").trim()] || MASTER.find(x=>x.name===(c.name||"").trim());
+    const m = resolveComp(c);
     if(!m){ unknown=true; return; }
     const pct=Number(c.pct)||0;
     if(m.tokka && pct>1) anyTokka=true;
@@ -1224,12 +1272,15 @@ function renderProducts(){
         </div>
         <div>
           <p class="sec-label">成分（SDS第3項）</p>
-          <div class="comp-row" style="color:var(--muted);font-size:11px"><span>CAS番号</span><span>成分名</span><span>含有率 %</span><span></span></div>
-          ${(p.comps||[]).map((c,i)=>`<div class="comp-row" data-ci="${i}" style="margin-bottom:6px">
-            <input type="text" list="casList" data-cf="cas" value="${esc(c.cas||"")}" placeholder="108-88-3">
-            <input type="text" data-cf="name" value="${esc(c.name||"")}" placeholder="トルエン">
-            <input type="number" data-cf="pct" min="0" max="100" step="0.1" value="${c.pct||0}">
-            <button class="rm" data-delcomp="${i}" type="button" title="この成分を削除">×</button>
+          <div class="comp-row" style="color:var(--muted);font-size:11px;margin-bottom:4px"><span>CAS番号</span><span>成分名（自動入力）</span><span>含有率 %</span><span></span></div>
+          ${(p.comps||[]).map((c,i)=>`<div class="comp" data-ci="${i}">
+            <div class="comp-row">
+              <input type="text" list="casList" data-cf="cas" value="${esc(c.cas||"")}" placeholder="108-88-3" autocomplete="off" spellcheck="false">
+              <input type="text" list="nameList" data-cf="name" value="${esc(c.name||"")}" placeholder="CAS番号から自動入力" autocomplete="off">
+              <input type="number" data-cf="pct" min="0" max="100" step="0.1" value="${c.pct||0}">
+              <button class="rm" data-delcomp="${i}" type="button" title="この成分を削除">×</button>
+            </div>
+            <div class="comp-hit">${compHit(c)}</div>
           </div>`).join("")}
           <button class="btn ghost" data-addcomp="${p.id}" type="button" style="margin-top:4px">＋ 成分を追加</button>
         </div>
@@ -1340,7 +1391,7 @@ function importProductCsv(text){
       use:"", annualKg:iKg>=0?Number(c[iKg])||0:0, stockQty:iStock>=0?Number(c[iStock])||0:0,
       shobo:iShobo>=0&&SHOBO_BY_KEY[c[iShobo]]?c[iShobo]:"", comps:[]});
     const cas=(c[iCas]||"").trim();
-    if(cas || (iComp>=0&&c[iComp])) map.get(nm).comps.push({cas, name:iComp>=0?c[iComp]:(MASTER_BY_CAS[cas]?MASTER_BY_CAS[cas].name:""), pct:iPct>=0?Number(c[iPct])||0:0});
+    if(cas || (iComp>=0&&c[iComp])) map.get(nm).comps.push({cas:normCas(cas), name:(iComp>=0&&c[iComp])?c[iComp]:(lookupCas(cas)?lookupCas(cas).name:""), auto:!(iComp>=0&&c[iComp]), pct:iPct>=0?Number(c[iPct])||0:0});
   });
   state.products = state.products.concat([...map.values()]); state.sample = false;
   refresh(true); toast(`${map.size}件の化学品を取り込みました`);
@@ -1381,14 +1432,47 @@ function bind(){
     state.sample = false;
     if(t.dataset.pf){ p[t.dataset.pf] = t.type==="number" ? Number(t.value)||0 : t.value; refresh(false); }
     else if(t.dataset.cf){
-      const i = Number(t.closest("[data-ci]").dataset.ci); const c = p.comps[i]; if(!c) return;
-      c[t.dataset.cf] = t.dataset.cf==="pct" ? Number(t.value)||0 : t.value;
-      if(t.dataset.cf==="cas" && MASTER_BY_CAS[t.value.trim()] && !c.name){
-        c.name = MASTER_BY_CAS[t.value.trim()].name;
-        const nf = t.closest("[data-ci]").querySelector('[data-cf="name"]'); if(nf) nf.value = c.name;
+      const wrap = t.closest("[data-ci]"); if(!wrap) return;
+      const c = p.comps[Number(wrap.dataset.ci)]; if(!c) return;
+      const f = t.dataset.cf;
+      c[f] = f==="pct" ? Number(t.value)||0 : t.value;
+
+      if(f==="cas"){
+        // CAS番号がマスタに当たったら成分名を自動で入れる。
+        // 手で書き換えられた名称は上書きしない（c.autoが立っている間だけ追従する）
+        const m = lookupCas(t.value);
+        if(m && (!(c.name||"").trim() || c.auto)){
+          c.name = m.name; c.auto = true;
+          const nf = wrap.querySelector('[data-cf="name"]'); if(nf) nf.value = c.name;
+        }
+      } else if(f==="name"){
+        c.auto = false;
+        const m = lookupName(t.value);
+        if(m && m.cas && m.cas!=="-" && !normCas(c.cas)){
+          c.cas = m.cas;
+          const cf = wrap.querySelector('[data-cf="cas"]'); if(cf) cf.value = c.cas;
+        }
       }
+      const hit = wrap.querySelector(".comp-hit"); if(hit) hit.innerHTML = compHit(c);
+      const tags = host.querySelector(".prod-hd .tags"); if(tags) tags.innerHTML = prodTags(p);
       refresh(false);
     }
+  });
+  $("#prodList").addEventListener("focusout", e => {
+    const t = e.target;
+    if(!t.dataset || t.dataset.cf!=="cas") return;
+    const n = normCas(t.value);
+    if(n === t.value) return;
+    const wrap = t.closest("[data-ci]"), p = prodOf(t); if(!wrap || !p) return;
+    const c = p.comps[Number(wrap.dataset.ci)]; if(!c) return;
+    t.value = n; c.cas = n;
+    const m = lookupCas(n);
+    if(m && (!(c.name||"").trim() || c.auto)){
+      c.name = m.name; c.auto = true;
+      const nf = wrap.querySelector('[data-cf="name"]'); if(nf) nf.value = c.name;
+    }
+    const hit = wrap.querySelector(".comp-hit"); if(hit) hit.innerHTML = compHit(c);
+    refresh(false);
   });
   $("#prodList").addEventListener("change", e => {
     const t = e.target; if(!t.dataset.pf || t.tagName!=="SELECT") return;
@@ -1402,9 +1486,18 @@ function bind(){
       if(!confirm(`「${p?p.name:""}」を台帳から削除します。よろしいですか。`)) return;
       state.products = state.products.filter(x=>x.id!==b.dataset.delprod); state.sample=false; refresh(true);
     }
+    if(b.dataset.usename){
+      const p = prodOf(b), wrap = b.closest("[data-ci]");
+      const c = p && wrap ? p.comps[Number(wrap.dataset.ci)] : null; if(!c) return;
+      c.name = b.dataset.usename; c.auto = true;
+      const nf = wrap.querySelector('[data-cf="name"]'); if(nf) nf.value = c.name;
+      wrap.querySelector(".comp-hit").innerHTML = compHit(c);
+      const tags = b.closest("[data-pid]").querySelector(".prod-hd .tags"); if(tags) tags.innerHTML = prodTags(p);
+      state.sample=false; refresh(false);
+    }
     if(b.dataset.addcomp){
       const p = state.products.find(x=>x.id===b.dataset.addcomp);
-      p.comps = p.comps||[]; p.comps.push({cas:"",name:"",pct:0}); state.sample=false; refresh(true);
+      p.comps = p.comps||[]; p.comps.push({cas:"",name:"",pct:0,auto:true}); state.sample=false; refresh(true);
     }
     if(b.dataset.delcomp!==undefined && b.dataset.delcomp!==""){
       const p = prodOf(b); p.comps.splice(Number(b.dataset.delcomp),1); state.sample=false; refresh(true);
@@ -1423,7 +1516,7 @@ function bind(){
   ["#filterCat","#filterLaw","#filterStat"].forEach(s => $(s).addEventListener("change", () => renderTasks(window.__tasks||[])));
 
   $("#btnAddProd").addEventListener("click", () => {
-    state.products.push({id:uid(), name:"", maker:"", sdsDate:"", use:"", annualKg:0, stockQty:0, shobo:"", comps:[{cas:"",name:"",pct:0}]});
+    state.products.push({id:uid(), name:"", maker:"", sdsDate:"", use:"", annualKg:0, stockQty:0, shobo:"", comps:[{cas:"",name:"",pct:0,auto:true}]});
     state.sample=false; refresh(true);
     const list=$("#prodList").lastElementChild; if(list) list.scrollIntoView({block:"center"});
   });
