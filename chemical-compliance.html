@@ -288,7 +288,25 @@ tr.sev-info td:first-child{border-left-color:var(--line-2)}
   position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
   background:var(--ink); color:var(--paper); padding:9px 18px; border-radius:6px;
   font-size:13px; box-shadow:var(--shadow); z-index:60;
+  display:flex; gap:14px; align-items:center; max-width:calc(100vw - 32px);
 }
+.toast-act{
+  border:1px solid currentColor; background:transparent; color:inherit;
+  border-radius:5px; padding:2px 10px; font-size:12px; cursor:pointer; white-space:nowrap;
+}
+.toast-act:hover{background:rgba(128,128,128,.25)}
+
+/* 確認は必ずページ内で行う。サンドボックス下ではブラウザのconfirmが無視されるため */
+dialog{
+  border:1px solid var(--line-2); border-radius:10px; padding:0; color:var(--ink);
+  background:var(--surface); max-width:min(470px, calc(100vw - 32px));
+  box-shadow:0 20px 54px -22px rgba(0,0,0,.55);
+}
+dialog::backdrop{background:rgba(10,14,20,.5)}
+.dlg-bd{padding:20px 22px 4px; display:flex; flex-direction:column; gap:9px}
+.dlg-bd h3{font-family:var(--serif); font-size:18px; font-weight:400}
+.dlg-bd p{font-size:13px; color:var(--ink-2); line-height:1.8}
+.dlg-ft{display:flex; gap:10px; justify-content:flex-end; padding:16px 22px 18px}
 
 @media print{
   .tabs,.masthead .mast-meta,.btnrow,.no-print{display:none !important}
@@ -514,6 +532,17 @@ tr.sev-info td:first-child{border-left-color:var(--line-2)}
   </section>
 
 </main>
+
+<dialog id="confirmDlg" aria-labelledby="confirmTitle">
+  <div class="dlg-bd">
+    <h3 id="confirmTitle">確認</h3>
+    <p id="confirmMsg"></p>
+  </div>
+  <div class="dlg-ft">
+    <button class="btn ghost" id="confirmCancel" type="button">やめる</button>
+    <button class="btn" id="confirmOk" type="button">削除する</button>
+  </div>
+</dialog>
 
 <footer class="foot"><div class="wrap">
   <p><b>この台帳の位置づけ。</b> 法令の該当判定を機械的に行い、対応漏れを可視化するための実務ツールです。最終的な適法性の判断、所轄官庁への確認、専門家（衛生管理者・作業環境測定士・危険物取扱者・行政書士等）への相談に代わるものではありません。</p>
@@ -1048,9 +1077,38 @@ function save(){
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function toast(msg){
-  const el = document.createElement("div"); el.className="toast"; el.textContent=msg;
-  document.body.appendChild(el); setTimeout(()=>el.remove(), 3200);
+let toastTimer = null;
+function toast(msg, undo){
+  clearTimeout(toastTimer);
+  const prev = document.querySelector(".toast"); if(prev) prev.remove();
+  const el = document.createElement("div"); el.className="toast";
+  const txt = document.createElement("span"); txt.textContent = msg; el.appendChild(txt);
+  if(undo){
+    const b = document.createElement("button");
+    b.type="button"; b.className="toast-act"; b.textContent="元に戻す";
+    b.addEventListener("click", () => { clearTimeout(toastTimer); el.remove(); undo(); });
+    el.appendChild(b);
+  }
+  document.body.appendChild(el);
+  toastTimer = setTimeout(()=>el.remove(), undo ? 9000 : 3200);
+}
+
+/* ブラウザのconfirmはサンドボックス化されたiframeでは無視され undefined を返す。
+   戻り値で分岐すると必ず中断されてしまうため、確認は常にページ内で行う。 */
+let confirmResolve = null;
+function askConfirm(msg, okLabel){
+  const dlg = $("#confirmDlg");
+  $("#confirmMsg").textContent = msg;
+  $("#confirmOk").textContent = okLabel || "削除する";
+  if(typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open","");
+  setTimeout(()=>$("#confirmCancel").focus(), 0);
+  return new Promise(res => { confirmResolve = res; });
+}
+function closeConfirm(v){
+  const dlg = $("#confirmDlg");
+  if(typeof dlg.close === "function"){ try{ dlg.close(); }catch(e){ dlg.removeAttribute("open"); } }
+  else dlg.removeAttribute("open");
+  const r = confirmResolve; confirmResolve = null; if(r) r(v);
 }
 const SEV_PILL = {crit:'<span class="pill p-crit">要対応</span>', warn:'<span class="pill p-warn">期限接近</span>',
                   ok:'<span class="pill p-ok">適合</span>', info:'<span class="pill p-info">随時</span>'};
@@ -1479,12 +1537,17 @@ function bind(){
     const p = prodOf(t); if(!p) return;
     p[t.dataset.pf] = t.value; state.sample=false; refresh(true);
   });
-  $("#prodList").addEventListener("click", e => {
+  $("#prodList").addEventListener("click", async e => {
     const b = e.target.closest("button"); if(!b) return;
     if(b.dataset.delprod){
-      const p = state.products.find(x=>x.id===b.dataset.delprod);
-      if(!confirm(`「${p?p.name:""}」を台帳から削除します。よろしいですか。`)) return;
-      state.products = state.products.filter(x=>x.id!==b.dataset.delprod); state.sample=false; refresh(true);
+      const i = state.products.findIndex(x=>x.id===b.dataset.delprod); if(i<0) return;
+      const nm = state.products[i].name || "（名称未入力）";
+      const ok = await askConfirm(`「${nm}」を化学品台帳から削除します。この化学品を根拠とする法令判定とチェック項目も消えます。`, "削除する");
+      if(!ok) return;
+      const removed = state.products.splice(i,1)[0];
+      state.sample=false; refresh(true);
+      toast(`「${nm}」を削除しました`, () => { state.products.splice(i,0,removed); refresh(true); });
+      return;
     }
     if(b.dataset.usename){
       const p = prodOf(b), wrap = b.closest("[data-ci]");
@@ -1500,7 +1563,13 @@ function bind(){
       p.comps = p.comps||[]; p.comps.push({cas:"",name:"",pct:0,auto:true}); state.sample=false; refresh(true);
     }
     if(b.dataset.delcomp!==undefined && b.dataset.delcomp!==""){
-      const p = prodOf(b); p.comps.splice(Number(b.dataset.delcomp),1); state.sample=false; refresh(true);
+      const p = prodOf(b); if(!p) return;
+      const i = Number(b.dataset.delcomp);
+      const removed = p.comps.splice(i,1)[0]; if(!removed) return;
+      state.sample=false; refresh(true);
+      toast(`成分「${removed.name || removed.cas || "（未入力）"}」を削除しました`,
+            () => { p.comps.splice(i,0,removed); refresh(true); });
+      return;
     }
   });
 
@@ -1515,14 +1584,22 @@ function bind(){
   });
   ["#filterCat","#filterLaw","#filterStat"].forEach(s => $(s).addEventListener("change", () => renderTasks(window.__tasks||[])));
 
+  $("#confirmOk").addEventListener("click", ()=>closeConfirm(true));
+  $("#confirmCancel").addEventListener("click", ()=>closeConfirm(false));
+  $("#confirmDlg").addEventListener("cancel", e => { e.preventDefault(); closeConfirm(false); });
+  $("#confirmDlg").addEventListener("click", e => { if(e.target === $("#confirmDlg")) closeConfirm(false); });
+
   $("#btnAddProd").addEventListener("click", () => {
     state.products.push({id:uid(), name:"", maker:"", sdsDate:"", use:"", annualKg:0, stockQty:0, shobo:"", comps:[{cas:"",name:"",pct:0,auto:true}]});
     state.sample=false; refresh(true);
     const list=$("#prodList").lastElementChild; if(list) list.scrollIntoView({block:"center"});
   });
-  $("#btnClearSample").addEventListener("click", () => {
-    if(!confirm("サンプルデータを全て消して、空の台帳から始めます。よろしいですか。")) return;
-    state = emptyState(); refresh(true); renderSite(); toast("空の台帳にしました");
+  $("#btnClearSample").addEventListener("click", async () => {
+    const ok = await askConfirm("サンプルデータを全て消して、空の台帳から始めます。事業場の条件も初期化されます。", "消して始める");
+    if(!ok) return;
+    const backup = state;
+    state = emptyState(); refresh(true); renderSite();
+    toast("空の台帳にしました", () => { state = backup; refresh(true); renderSite(); });
   });
   $("#btnImportCsv").addEventListener("click", ()=>$("#fileCsv").click());
   $("#fileCsv").addEventListener("change", e => {
