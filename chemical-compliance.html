@@ -109,6 +109,9 @@ button,input,select,textarea{font:inherit; color:inherit}
   font-size:12px; color:var(--ink-2); white-space:nowrap;
 }
 .chip b{font-family:var(--mono); font-weight:600; color:var(--ink)}
+.chip s{font-family:var(--mono); font-weight:500; color:var(--muted); text-decoration:none}
+button.chip{cursor:pointer; font-family:var(--sans); font-size:12px}
+button.chip:hover{background:var(--surface-3); border-color:var(--accent)}
 .iconbtn{
   border:1px solid var(--line-2); background:var(--surface-2); color:var(--ink-2);
   border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer;
@@ -337,6 +340,7 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
     </div>
     <div class="mast-meta">
       <span class="chip">事業場 <b id="chipSite">—</b></span>
+      <button class="chip" id="chipMaster" type="button" title="物質マスタを開く">物質マスタ <b>—</b></button>
       <span class="chip">保存先 <b id="chipStore">—</b></span>
       <button class="iconbtn" id="btnTheme" type="button" title="表示テーマを切り替え">◐ テーマ</button>
     </div>
@@ -1743,6 +1747,12 @@ function applyLocalMasterScript(){
   save(); renderMaster();
   return true;
 }
+function announceAutoLoad(){
+  const src = state.masterSrc;
+  if(!src || src.error) return;
+  const n = (src.added||0) + (src.updated||0);
+  toast(`${src.url} から${n}物質を読み込みました（物質マスタ 計${MASTER.length}物質）`);
+}
 async function autoLoadMaster(){
   const explicit = (state.masterUrl||"").trim();
 
@@ -1759,14 +1769,25 @@ async function autoLoadMaster(){
 
   // ② サーバから配信されているときは、同じ場所の chem-master.csv を読む
   if(/^https?:$/.test(location.protocol)){
-    try{ await fetchMasterCsv(DEFAULT_MASTER_CSV, {silent:true}); return; }
+    try{ await fetchMasterCsv(DEFAULT_MASTER_CSV, {silent:true}); announceAutoLoad(); return; }
     catch(e){ /* 置いていないのは正常。③へ */ }
   }
 
   // ③ 同じフォルダの chem-master.js（file:// で開いた場合はこれだけが使える）
   try{
-    if(await loadLocalMasterScript()){ applyLocalMasterScript(); }
+    if(await loadLocalMasterScript() && applyLocalMasterScript()) announceAutoLoad();
   }catch(e){ /* 置いていないのは正常。内蔵マスタで動く */ }
+}
+
+/* 取り込み状況はどのタブからでも見えるようにヘッダーに出す */
+function renderMasterChip(){
+  const el = $("#chipMaster"); if(!el) return;
+  const total = MASTER.length, imported = MASTER.filter(m => m.src === "追加").length;
+  el.innerHTML = `物質マスタ <b>${total}</b>` + (imported ? ` <s>取込 ${imported}</s>` : "");
+  const src = state.masterSrc;
+  el.title = src && src.error ? `取り込みに失敗しました：${src.error}（内蔵マスタで動作中）`
+           : src ? `${src.url} から取り込み済み　最終取得 ${String(src.at).slice(0,16).replace("T"," ")}`
+           : "内蔵マスタのみ。同じフォルダに chem-master.csv または chem-master.js を置くと自動で読み込みます";
 }
 
 function renderMaster(){
@@ -1824,13 +1845,14 @@ function renderMaster(){
   $("#msCount").textContent = `全${MASTER.length}物質中 ${list.length}件が該当` +
     (list.length>shown.length ? `（先頭${shown.length}件を表示。検索で絞り込んでください）` : "");
   $("#btnMsReset").hidden = !(state.userSubs && state.userSubs.length);
+  renderMasterChip();
 }
 
 function refresh(withProducts){
   A = analyze(state);
   const tasks = buildTasks(state, A);
   window.__tasks = tasks;
-  renderBand(tasks); renderDash(tasks); renderLaws(tasks); renderTasks(tasks);
+  renderBand(tasks); renderDash(tasks); renderLaws(tasks); renderTasks(tasks); renderMasterChip();
   if(withProducts) renderProducts();
   if(!$("#panel-master").hidden) renderMaster();
   save();
@@ -1954,6 +1976,10 @@ function bind(){
     $$(".panel").forEach(p => p.hidden = p.id !== "panel-"+b.dataset.tab);
     if(b.dataset.tab === "master") renderMaster();
   }));
+  $("#chipMaster").addEventListener("click", () => {
+    const tab = $$(".tab").find(x => x.dataset.tab === "master");
+    if(tab){ tab.click(); window.scrollTo({top:0, behavior:"smooth"}); }
+  });
   $("#btnTheme").addEventListener("click", () => {
     const cur = document.documentElement.getAttribute("data-theme");
     const next = cur==="dark" ? "light" : (cur==="light" ? null : "dark");
