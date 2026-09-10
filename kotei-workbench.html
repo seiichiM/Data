@@ -263,6 +263,11 @@ td.c-wbs{font-family:var(--font-num);font-size:10.5px;color:var(--ink3)}
 .grip{position:absolute;top:0;bottom:0;width:6px;cursor:ew-resize;z-index:3}
 .grip.l{left:-3px}
 .grip.r{right:-3px}
+.grip.sp{width:9px;z-index:6}
+.grip.sp.l{left:-4.5px}
+.grip.sp.r{right:-4.5px}
+.grip.sp::after{content:"";position:absolute;left:50%;margin-left:-1.5px;top:-2px;bottom:-2px;width:3px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 1px var(--panel);opacity:0;transition:opacity .12s}
+.barwrap:hover .grip.sp::after,.grip.sp:hover::after{opacity:.95}
 .link-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--panel);border:1.5px solid var(--accent);top:50%;margin-top:-4.5px;z-index:5;cursor:crosshair;opacity:0;transition:opacity .12s}
 .link-dot.l{left:-13px}
 .link-dot.r{right:-13px}
@@ -947,6 +952,11 @@ function segsOf(t,fr){
   return out.length?out:[{s:new Date(t._s),f:endFrom(t._s,dur,fr),n:dur}];
 }
 function isSplit(t){ return !!(t&&t._segs&&t._segs.length>1); }
+/* 分割バーのグリップ：左＝直前の中断の長さ、右＝分割位置 */
+function segGrips(si,nseg){
+  return (si>0?'<span class="grip l sp" data-grip="sl" data-seg="'+si+'" title="ドラッグで中断の長さを変更"></span>':"")+
+         (si<nseg-1?'<span class="grip r sp" data-grip="sr" data-seg="'+si+'" title="ドラッグで分割位置を変更"></span>':"");
+}
 function resById(id){ return D.resources.find(r=>r.id===id); }
 function taskCost(t){ if(t.isSummary||t.blank)return 0; const dur=Math.max(t.ms?0:1,t.dur|0);
   return (t.res||[]).reduce((a,x)=>{ const r=resById(x.id); return a+(r?r.rate*(x.units/100)*dur:0); },0); }
@@ -1148,6 +1158,11 @@ function axPos(d){
   return d.getTime()<RANGE.s.getTime()?0:AXI.n;
 }
 const X=d=>HM()?axPos(d)*U.dayW:dayDiff(RANGE.s,d)*U.dayW;
+/* X の逆写像：ガント上の x 座標 → その列の日時 */
+function XI(px){ const w=U.dayW||1, i=Math.round(px/w);
+  if(HM()){ if(!AXI||!AXI.slots.length)return new Date(RANGE.s);
+    return new Date(AXI.slots[clamp(i,0,AXI.slots.length-1)]); }
+  return addD(RANGE.s,i); }
 function timelineHTML(){
   const w=U.dayW;
   if(HM()){
@@ -1214,10 +1229,13 @@ function chartHTML(rows){
     if(t.__seg){ const o=t.__t, sg=o._segs[t.__i], sx=X(sg.s), ex=X(sg.f)+w;
       const dur=Math.max(1,o.dur|0); let acc=0; for(let k=0;k<t.__i;k++)acc+=o._segs[k].n;
       const sd=clamp(dur*(o.pct||0)/100-acc,0,sg.n), pr=sg.n?Math.round(sd/sg.n*100):0;
+      const lastSeg=t.__i===o._segs.length-1;
       bars+='<div class="row-hit'+(sel.has(o.id)?" sel":"")+'" data-row="'+o.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>'+
-        '<div class="bar task'+(U.showCritical&&o.critical?" crit":"")+(sel.has(o.id)?" sel":"")+'" data-tid="'+o.id+'" data-bar="task" data-seg="'+t.__i+'" '+
+        '<div class="bar task barwrap'+(U.showCritical&&o.critical?" crit":"")+(sel.has(o.id)?" sel":"")+'" data-tid="'+o.id+'" data-bar="task" data-seg="'+t.__i+'" '+
         'style="left:'+sx+'px;width:'+Math.max(3,ex-sx)+'px;top:'+(y+8)+'px;height:15px">'+
-        (pr>0?'<span class="prog" style="width:'+pr+'%"></span>':"")+'</div>';
+        (pr>0?'<span class="prog" style="width:'+pr+'%"></span>':"")+
+        (lastSeg?'<span class="grip r" data-grip="r"></span><span class="link-dot r" data-dot="r"></span>':"")+
+        segGrips(t.__i,o._segs.length)+'</div>';
       if(U.showLabel) lab+='<div class="bar-label" style="left:'+(ex+7)+'px;top:'+(y+9)+'px">'+esc(o.name)+'（'+(t.__i+1)+'/'+o._segs.length+'）</div>';
       return; }
     if(t.blank){ bars+='<div class="row-hit blank'+(sel.has(t.id)?" sel":"")+'" data-row="'+t.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>'; return; }
@@ -1240,17 +1258,18 @@ function chartHTML(rows){
       rects.set(t.id,{x1:x1,x2:x2,ym:y+15,y:y});
       const segs=(U.splitRows&&t._segs)?[t._segs[0]]:t._segs, cls='bar task barwrap'+(crit?" crit":"")+(sel.has(t.id)?" sel":"");
       if(segs){
-        const dur=Math.max(1,t.dur|0), doneU=dur*(t.pct||0)/100; let acc=0;
+        const dur=Math.max(1,t.dur|0), doneU=dur*(t.pct||0)/100, nseg=t._segs.length; let acc=0;
         segs.forEach((sg,si)=>{
           const sx=X(sg.s), ex=X(sg.f)+w, sw=Math.max(3,ex-sx);
           const segDone=clamp(doneU-acc,0,sg.n), pr=sg.n?Math.round(segDone/sg.n*100):0; acc+=sg.n;
           const first=si===0, last=si===segs.length-1&&!U.splitRows;
           if(si>0&&!U.splitRows){ const px=X(segs[si-1].f)+w;
-            bars+='<div class="split-link" style="left:'+px+'px;width:'+Math.max(0,sx-px)+'px;top:'+(y+15)+'px"></div>'; }
+            bars+='<div class="split-link" data-tid="'+t.id+'" data-slink="'+(si-1)+'" style="left:'+px+'px;width:'+Math.max(0,sx-px)+'px;top:'+(y+15)+'px"></div>'; }
           bars+='<div class="'+cls+(first?" seg-first":"")+(last?" seg-last":"")+'" data-tid="'+t.id+'" data-bar="task" data-seg="'+si+'" '+
-            'style="left:'+sx+'px;width:'+sw+'px;top:'+(y+8)+'px;height:15px" title="'+esc(t.name)+'（'+(si+1)+'/'+segs.length+'）">'+
+            'style="left:'+sx+'px;width:'+sw+'px;top:'+(y+8)+'px;height:15px" title="'+esc(t.name)+'（'+(si+1)+'/'+nseg+'）">'+
             (pr>0?'<span class="prog" style="width:'+pr+'%"></span>':"")+
             (first?'<span class="grip l" data-grip="l"></span>':"")+(last?'<span class="grip r" data-grip="r"></span>':"")+
+            segGrips(si,nseg)+
             (first?'<span class="link-dot l" data-dot="l"></span>':"")+(last?'<span class="link-dot r" data-dot="r"></span>':"")+
             '</div>';
         });
@@ -1384,7 +1403,7 @@ function renderInspector(){
       :'<p class="hint">中断はありません。</p>')+
     '<div class="btnrow"><button class="btn" data-act="splitTask">中断を追加</button>'+
     (normBreaks(t).length?'<button class="btn" data-act="unsplit">すべて解除</button>':"")+'</div>'+
-    '<p class="hint">「実働 N の後に M '+uName()+'中断」で指定します。先行タスクの都合で日程が動いても、中断位置は実働からの相対で追従します。'+
+    '<p class="hint">「実働 N の後に M '+uName()+'中断」で指定します。ガント上でも、区間の境目にある青いつまみを左右にドラッグすれば分割位置（右側のつまみ）と中断の長さ（左側のつまみ）を変えられます。先行タスクの都合で日程が動いても、中断位置は実働からの相対で追従します。'+
     (isSplit(t)?'<br>現在：実働 '+(t.dur|0)+' '+uName()+' ／ 中断込み '+(t._span||0)+' '+uName()+'（'+t._segs.length+' 区間）':"")+'</p></div>')+
   '<div class="fset"><h4>リソース割当</h4>'+
     (resRows?'<table class="mini"><thead><tr><th>リソース</th><th>単位%</th><th></th></tr></thead><tbody id="resBody">'+resRows+'</tbody></table>':'<p class="hint">割当はありません。</p>')+
@@ -1833,15 +1852,24 @@ cp.addEventListener("mousedown",e=>{
   if(dot&&bar){ e.preventDefault(); startLink(bar,dot.dataset.dot,e); return; }
   if(bar){ e.preventDefault(); const g=e.target.closest("[data-grip]");
     const id=+bar.dataset.tid; if(U.sel.indexOf(id)<0){ selectRow(id,e); render(); }
-    startBar(document.querySelector('[data-bar][data-tid="'+id+'"]')||bar,g?g.dataset.grip:null,e); return; }
+    const gk=g?g.dataset.grip:null, gs=g&&g.dataset.seg!==undefined?+g.dataset.seg:0;
+    const base=(gk==="sl"||gk==="sr")
+      ? (document.querySelector('[data-bar][data-tid="'+id+'"][data-seg="'+gs+'"]')||bar)
+      : (document.querySelector('[data-bar][data-tid="'+id+'"]')||bar);
+    startBar(base,gk,e,gs); return; }
   if(row){ selectRow(+row.dataset.row,e); render(); }
 });
-function startBar(el,grip,e){
+function startBar(el,grip,e,seg){
   const t=SCH.byId.get(+el.dataset.tid); if(!t||t.isSummary)return;
-  const sibs=Array.prototype.slice.call(document.querySelectorAll('[data-bar][data-tid="'+t.id+'"]'))
-    .map(x=>({el:x,left:parseFloat(x.style.left)||0}));
-  drag={kind:grip==="p"?"pct":(grip?"resize"+grip:"move"),t:t,el:el,x0:e.clientX,
+  const q=sel=>Array.prototype.slice.call(document.querySelectorAll(sel));
+  const sibs=q('[data-bar][data-tid="'+t.id+'"]').map(x=>({el:x,left:parseFloat(x.style.left)||0}));
+  const kind=(grip==="sl"||grip==="sr")?grip:(grip==="p"?"pct":(grip?"resize"+grip:"move"));
+  drag={kind:kind,t:t,el:el,x0:e.clientX,seg:seg|0,
         left:parseFloat(el.style.left),width:el.offsetWidth,dd:0,pct:t.pct||0,sibs:sibs,
+        segs:q('[data-bar][data-tid="'+t.id+'"][data-seg]')
+          .map(x=>({el:x,i:+x.dataset.seg,left:parseFloat(x.style.left)||0,width:x.offsetWidth})),
+        links:q('.split-link[data-tid="'+t.id+'"]')
+          .map(x=>({el:x,i:+x.dataset.slink,left:parseFloat(x.style.left)||0,width:parseFloat(x.style.width)||0})),
         s0:new Date(t._s),f0:new Date(t._f),d0:Math.max(1,t.dur|0)};
   document.body.style.cursor=drag.kind==="move"?"grabbing":"ew-resize";
 }
@@ -1863,6 +1891,15 @@ document.addEventListener("mousemove",e=>{
   if(drag.kind==="move"){ (drag.sibs||[{el:drag.el,left:drag.left}]).forEach(x=>{ x.el.style.left=(x.left+dd*w)+"px"; }); }
   else if(drag.kind==="resizer"){ drag.el.style.width=Math.max(w*0.6,drag.width+dd*w)+"px"; }
   else if(drag.kind==="resizel"){ drag.el.style.left=(drag.left+dd*w)+"px"; drag.el.style.width=Math.max(w*0.6,drag.width-dd*w)+"px"; }
+  else if(drag.kind==="sr"){ const i=drag.seg, MW=w*0.6;
+    drag.segs.forEach(sg=>{
+      if(sg.i===i) sg.el.style.width=Math.max(MW,sg.width+dd*w)+"px";
+      else if(sg.i===i+1){ sg.el.style.left=(sg.left+dd*w)+"px"; sg.el.style.width=Math.max(MW,sg.width-dd*w)+"px"; } });
+    drag.links.forEach(L=>{ if(L.i===i) L.el.style.left=(L.left+dd*w)+"px"; }); }
+  else if(drag.kind==="sl"){ const i=drag.seg;
+    drag.segs.forEach(sg=>{ if(sg.i>=i) sg.el.style.left=(sg.left+dd*w)+"px"; });
+    drag.links.forEach(L=>{ if(L.i===i-1) L.el.style.width=Math.max(0,L.width+dd*w)+"px";
+                            else if(L.i>=i) L.el.style.left=(L.left+dd*w)+"px"; }); }
   else if(drag.kind==="pct"){ const br=drag.el.getBoundingClientRect();
     const p=clamp(Math.round((e.clientX-br.left)/br.width*100/5)*5,0,100); drag.pct=p;
     const pe=drag.el.querySelector(".prog"); if(pe)pe.style.width=p+"%";
@@ -1886,8 +1923,34 @@ document.addEventListener("mouseup",e=>{
       if(isSplit(t)) t.dur=Math.max(1,(t.dur|0)-d.dd);
       else t.dur=Math.max(1,workDays(ns,d.f0,fr));
       setStartByDrag(t,ns); }); }
+  else if(d.kind==="sr"&&d.dd){ dragSplitPoint(t,d,fr); }
+  else if(d.kind==="sl"&&d.dd){ dragBreakLen(t,d,fr); }
   else if(d.kind==="pct"){ if(d.pct!==(t.pct||0)) mutate(()=>{ t.pct=d.pct; }); else render(); }
 });
+/* 分割点のドラッグ：実働の総量は変えずに、区間 i と i+1 の配分を変える */
+function dragSplitPoint(t,d,fr){
+  const brs=normBreaks(t), i=d.seg, segs=t._segs||[];
+  if(!brs[i]||!segs[i]){ render(); return; }
+  const dur=Math.max(1,t.dur|0), w=U.dayW;
+  const lo=(i>0?brs[i-1].after:0)+1, hi=(i+1<brs.length?brs[i+1].after:dur)-1;
+  if(hi<lo){ render(); return; }
+  const acc=brs[i].after-segs[i].n;                 /* 区間 i より前の実働 */
+  const nd=nextWork(XI(d.left+d.width+(d.dd-1)*w),-1,fr);
+  const after=clamp(acc+Math.max(1,workDays(segs[i].s,nd,fr)),lo,hi);
+  if(after===brs[i].after){ render(); return; }
+  mutate(()=>{ brs[i].after=after; t.breaks=brs; });
+  toast("#"+t.id+" の分割位置：実働 "+after+" "+uName()+" の後で中断");
+}
+/* 中断の左端グリップ：直前の中断（区間 i-1 と i の間）の長さを変える */
+function dragBreakLen(t,d,fr){
+  const brs=normBreaks(t), i=d.seg, segs=t._segs||[];
+  if(!brs[i-1]||!segs[i-1]){ render(); return; }
+  const nd=nextWork(XI(d.left+d.dd*U.dayW),1,fr);
+  const len=Math.max(1,workDays(segs[i-1].f,nd,fr)-2);
+  if(len===brs[i-1].len){ render(); return; }
+  mutate(()=>{ brs[i-1].len=len; t.breaks=brs; });
+  toast("#"+t.id+" の中断："+len+" "+uName());
+}
 /* ============================ 表示倍率 ============================ */
 cp.addEventListener("wheel",e=>{ if(!(e.ctrlKey||e.metaKey))return; e.preventDefault();
   zoomStep(e.deltaY<0?1.12:1/1.12,e.clientX); },{passive:false});
