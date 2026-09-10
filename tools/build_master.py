@@ -390,6 +390,19 @@ csv_lines += [",".join(cell(c[1](r)) for c in CSV_COLS) for r in rows]
 io.open("chem-master.csv", "w", encoding="utf-8-sig").write("\r\n".join(csv_lines) + "\r\n")
 print("\nchem-master.csv を出力しました（%d行）" % len(rows))
 
+# file:// で開いたときは fetch が使えないため、同じ内容をJSの文字列として出力する。
+# HTMLと同じフォルダに置くと chem-master.js として読み込まれる。
+import json as _json
+_csv_text = "\r\n".join(csv_lines) + "\r\n"
+io.open("chem-master.js", "w", encoding="utf-8").write(
+    "/* 化学物質法令チェック台帳 物質マスタ\n"
+    "   chemical-compliance.html と同じフォルダに置いてください。\n"
+    "   ファイルを直接開く（ダブルクリックする）場合は、ブラウザの制約により\n"
+    "   CSVではなくこのファイルが読み込まれます。内容は chem-master.csv と同一です。\n"
+    "   tools/build_master.py または tools/update_master.py が生成します。 */\n"
+    "window.CHEM_MASTER_CSV = " + _json.dumps(_csv_text, ensure_ascii=False) + ";\n")
+print("chem-master.js を出力しました（%d bytes）" % len(io.open("chem-master.js",encoding="utf-8").read()))
+
 for shi in set(r["shi"] for r in rows if r["shi"]):
     if shi not in SHOBO_LABEL:
         print("  !! 消防法品名の対応表に無いキー:", shi)

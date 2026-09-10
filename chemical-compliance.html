@@ -505,7 +505,8 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
         <div class="callout warn">
           <b>内蔵マスタは全対象物質を網羅していません。</b>
           労働安全衛生法のラベル表示・SDS交付・リスクアセスメントの対象物は、令和6年4月以降に段階的に拡大し、
-          令和8年4月には約2,900物質になります。化管法の指定化学物質も第一種515物質・第二種134物質あります。
+          令和8年4月時点で2,000物質を大きく超えます（正確な物質数と対象は厚生労働省の一覧で確認してください）。
+          化管法の指定化学物質も第一種515物質・第二種134物質あります。
           内蔵しているのは、工場で実際に使われる代表物質と、特化則・有機則のように対象が閉じているリストです。
           自社で使う物質がここに無い場合は、下の取り込みで追加してください。取り込んだ物質は内蔵側より優先されます。
         </div>
@@ -516,9 +517,11 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
           <div>
             <p class="sec-label" style="margin-bottom:6px">マスタの参照元</p>
             <p style="font-size:12.5px;color:var(--ink-2);line-height:1.8">
-              社内サーバやイントラネットにこのファイルを置いている場合は、同じ場所に <b style="font-family:var(--mono)">chem-master.csv</b>
-              を置くだけで起動時に読み込みます。別の場所にあるときは下にURLを入れてください。
-              ファイルをこの画面にドラッグしても取り込めます。
+              このHTMLと同じフォルダに置いたマスタを、起動時に自動で読み込みます。
+              サーバから配信している場合は <b style="font-family:var(--mono)">chem-master.csv</b>、
+              ファイルを直接開く（ダブルクリックする）場合は <b style="font-family:var(--mono)">chem-master.js</b> を置いてください。
+              ブラウザの制約で、直接開いたときに読めるのは後者だけです。どちらも同じ内容で、両方置いておけば環境を問わず動きます。
+              別の場所にあるときは下にURLを入れてください。ファイルをこの画面にドラッグしても取り込めます。
             </p>
           </div>
           <div class="row">
@@ -880,7 +883,7 @@ const BUILTIN = M_ROWS.map(r => { const o = Object.fromEntries(M_KEYS.map((k,i)=
 const SUB_DEFAULTS = {cas:"",name:"",an:1,skin:0,cancer:0,tokka:"",sp:0,yuki:"",lead:0,dust:0,
                       kakan:"",doku:"",shi:"",kashin:"",taiki:"",sui:0,dojo:0,josei:0,note:"",src:"追加"};
 /* 内蔵マスタは代表物質のシードにすぎない。安衛法の対象物は令和8年4月に
-   約2,900物質へ拡大するため、公式リストを取り込んで上書きできるようにする。
+   2,000物質を大きく超える規模へ拡大するため、公式リストを取り込んで上書きできるようにする。
    同じCAS番号があれば利用者が取り込んだ側を優先する。 */
 let MASTER = [], MASTER_BY_CAS = {}, MASTER_BY_NAME = {};
 function subKey(m){ return (m.cas && m.cas!=="-") ? m.cas : "name:"+m.name; }
@@ -1701,6 +1704,23 @@ function importMasterCsv(text, opt){
    ・官公庁のサイトはCORSを許可していないため直接は読めない
    したがって社内サーバ配置時のみ有効な、任意の上乗せ機能として扱う。 */
 const DEFAULT_MASTER_CSV = "chem-master.csv";
+const DEFAULT_MASTER_JS  = "chem-master.js";
+/* file:// で開いたときは fetch が必ずCORSで失敗する。script要素の読み込みだけは
+   許されるため、CSVをJSの文字列にした chem-master.js を同じフォルダから読む。
+   置いていなければ読み込みに失敗するだけで、内蔵マスタのまま動く。 */
+function loadLocalMasterScript(){
+  if(typeof window.CHEM_MASTER_CSV === "string") return Promise.resolve(true);
+  return new Promise(res => {
+    const el = document.createElement("script");
+    let done = false;
+    const fin = v => { if(!done){ done = true; res(v); } };
+    el.src = DEFAULT_MASTER_JS;
+    el.onload  = () => fin(typeof window.CHEM_MASTER_CSV === "string");
+    el.onerror = () => fin(false);
+    document.head.appendChild(el);
+    setTimeout(()=>fin(typeof window.CHEM_MASTER_CSV === "string"), 5000);
+  });
+}
 async function fetchMasterCsv(url, opt){
   opt = opt || {};
   const res = await fetch(url, {cache:"no-cache"});
@@ -1713,21 +1733,40 @@ async function fetchMasterCsv(url, opt){
   if(!opt.silent) toast(`${url} から${r.added + r.updated}物質を取り込みました`);
   return r;
 }
+function applyLocalMasterScript(){
+  const text = window.CHEM_MASTER_CSV;
+  if(typeof text !== "string" || !text.trim()) return false;
+  const r = importMasterCsv(text, {silent:true, auto:true});
+  if(!r) return false;
+  state.masterSrc = {url: DEFAULT_MASTER_JS + "（実行フォルダ）", at:new Date().toISOString(),
+                     added:r.added, updated:r.updated};
+  save(); renderMaster();
+  return true;
+}
 async function autoLoadMaster(){
   const explicit = (state.masterUrl||"").trim();
-  const url = explicit || DEFAULT_MASTER_CSV;
-  // file:// では相対パスの取得が必ず失敗するため、黙って内蔵マスタで動かす
-  if(location.protocol === "file:" && !/^https?:/i.test(url)) return;
-  try{
-    await fetchMasterCsv(url, {silent:!explicit});
-  }catch(e){
-    // 既定パスに置いていないのは正常な状態。明示指定の失敗だけ知らせる
-    if(explicit){
-      state.masterSrc = {url, at:new Date().toISOString(), error:String(e.message||e)};
+
+  // ① URLを明示指定しているときはそれを最優先
+  if(explicit){
+    try{ await fetchMasterCsv(explicit, {silent:false}); return; }
+    catch(e){
+      state.masterSrc = {url:explicit, at:new Date().toISOString(), error:String(e.message||e)};
       save(); renderMaster();
       toast("マスタを取得できませんでした：" + (e.message||e) + "（取り込み済みの内容で続けます）");
+      return;
     }
   }
+
+  // ② サーバから配信されているときは、同じ場所の chem-master.csv を読む
+  if(/^https?:$/.test(location.protocol)){
+    try{ await fetchMasterCsv(DEFAULT_MASTER_CSV, {silent:true}); return; }
+    catch(e){ /* 置いていないのは正常。③へ */ }
+  }
+
+  // ③ 同じフォルダの chem-master.js（file:// で開いた場合はこれだけが使える）
+  try{
+    if(await loadLocalMasterScript()){ applyLocalMasterScript(); }
+  }catch(e){ /* 置いていないのは正常。内蔵マスタで動く */ }
 }
 
 function renderMaster(){
