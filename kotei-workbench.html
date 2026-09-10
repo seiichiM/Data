@@ -182,6 +182,8 @@ tr.trow.sel td{background:var(--accent-soft)}
 tr.trow.summary td{font-weight:600;background:var(--panel2)}
 tr.trow.summary.sel td{background:var(--accent-soft)}
 tr.trow.blank td{background:var(--panel2)}
+tr.trow.segrow td{background:var(--panel2);color:var(--ink2)}
+tr.trow.segrow.sel td{background:var(--accent-soft)}
 tr.trow.blank.sel td{background:var(--accent-soft)}
 .blanktxt{color:var(--ink3);font-size:11.5px}
 .row-hit.blank{background:var(--panel2)}
@@ -254,6 +256,9 @@ td.c-wbs{font-family:var(--font-num);font-size:10.5px;color:var(--ink3)}
 .bar-label.in{color:var(--bar-txt);font-family:var(--font-ui)}
 .base-bar{position:absolute;height:5px;background:var(--base-bar);border-radius:1px;opacity:.85;z-index:1}
 .slack-line{position:absolute;height:0;border-top:1px dashed var(--ink3);z-index:1}
+.split-link{position:absolute;height:0;border-top:1.5px dotted var(--bar-edge);z-index:2;pointer-events:none;opacity:.85}
+.bar.task.seg-first{border-top-right-radius:1px;border-bottom-right-radius:1px}
+.bar.task.seg-last{border-top-left-radius:1px;border-bottom-left-radius:1px}
 .slack-line::after{content:"";position:absolute;right:0;top:-3px;width:1px;height:7px;background:var(--ink3)}
 .grip{position:absolute;top:0;bottom:0;width:6px;cursor:ew-resize;z-index:3}
 .grip.l{left:-3px}
@@ -443,6 +448,7 @@ table.p-gantt td.trk{padding:0}
 .p-ms{position:absolute;width:2.4mm;height:2.4mm;background:#243444;transform:rotate(45deg);top:1.5mm}
 .p-ms.crit{background:#a8301f}
 .p-cap{position:absolute;font-size:6pt;color:#5a6a78;top:1.2mm}
+.p-split{position:absolute;top:2.5mm;height:0;border-top:0.4mm dotted #21507c;opacity:.85}
 .p-blab{position:absolute;font-family:var(--font-num);font-size:6pt;color:#3f505d;top:1.5mm;white-space:nowrap}
 .p-base{position:absolute;top:4.3mm;height:1mm;background:#94a3b1;border-radius:0.3mm}
 .p-legend{display:flex;gap:5mm;flex-wrap:wrap;font-size:6.5pt;color:#3f505d;margin-top:2.5mm;padding-top:1.5mm;border-top:0.5pt solid #d9e1e9}
@@ -521,6 +527,10 @@ dialog.wide{max-width:min(96vw,940px)}
         <button class="rb" data-act="unlink"><span class="ic">⛓̸</span>リンク<br>解除</button>
       </div><div class="glabel">依存関係</div></div>
       <div class="rgroup"><div class="rrow">
+        <button class="rb" data-act="splitTask" title="実働の途中に中断期間を入れます"><span class="ic">⋯</span>分割</button>
+        <button class="rb" data-act="unsplit" title="中断をすべて取り消します"><span class="ic">▬</span>分割<br>解除</button>
+      </div><div class="glabel">タスクの分割</div></div>
+      <div class="rgroup"><div class="rrow">
         <div class="seg" id="seg-pct">
           <button data-act="pct" data-v="0">0%</button>
           <button data-act="pct" data-v="25">25%</button>
@@ -562,6 +572,7 @@ dialog.wide{max-width:min(96vw,940px)}
         <button class="rb" data-act="tgl" data-v="showBaseline"><span class="ic">▭</span>ベース<br>ライン</button>
         <button class="rb" data-act="tgl" data-v="showSlack"><span class="ic">┄</span>余裕<br>時間</button>
         <button class="rb" data-act="tgl" data-v="showLabel"><span class="ic">🏷</span>バー<br>ラベル</button>
+        <button class="rb" data-act="tgl" data-v="splitRows" title="分割したタスクを区間ごとの行に展開します"><span class="ic">⋯</span>分割を<br>別行に</button>
       </div><div class="glabel">ガントの表示</div></div>
       <div class="rgroup"><div class="rrow">
         <button class="rb" data-act="expandAll"><span class="ic">⊞</span>すべて<br>展開</button>
@@ -761,7 +772,7 @@ const LS="kotei-workbench.v1";
 const IN_FRAME=(function(){ try{ return window.self!==window.top; }catch(e){ return true; } })();
 let PRBLOCK=false, confirmArm=0;
 let D=sampleState();
-let U={view:"gantt",zoom:"day",dayW:28,sel:[],showCritical:true,showBaseline:false,showSlack:false,showLabel:true,
+let U={view:"gantt",zoom:"day",dayW:28,sel:[],showCritical:true,showBaseline:false,showSlack:false,showLabel:true,splitRows:false,
        filter:"all",query:"",gw:520,collapsed:{},inspector:true,loadRes:"all",tab:"task"};
 let undoStack=[],redoStack=[],suspend=false;
 
@@ -774,7 +785,7 @@ function normalizeDoc(){
   D.cal=D.cal||{}; if(!D.cal.hours||typeof D.cal.hours.start!=="number")D.cal.hours={start:9,end:17};
   if(!(D.cal.hours.end>D.cal.hours.start))D.cal.hours={start:9,end:17};
 }
-function persist(){ try{localStorage.setItem(LS,JSON.stringify({D:D,U:{zoom:U.zoom,dayW:U.dayW,view:U.view,gw:U.gw,showCritical:U.showCritical,showBaseline:U.showBaseline,showSlack:U.showSlack,showLabel:U.showLabel,collapsed:U.collapsed,inspector:U.inspector}}));}catch(e){} }
+function persist(){ try{localStorage.setItem(LS,JSON.stringify({D:D,U:{zoom:U.zoom,dayW:U.dayW,view:U.view,gw:U.gw,showCritical:U.showCritical,showBaseline:U.showBaseline,showSlack:U.showSlack,showLabel:U.showLabel,splitRows:U.splitRows,collapsed:U.collapsed,inspector:U.inspector}}));}catch(e){} }
 function restore(){ try{const s=JSON.parse(localStorage.getItem(LS)||"null"); if(s&&s.D&&Array.isArray(s.D.tasks)&&s.D.tasks.length){D=s.D; Object.assign(U,s.U||{});
       if(!(U.dayW>0))U.dayW=ZOOMW[U.zoom]||28; U.dayW=clamp(U.dayW,ZMIN,ZMAX); normalizeDoc(); return true;} }catch(e){} return false; }
 
@@ -847,7 +858,7 @@ function parentOf(i){ for(let j=i-1;j>=0;j--) if(D.tasks[j].level<D.tasks[i].lev
 function schedule(){
   const T=D.tasks, byId=new Map(T.map(t=>[t.id,t])); SCH.byId=byId;
   T.forEach((t,i)=>{
-    if(t.blank){ t.isSummary=false; t.wbs=""; t.warn=""; t.critical=false; t.slack=0; t.cost=0; return; }
+    if(t.blank){ t.isSummary=false; t.wbs=""; t.warn=""; t.critical=false; t.slack=0; t.cost=0; t._segs=null; return; }
     let nx=null; for(let j=i+1;j<T.length;j++){ if(!T[j].blank){ nx=T[j]; break; } }
     t.isSummary=!!(nx&&nx.level>t.level);
     if(t.isSummary)t.ms=false;
@@ -885,7 +896,10 @@ function schedule(){
       else if(c.type==="MFO") st=startFrom(nextWork(pdt(c.date),-1,fr),dur||1,fr);
       else if(c.type==="FNLT"){ const lim=startFrom(nextWork(pdt(c.date),-1,fr),dur||1,fr); if(LT(lim,st)){ st=lim; t.warn="制約と競合"; } }
     }
-    t._s=nextWork(st,1,fr); t._f=(dur<=0)?t._s:endFrom(t._s,dur,fr);
+    t._s=nextWork(st,1,fr);
+    if(dur<=0){ t._f=t._s; t._segs=null; t._span=0; }
+    else { const sg=segsOf(t,fr); t._segs=(sg.length>1)?sg:null; t._f=sg[sg.length-1].f;
+           t._span=workDays(t._s,t._f,fr); }
   });
   let PF=PS; leaves.forEach(t=>{ if(t._f&&LT(PF,t._f))PF=t._f; }); SCH.pf=PF;
   for(let i=order.length-1;i>=0;i--){
@@ -896,13 +910,14 @@ function schedule(){
       else if(s.type==="SF") c=endFrom(shiftWork(u._lf,-lag,fr),dur||1,fr);
       else c=shiftWork(u._ls,-1-lag,fr);
       if(LT(c,lf)) lf=c; });
-    t._lf=lf; t._ls=(dur<=0)?lf:startFrom(lf,dur,fr);
+    t._lf=lf; t._ls=(dur<=0)?lf:startFrom(lf,Math.max(dur,t._span||dur),fr);
     t.slack=LE(t._f,t._lf)?workDays(t._f,t._lf,fr)-1:-(workDays(t._lf,t._f,fr)-1);
     t.critical=t.slack<=0;
   }
   for(let i=T.length-1;i>=0;i--){
     const t=T[i]; if(!t.isSummary)continue;
     const kids=descendants(i).filter(k=>!k.isSummary&&!k.blank);
+    t._segs=null;
     if(!kids.length){ t._s=PS; t._f=PS; t.dur=0; t.slack=0; t.critical=false; continue; }
     let s=kids[0]._s,f=kids[0]._f,slk=Infinity,w=0,wp=0;
     kids.forEach(k=>{ if(LT(k._s,s))s=k._s; if(LT(f,k._f))f=k._f;
@@ -913,6 +928,25 @@ function schedule(){
     t.start=HM()?ymdhm(t._s):ymd(t._s); t.finish=HM()?ymdhm(uEnd(t._f)):ymd(t._f); t.cost=taskCost(t); });
   D.tasks.forEach((t,i)=>{ if(t.isSummary) t.cost=descendants(i).filter(k=>!k.isSummary&&!k.blank).reduce((a,k)=>a+k.cost,0); });
 }
+/* --- タスクの分割：breaks=[{after:実働N単位の後, len:M単位中断}] --- */
+function normBreaks(t){
+  const dur=Math.max(t.ms?0:1,t.dur|0);
+  return (t.breaks||[]).map(b=>({after:Math.round(+b.after||0),len:Math.max(1,Math.round(+b.len||1))}))
+    .filter(b=>b.after>0&&b.after<dur).sort((a,b)=>a.after-b.after)
+    .filter((b,i,arr)=>i===0||b.after!==arr[i-1].after);
+}
+function segsOf(t,fr){
+  const dur=Math.max(t.ms?0:1,t.dur|0), brs=normBreaks(t), out=[];
+  if(dur<=0) return [{s:new Date(t._s),f:new Date(t._s),n:0}];
+  let done=0, cur=new Date(t._s);
+  brs.forEach(b=>{ const n=b.after-done; if(n<=0)return;
+    const e=endFrom(cur,n,fr); out.push({s:new Date(cur),f:e,n:n});
+    cur=shiftWork(e,b.len+1,fr); done=b.after; });
+  const rest=dur-done;
+  if(rest>0){ const e=endFrom(cur,rest,fr); out.push({s:new Date(cur),f:e,n:rest}); }
+  return out.length?out:[{s:new Date(t._s),f:endFrom(t._s,dur,fr),n:dur}];
+}
+function isSplit(t){ return !!(t&&t._segs&&t._segs.length>1); }
 function resById(id){ return D.resources.find(r=>r.id===id); }
 function taskCost(t){ if(t.isSummary||t.blank)return 0; const dur=Math.max(t.ms?0:1,t.dur|0);
   return (t.res||[]).reduce((a,x)=>{ const r=resById(x.id); return a+(r?r.rate*(x.units/100)*dur:0); },0); }
@@ -921,16 +955,19 @@ function taskCost(t){ if(t.isSummary||t.blank)return 0; const dur=Math.max(t.ms?
 function loadMap(){
   const m=new Map();
   D.tasks.forEach(t=>{ if(t.isSummary||t.ms||t.blank)return; const fr=freeOf(t);
+    const segs=t._segs||[{s:t._s,f:t._f}];
     (t.res||[]).forEach(x=>{ if(!m.has(x.id))m.set(x.id,{});
-      const o=m.get(x.id); let d=new Date(t._s),g=0;
-      while(dayDiff(d,t._f)>=0&&g<2000){
+      const o=m.get(x.id);
+      segs.forEach(sg=>{
+      let d=new Date(sg.s),g=0;
+      while(dayDiff(d,sg.f)>=0&&g<2000){
         if(isWork(d,fr)){ const k=ymd(d);
           let share=1;
           if(HM()){ const ds=atH(d,HS()).getTime(), de=atH(d,HE()).getTime();
-            const a=Math.max(ds,t._s.getTime()), b2=Math.min(de,t._f.getTime()+3600000);
+            const a=Math.max(ds,sg.s.getTime()), b2=Math.min(de,sg.f.getTime()+3600000);
             share=Math.max(0,(b2-a)/3600000)/HPD(); }
           if(share>0) o[k]=(o[k]||0)+(x.units||100)*share; }
-        d=addD(d,1); g++; } });
+        d=addD(d,1); g++; } }); });
   });
   return m;
 }
@@ -983,13 +1020,23 @@ function visibleTasks(){
     const keep=new Set();
     D.tasks.forEach((t,i)=>{ if(t.isSummary||!matchTask(t))return; keep.add(t.id);
       let lv=t.level; for(let j=i-1;j>=0;j--){ if(D.tasks[j].level<lv){ keep.add(D.tasks[j].id); lv=D.tasks[j].level; if(!lv)break; } } });
-    return D.tasks.filter(t=>keep.has(t.id));
+    return expandSplits(D.tasks.filter(t=>keep.has(t.id)));
   }
   const out=[]; let hide=null;
   for(const t of D.tasks){ if(hide!==null){ if(t.level>hide) continue; hide=null; }
     out.push(t); if(t.isSummary&&U.collapsed[t.id]) hide=t.level; }
+  return expandSplits(out);
+}
+/* 分割タスクを区間ごとの行に展開（表示のみ・元のタスクは 1 区間目を担当） */
+function expandSplits(list){
+  if(!U.splitRows) return list;
+  const out=[];
+  list.forEach(t=>{ out.push(t);
+    if(isSplit(t)) for(let i=1;i<t._segs.length;i++) out.push({__seg:true,__t:t,__i:i,id:t.id,level:t.level,blank:false});
+  });
   return out;
 }
+const segOwner=r=>r&&r.__seg?r.__t:r;
 /* ============================ 文字列変換 ============================ */
 function predsText(t){ return (t.preds||[]).map(p=>{ const lag=p.lag||0;
   return p.id+(p.type&&p.type!=="FS"?p.type:"")+(lag?(lag>0?"+":"")+lag+"日":""); }).join(", "); }
@@ -1036,10 +1083,11 @@ function cellHTML(t,c){
        '<span title="自動スケジュール：稼働カレンダーに従う（もう一度クリックで切替）" style="color:var(--ink3)">⚙</span>');
     case "name":{
       const tw=t.isSummary?'<button class="tw" data-tw="'+t.id+'" aria-label="折りたたみ">'+(U.collapsed[t.id]?"▶":"▼")+'</button>':'<span class="tw ph"></span>';
-      const badge=t.warn?'<span class="chip wn" title="'+esc(t.warn)+'">!</span>':(t.ms?'<span class="chip ms">◆</span>':"");
+      const badge=(t.warn?'<span class="chip wn" title="'+esc(t.warn)+'">!</span>':(t.ms?'<span class="chip ms">◆</span>':""))+
+        (isSplit(t)?'<span class="chip" title="分割：実働 '+(t.dur|0)+' '+uName()+' ／ 全体 '+(t._span||0)+' '+uName()+'">⋯'+t._segs.length+'</span>':"");
       return '<div class="nm" style="padding-left:'+(t.level*15)+'px">'+tw+'<span class="txt">'+esc(t.name)+'</span>'+badge+'</div>';
     }
-    case "dur": return durText(t);
+    case "dur": return isSplit(t)?((t.dur|0)+" "+uName()+'<span style="color:var(--ink3)">+'+Math.max(0,(t._span||0)-(t.dur|0))+'</span>'):durText(t);
     case "start": return HM()?(md(t._s)+" "+hhmm(t._s)):(md(t._s)+"("+WD[t._s.getDay()]+")");
     case "finish": return HM()?(md(uEnd(t._f))+" "+hhmm(uEnd(t._f))):(md(t._f)+"("+WD[t._f.getDay()]+")");
     case "preds": return esc(predsText(t));
@@ -1055,6 +1103,14 @@ function renderGrid(rows){
   $("#gridhead").innerHTML='<tr>'+COLS.map(c=>'<th class="'+(c.cls.indexOf("num")>=0?"num":"")+'">'+c.t+'</th>').join("")+'</tr>';
   const sel=new Set(U.sel);
   $("#gridbody").innerHTML=rows.map(t=>{
+    if(t.__seg){ const o=t.__t, sg=o._segs[t.__i];
+      return '<tr class="trow segrow'+(sel.has(o.id)?" sel":"")+'" data-tid="'+o.id+'" data-seg="'+t.__i+'">'+
+        COLS.map(c=>{ let v="";
+          if(c.k==="name") v='<div class="nm" style="padding-left:'+(o.level*15+16)+'px"><span class="txt blanktxt">↳ 区間 '+(t.__i+1)+'/'+o._segs.length+'</span></div>';
+          else if(c.k==="dur") v=sg.n+" "+uName();
+          else if(c.k==="start") v=HM()?(md(sg.s)+" "+hhmm(sg.s)):(md(sg.s)+"("+WD[sg.s.getDay()]+")");
+          else if(c.k==="finish") v=HM()?(md(uEnd(sg.f))+" "+hhmm(uEnd(sg.f))):(md(sg.f)+"("+WD[sg.f.getDay()]+")");
+          return '<td class="'+c.cls+'" data-col="'+c.k+'">'+v+'</td>'; }).join("")+'</tr>'; }
     const cls=["trow"]; if(t.blank)cls.push("blank"); if(t.isSummary)cls.push("summary"); if(sel.has(t.id))cls.push("sel");
     if(U.showCritical&&t.critical&&!t.isSummary)cls.push("crit"); if((t.pct||0)>=100)cls.push("done");
     return '<tr class="'+cls.join(" ")+'" data-tid="'+t.id+'">'+COLS.map(c=>
@@ -1155,6 +1211,15 @@ function chartHTML(rows){
   const rects=new Map();
   rows.forEach((t,i)=>{
     const y=i*ROWH;
+    if(t.__seg){ const o=t.__t, sg=o._segs[t.__i], sx=X(sg.s), ex=X(sg.f)+w;
+      const dur=Math.max(1,o.dur|0); let acc=0; for(let k=0;k<t.__i;k++)acc+=o._segs[k].n;
+      const sd=clamp(dur*(o.pct||0)/100-acc,0,sg.n), pr=sg.n?Math.round(sd/sg.n*100):0;
+      bars+='<div class="row-hit'+(sel.has(o.id)?" sel":"")+'" data-row="'+o.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>'+
+        '<div class="bar task'+(U.showCritical&&o.critical?" crit":"")+(sel.has(o.id)?" sel":"")+'" data-tid="'+o.id+'" data-bar="task" data-seg="'+t.__i+'" '+
+        'style="left:'+sx+'px;width:'+Math.max(3,ex-sx)+'px;top:'+(y+8)+'px;height:15px">'+
+        (pr>0?'<span class="prog" style="width:'+pr+'%"></span>':"")+'</div>';
+      if(U.showLabel) lab+='<div class="bar-label" style="left:'+(ex+7)+'px;top:'+(y+9)+'px">'+esc(o.name)+'（'+(t.__i+1)+'/'+o._segs.length+'）</div>';
+      return; }
     if(t.blank){ bars+='<div class="row-hit blank'+(sel.has(t.id)?" sel":"")+'" data-row="'+t.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>'; return; }
     const x1=X(t._s), x2=X(t._f)+w, crit=U.showCritical&&t.critical;
     bars+='<div class="row-hit'+(sel.has(t.id)?" sel":"")+'" data-row="'+t.id+'" style="top:'+y+'px;height:'+ROWH+'px"></div>';
@@ -1173,11 +1238,29 @@ function chartHTML(rows){
     } else {
       const bw=Math.max(3,x2-x1);
       rects.set(t.id,{x1:x1,x2:x2,ym:y+15,y:y});
-      bars+='<div class="bar task barwrap'+(crit?" crit":"")+(sel.has(t.id)?" sel":"")+'" data-tid="'+t.id+'" data-bar="task" style="left:'+x1+'px;width:'+bw+'px;top:'+(y+8)+'px;height:15px">'+
+      const segs=(U.splitRows&&t._segs)?[t._segs[0]]:t._segs, cls='bar task barwrap'+(crit?" crit":"")+(sel.has(t.id)?" sel":"");
+      if(segs){
+        const dur=Math.max(1,t.dur|0), doneU=dur*(t.pct||0)/100; let acc=0;
+        segs.forEach((sg,si)=>{
+          const sx=X(sg.s), ex=X(sg.f)+w, sw=Math.max(3,ex-sx);
+          const segDone=clamp(doneU-acc,0,sg.n), pr=sg.n?Math.round(segDone/sg.n*100):0; acc+=sg.n;
+          const first=si===0, last=si===segs.length-1&&!U.splitRows;
+          if(si>0&&!U.splitRows){ const px=X(segs[si-1].f)+w;
+            bars+='<div class="split-link" style="left:'+px+'px;width:'+Math.max(0,sx-px)+'px;top:'+(y+15)+'px"></div>'; }
+          bars+='<div class="'+cls+(first?" seg-first":"")+(last?" seg-last":"")+'" data-tid="'+t.id+'" data-bar="task" data-seg="'+si+'" '+
+            'style="left:'+sx+'px;width:'+sw+'px;top:'+(y+8)+'px;height:15px" title="'+esc(t.name)+'（'+(si+1)+'/'+segs.length+'）">'+
+            (pr>0?'<span class="prog" style="width:'+pr+'%"></span>':"")+
+            (first?'<span class="grip l" data-grip="l"></span>':"")+(last?'<span class="grip r" data-grip="r"></span>':"")+
+            (first?'<span class="link-dot l" data-dot="l"></span>':"")+(last?'<span class="link-dot r" data-dot="r"></span>':"")+
+            '</div>';
+        });
+      } else {
+      bars+='<div class="'+cls+'" data-tid="'+t.id+'" data-bar="task" style="left:'+x1+'px;width:'+bw+'px;top:'+(y+8)+'px;height:15px">'+
         '<span class="prog" style="width:'+(t.pct||0)+'%"></span>'+
         '<span class="grip l" data-grip="l"></span><span class="grip r" data-grip="r"></span>'+
         (bw>26?'<span class="prog-grip" data-grip="p" style="left:calc('+(t.pct||0)+'% - 4px);margin-left:'+((t.pct||0)<3?6:0)+'px" title="ドラッグで進捗を更新"></span>':"")+
         '<span class="link-dot l" data-dot="l"></span><span class="link-dot r" data-dot="r"></span></div>';
+      }
       if(U.showSlack&&t.slack>0&&t._lf){ const sx=x2,ex=X(t._lf)+w;
         if(ex>sx) bars+='<div class="slack-line" style="left:'+sx+'px;width:'+(ex-sx)+'px;top:'+(y+15)+'px"></div>'; }
       if(U.showLabel){ const rn=resText(t); const txt=(rn?rn:"")+(t.pct?"  "+t.pct+"%":"");
@@ -1186,7 +1269,7 @@ function chartHTML(rows){
   });
   /* 依存関係の矢印 */
   let paths="";
-  rows.forEach(t=>{ (t.preds||[]).forEach(p=>{ const a=rects.get(p.id),b=rects.get(t.id); if(!a||!b)return;
+  rows.forEach(t=>{ if(t.__seg)return; (t.preds||[]).forEach(p=>{ const a=rects.get(p.id),b=rects.get(t.id); if(!a||!b)return;
     const pt=SCH.byId.get(p.id), crit=U.showCritical&&t.critical&&pt&&pt.critical;
     const c=crit?' class="crit"':"", g=9;
     let d="",ah="";
@@ -1293,6 +1376,16 @@ function renderInspector(){
     (predRows?'<table class="mini"><thead><tr><th>タスク</th><th>種類</th><th>ラグ</th><th></th></tr></thead><tbody id="predBody">'+predRows+'</tbody></table>':'<p class="hint">先行タスクはありません。</p>')+
     '<div class="btnrow"><button class="btn" data-act="addPred">先行タスクを追加</button></div>'+
   '</div>'+
+  ((t.isSummary||t.ms)?"":'<div class="fset"><h4>中断（タスクの分割）</h4>'+
+    (normBreaks(t).length?'<table class="mini"><thead><tr><th>実働</th><th>中断</th><th></th></tr></thead><tbody>'+
+      normBreaks(t).map((bk,i)=>'<tr><td><input data-bk="after" data-i="'+i+'" type="number" min="1" max="'+Math.max(1,(t.dur|0)-1)+'" value="'+bk.after+'"></td>'+
+        '<td><input data-bk="len" data-i="'+i+'" type="number" min="1" value="'+bk.len+'"></td>'+
+        '<td><button class="icon-btn" data-bk="del" data-i="'+i+'">✕</button></td></tr>').join("")+'</tbody></table>'
+      :'<p class="hint">中断はありません。</p>')+
+    '<div class="btnrow"><button class="btn" data-act="splitTask">中断を追加</button>'+
+    (normBreaks(t).length?'<button class="btn" data-act="unsplit">すべて解除</button>':"")+'</div>'+
+    '<p class="hint">「実働 N の後に M '+uName()+'中断」で指定します。先行タスクの都合で日程が動いても、中断位置は実働からの相対で追従します。'+
+    (isSplit(t)?'<br>現在：実働 '+(t.dur|0)+' '+uName()+' ／ 中断込み '+(t._span||0)+' '+uName()+'（'+t._segs.length+' 区間）':"")+'</p></div>')+
   '<div class="fset"><h4>リソース割当</h4>'+
     (resRows?'<table class="mini"><thead><tr><th>リソース</th><th>単位%</th><th></th></tr></thead><tbody id="resBody">'+resRows+'</tbody></table>':'<p class="hint">割当はありません。</p>')+
     '<div class="btnrow"><button class="btn" data-act="addAssign">リソースを割り当て</button></div>'+
@@ -1699,7 +1792,7 @@ function commitEdit(val){
 
 /* ============================ 選択 ============================ */
 function selectRow(id,e){
-  const list=ROWS.map(t=>t.id);
+  const list=ROWS.filter(t=>!t.__seg).map(t=>t.id);
   if(e&&(e.ctrlKey||e.metaKey)){ const i=U.sel.indexOf(id); if(i>=0)U.sel.splice(i,1); else U.sel.push(id); }
   else if(e&&e.shiftKey&&U.sel.length){ const a=list.indexOf(U.sel[U.sel.length-1]),b=list.indexOf(id);
     if(a>=0&&b>=0){ const s=Math.min(a,b),t=Math.max(a,b); U.sel=list.slice(s,t+1); } else U.sel=[id]; }
@@ -1745,8 +1838,10 @@ cp.addEventListener("mousedown",e=>{
 });
 function startBar(el,grip,e){
   const t=SCH.byId.get(+el.dataset.tid); if(!t||t.isSummary)return;
+  const sibs=Array.prototype.slice.call(document.querySelectorAll('[data-bar][data-tid="'+t.id+'"]'))
+    .map(x=>({el:x,left:parseFloat(x.style.left)||0}));
   drag={kind:grip==="p"?"pct":(grip?"resize"+grip:"move"),t:t,el:el,x0:e.clientX,
-        left:parseFloat(el.style.left),width:el.offsetWidth,dd:0,pct:t.pct||0,
+        left:parseFloat(el.style.left),width:el.offsetWidth,dd:0,pct:t.pct||0,sibs:sibs,
         s0:new Date(t._s),f0:new Date(t._f),d0:Math.max(1,t.dur|0)};
   document.body.style.cursor=drag.kind==="move"?"grabbing":"ew-resize";
 }
@@ -1765,7 +1860,7 @@ document.addEventListener("mousemove",e=>{
     drag.rb.style.width=Math.sqrt(dx*dx+dy*dy)+"px";
     drag.rb.style.transform="rotate("+Math.atan2(dy,dx)+"rad)"; return; }
   const dd=Math.round((e.clientX-drag.x0)/w); drag.dd=dd;
-  if(drag.kind==="move"){ drag.el.style.left=(drag.left+dd*w)+"px"; }
+  if(drag.kind==="move"){ (drag.sibs||[{el:drag.el,left:drag.left}]).forEach(x=>{ x.el.style.left=(x.left+dd*w)+"px"; }); }
   else if(drag.kind==="resizer"){ drag.el.style.width=Math.max(w*0.6,drag.width+dd*w)+"px"; }
   else if(drag.kind==="resizel"){ drag.el.style.left=(drag.left+dd*w)+"px"; drag.el.style.width=Math.max(w*0.6,drag.width-dd*w)+"px"; }
   else if(drag.kind==="pct"){ const br=drag.el.getBoundingClientRect();
@@ -1783,10 +1878,14 @@ document.addEventListener("mouseup",e=>{
   if(!d.dd&&d.kind!=="pct"){ render(); return; }
   const t=d.t, fr=freeOf(t);
   if(d.kind==="move"&&d.dd){ mutate(()=>{ setStartByDrag(t,HM()?shiftWork(d.s0,d.dd,fr):nextWork(addD(d.s0,d.dd),1,fr)); }); toast("#"+t.id+" を移動しました（制約：開始日以降）"); }
-  else if(d.kind==="resizer"&&d.dd){ mutate(()=>{ const nf=HM()?shiftWork(d.f0,d.dd,fr):nextWork(addD(d.f0,d.dd),-1,fr);
-      const nd=Math.max(1,workDays(t._s,nf,fr)); if(t.ms&&nd>0)t.ms=false; t.dur=nd; }); }
+  else if(d.kind==="resizer"&&d.dd){ mutate(()=>{
+      if(isSplit(t)){ t.dur=Math.max(1,(t.dur|0)+d.dd); }
+      else { const nf=HM()?shiftWork(d.f0,d.dd,fr):nextWork(addD(d.f0,d.dd),-1,fr);
+        const nd=Math.max(1,workDays(t._s,nf,fr)); if(t.ms&&nd>0)t.ms=false; t.dur=nd; } }); }
   else if(d.kind==="resizel"&&d.dd){ mutate(()=>{ const ns=HM()?shiftWork(d.s0,d.dd,fr):nextWork(addD(d.s0,d.dd),1,fr);
-      const nd=Math.max(1,workDays(ns,d.f0,fr)); t.dur=nd; setStartByDrag(t,ns); }); }
+      if(isSplit(t)) t.dur=Math.max(1,(t.dur|0)-d.dd);
+      else t.dur=Math.max(1,workDays(ns,d.f0,fr));
+      setStartByDrag(t,ns); }); }
   else if(d.kind==="pct"){ if(d.pct!==(t.pct||0)) mutate(()=>{ t.pct=d.pct; }); else render(); }
 });
 /* ============================ 表示倍率 ============================ */
@@ -1812,6 +1911,8 @@ cp.addEventListener("mousemove",e=>{
   tip.innerHTML='<h5>#'+t.id+' '+esc(t.name)+'</h5><dl>'+
     '<dt>開始</dt><dd>'+jdate(t._s)+(HM()?" "+hhmm(t._s):"")+'</dd><dt>終了</dt><dd>'+jdate(uEnd(t._f))+(HM()?" "+hhmm(uEnd(t._f)):"")+'</dd>'+
     '<dt>期間</dt><dd>'+(t.dur|0)+" "+uName()+(freeOf(t)?'（連続）':'')+'</dd><dt>進捗</dt><dd>'+(t.pct||0)+'%</dd>'+
+    (isSplit(t)?'<dt>分割</dt><dd>'+t._segs.map(sg=>md(sg.s)+(HM()?" "+hhmm(sg.s):"")+"〜"+md(HM()?uEnd(sg.f):sg.f)+(HM()?" "+hhmm(uEnd(sg.f)):"")).join("<br>")+
+      '<br>実働 '+(t.dur|0)+' '+uName()+' ／ 中断込み '+(t._span||0)+' '+uName()+'</dd>':"")+
     (t.isSummary?"":'<dt>モード</dt><dd>'+MODEN[t.mode||"auto"]+'</dd>')+
     (t.isSummary?"":'<dt>余裕</dt><dd>'+t.slack+' 日'+(t.critical?"（クリティカル）":"")+'</dd>')+
     (resText(t)?'<dt>担当</dt><dd>'+esc(resText(t))+'</dd>':"")+
@@ -1851,6 +1952,11 @@ $("#inspector").addEventListener("change",e=>{
   if(p){ pushUndo(); if(p==="id")t.preds[i].id=+e.target.value; else if(p==="type")t.preds[i].type=e.target.value;
     else if(p==="lag")t.preds[i].lag=parseInt(e.target.value,10)||0;
     t.preds=t.preds.filter(x=>!wouldCycle2(x.id,t.id,t)); render(); return; }
+  const bk=e.target.dataset.bk;
+  if(bk){ pushUndo(); const arr=normBreaks(t);
+    if(bk==="after")arr[i].after=clamp(parseInt(e.target.value,10)||1,1,Math.max(1,(t.dur|0)-1));
+    else if(bk==="len")arr[i].len=Math.max(1,parseInt(e.target.value,10)||1);
+    t.breaks=arr; render(); return; }
   if(r){ pushUndo(); if(r==="id")t.res[i].id=e.target.value; else if(r==="units")t.res[i].units=clamp(parseInt(e.target.value,10)||0,0,400); render(); }
 });
 function wouldCycle2(pid,sid,t){ const save=t.preds; t.preds=save.filter(x=>x.id!==pid); const c=wouldCycle(pid,sid); t.preds=save; return c; }
@@ -1859,6 +1965,7 @@ $("#inspector").addEventListener("click",e=>{
   const p=e.target.dataset.p, r=e.target.dataset.r, i=+e.target.dataset.i;
   if(t&&p==="del"){ mutate(()=>{ t.preds.splice(i,1); }); return; }
   if(t&&r==="del"){ mutate(()=>{ t.res.splice(i,1); }); return; }
+  if(t&&e.target.dataset.bk==="del"){ mutate(()=>{ const a=normBreaks(t); a.splice(i,1); t.breaks=a; }); return; }
   const act=e.target.closest("[data-act]"); if(!act)return;
   if(act.dataset.act==="addPred"&&t){ const cand=D.tasks.find(x=>!x.isSummary&&x.id!==t.id&&!(t.preds||[]).some(q=>q.id===x.id)&&!wouldCycle(x.id,t.id));
     if(!cand)return toast("追加できる先行タスクがありません"); mutate(()=>{ t.preds=(t.preds||[]).concat([{id:cand.id,type:"FS",lag:0}]); }); }
@@ -1881,6 +1988,7 @@ function showCtx(x,y){
   ctx.innerHTML=[["addTask","タスクを挿入","Ins"],["addMilestone","マイルストーンを挿入",""],["addBlank","空白行を挿入",""],["dup","複製",""],null,
     ["indent","レベル下げ","Alt+→"],["outdent","レベル上げ","Alt+←"],["moveUp","上へ移動","Alt+↑"],["moveDown","下へ移動","Alt+↓"],null,
     ["link","選択をリンク",""],["unlink","リンク解除",""],["setMS","マイルストーンに変更",""],null,
+    ["splitTask","タスクを分割",""],["unsplit","分割を解除",""],null,
     ["info","タスク情報",""],["delTask","削除","Del"]]
     .map(m=>m?'<button data-act="'+m[0]+'">'+m[1]+'<kbd>'+m[2]+'</kbd></button>':"<hr>").join("");
   ctx.style.left="0px"; ctx.style.top="0px"; ctx.style.maxHeight="";
@@ -1927,6 +2035,19 @@ const ACT={
   addTask:()=>newTask(false), addMilestone:()=>newTask(true), addBlank:newBlank, delTask:deleteSel,
   indent:()=>indentSel(1), outdent:()=>indentSel(-1), moveUp:()=>moveSel(-1), moveDown:()=>moveSel(1),
   link:linkSel, unlink:unlinkSel,
+  splitTask:()=>{ const t=selTasks().filter(x=>!x.isSummary&&!x.blank&&!x.ms)[0];
+    if(!t)return toast("分割するタスクを選択してください");
+    const dur=Math.max(1,t.dur|0);
+    if(dur<2)return toast("実働 2 "+uName()+" 以上のタスクだけ分割できます");
+    const brs=normBreaks(t), used=brs.map(b=>b.after);
+    let at=Math.ceil(dur/2), g=0;
+    while(used.indexOf(at)>=0&&g++<dur){ at=(at%(dur-1))+1; }
+    if(used.indexOf(at)>=0)return toast("これ以上分割できません");
+    mutate(()=>{ t.breaks=brs.concat([{after:at,len:1}]); });
+    toast("#"+t.id+" を分割：実働 "+at+" "+uName()+" の後に 1 "+uName()+" 中断"); },
+  unsplit:()=>{ const list=selTasks().filter(t=>normBreaks(t).length);
+    if(!list.length)return toast("分割されたタスクが選択されていません");
+    mutate(()=>{ list.forEach(t=>{ t.breaks=[]; }); }); toast("分割を解除しました"); },
   dup:()=>{ const t=selTasks()[0]; if(!t)return; const c=JSON.parse(JSON.stringify(t)); c.id=D.nextTask++; c.name=t.name+"（複製）"; c.preds=[];
     mutate(()=>{ D.tasks.splice(idx(t.id)+1,0,c); U.sel=[c.id]; }); },
   setMS:()=>mutate(()=>{ selTasks().forEach(t=>{ if(!t.isSummary&&!t.blank){ t.ms=!t.ms; t.dur=t.ms?0:Math.max(1,t.dur|0); } }); }),
@@ -2012,7 +2133,7 @@ document.addEventListener("keydown",e=>{
   if(e.altKey&&e.key==="ArrowUp"){ e.preventDefault(); return moveSel(-1); }
   if(e.altKey&&e.key==="ArrowDown"){ e.preventDefault(); return moveSel(1); }
   if(e.key==="ArrowUp"||e.key==="ArrowDown"){
-    const list=ROWS.map(t=>t.id); if(!list.length)return;
+    const list=ROWS.filter(t=>!t.__seg).map(t=>t.id); if(!list.length)return;
     const i=list.indexOf(U.sel[U.sel.length-1]); const ni=clamp(i+(e.key==="ArrowDown"?1:-1),0,list.length-1);
     e.preventDefault(); U.sel=[list[ni]]; render();
     const tr=document.querySelector('tr[data-tid="'+list[ni]+'"]'); if(tr)tr.scrollIntoView({block:"nearest"});
@@ -2308,16 +2429,18 @@ function buildXlsx(){
     /* 日付グリッド */
     if(t.blank){ GC.forEach((c,i)=>{ row[L+i]={v:"",s:c.hol?14:(c.we?13:12)}; }); }
     else {
-      const hit=[]; GC.forEach((c,i)=>{ hit.push(G.scale==="hour"
-        ? (c.s.getTime()<=t._f.getTime()&&t._s.getTime()<=c.f.getTime())
-        : (dayDiff(c.s,d0(t._f))>=0&&dayDiff(d0(t._s),c.f)>=0)); });
-      const first=hit.indexOf(true), last=hit.lastIndexOf(true), span=last-first+1;
-      const done=(t.pct||0)>=100?span:Math.round(span*(t.pct||0)/100);
+      const segs=(!b&&!t.ms&&t._segs)?t._segs:[{s:t._s,f:t._f}];
+      const hit=GC.map(c=>segs.some(sg=>G.scale==="hour"
+        ? (c.s.getTime()<=sg.f.getTime()&&sg.s.getTime()<=c.f.getTime())
+        : (dayDiff(c.s,d0(sg.f))>=0&&dayDiff(d0(sg.s),c.f)>=0)));
+      const idx=[]; hit.forEach((v,i)=>{ if(v)idx.push(i); });
+      const first=idx.length?idx[0]:-1;
+      const done=(t.pct||0)>=100?idx.length:Math.round(idx.length*(t.pct||0)/100);
       GC.forEach((c,i)=>{
         if(!hit[i]){ row[L+i]={v:"",s:c.hol?14:(c.we?13:12)}; return; }
         if(b){ row[L+i]={v:"",s:19}; return; }
         if(t.ms){ row[L+i]={v:"◆",s:20}; return; }
-        const inDone=(i-first)<done;
+        const inDone=idx.indexOf(i)<done;
         row[L+i]={v:"",s:t.critical?(inDone?18:17):(inDone?16:15)};
       });
     }
@@ -2521,16 +2644,22 @@ function pTrack(t,m){
     const now=new Date(); let ti=-1;
     for(let i=0;i<S.length;i++){ if(ymd(S[i])===ymd(now)&&S[i].getHours()===now.getHours()){ ti=i; break; } }
     if(ti>=0) h+='<div class="p-today" style="left:'+(ti*dayMM)+'mm"></div>';
-    const hit=S.map(d=>d.getTime()<=t._f.getTime()&&t._s.getTime()<=d.getTime()+3599999);
-    const first=hit.indexOf(true), last=hit.lastIndexOf(true);
-    if(first<0) return h;
-    const x=first*dayMM, w=Math.max(0.8,(last-first+1)*dayMM);
+    const segs=(!t.isSummary&&!t.ms&&t._segs)?t._segs:[{s:t._s,f:t._f,n:Math.max(1,t.dur|0)}];
+    const spans=segs.map(sg=>{ const hs=S.map(d=>d.getTime()<=sg.f.getTime()&&sg.s.getTime()<=d.getTime()+3599999);
+      return {a:hs.indexOf(true),b:hs.lastIndexOf(true),n:sg.n||1}; }).filter(v=>v.a>=0);
+    if(!spans.length) return h;
+    const x=spans[0].a*dayMM, w=Math.max(0.8,(spans[spans.length-1].b-spans[0].a+1)*dayMM);
     const cut=(t._s.getTime()<S[0].getTime()?"border-left-style:dashed;border-left-width:0.5mm;":"")+
               (t._f.getTime()>S[S.length-1].getTime()?"border-right-style:dashed;border-right-width:0.5mm;":"");
-    if(t.ms) h+='<div class="p-ms'+(t.critical?" crit":"")+'" style="left:'+(x+dayMM/2-1.2)+'mm"></div>';
-    else if(t.isSummary) h+='<div class="p-sum" style="left:'+x+'mm;width:'+w+'mm"></div>';
-    else h+='<div class="p-bar'+(t.critical?" crit":"")+((t.pct||0)>=100?" done":"")+'" style="left:'+x+'mm;width:'+w+'mm;'+cut+'">'+
-      ((t.pct||0)>0?'<div class="pf" style="width:'+(t.pct||0)+'%"></div>':"")+'</div>';
+    if(t.isSummary) h+='<div class="p-sum" style="left:'+x+'mm;width:'+w+'mm"></div>';
+    else if(t.ms) h+='<div class="p-ms'+(t.critical?" crit":"")+'" style="left:'+(x+dayMM/2-1.2)+'mm"></div>';
+    else { const dur=Math.max(1,t.dur|0), doneU=dur*(t.pct||0)/100; let acc=0;
+      spans.forEach((v,i)=>{
+        if(i>0){ const px=(spans[i-1].b+1)*dayMM;
+          h+='<div class="p-split" style="left:'+px+'mm;width:'+Math.max(0,v.a*dayMM-px)+'mm"></div>'; }
+        const sd=clamp(doneU-acc,0,v.n), pr=v.n?Math.round(sd/v.n*100):0; acc+=v.n;
+        h+='<div class="p-bar'+(t.critical?" crit":"")+((t.pct||0)>=100?" done":"")+'" style="left:'+(v.a*dayMM)+'mm;width:'+Math.max(0.8,(v.b-v.a+1)*dayMM)+'mm;'+(i===0?cut:"")+'">'+
+          (pr>0?'<div class="pf" style="width:'+pr+'%"></div>':"")+'</div>'; }); }
     if(PR.label&&!t.isSummary){
       const rn=(t.res||[]).map(r=>(resById(r.id)||{}).init||"").filter(Boolean).join("・");
       const txt=(t.ms?hhmm(t._s):rn)+((t.pct||0)>0&&(t.pct||0)<100?" "+t.pct+"%":"");
@@ -2546,6 +2675,23 @@ function pTrack(t,m){
   const cs=dayDiff(rg.s,d0(t._s))>=0?d0(t._s):rg.s, cf=dayDiff(d0(t._f),rg.f)>=0?d0(t._f):rg.f;
   if(dayDiff(cs,cf)<0) return h;
   const x=dayDiff(rg.s,cs)*dayMM, w=Math.max(0.8,(dayDiff(cs,cf)+1)*dayMM);
+  if(t._segs&&!t.isSummary&&!t.ms){
+    const dur=Math.max(1,t.dur|0), doneU=dur*(t.pct||0)/100; let acc=0, prevEnd=null;
+    t._segs.forEach(sg=>{
+      const a=dayDiff(rg.s,d0(sg.s))>=0?d0(sg.s):rg.s, b2=dayDiff(d0(sg.f),rg.f)>=0?d0(sg.f):rg.f;
+      const sd=clamp(doneU-acc,0,sg.n||1), pr=(sg.n?Math.round(sd/sg.n*100):0); acc+=(sg.n||1);
+      if(dayDiff(a,b2)<0) return;
+      const ax=dayDiff(rg.s,a)*dayMM, aw=Math.max(0.8,(dayDiff(a,b2)+1)*dayMM);
+      if(prevEnd!=null&&ax>prevEnd) h+='<div class="p-split" style="left:'+prevEnd+'mm;width:'+(ax-prevEnd)+'mm"></div>';
+      prevEnd=ax+aw;
+      h+='<div class="p-bar'+(t.critical?" crit":"")+((t.pct||0)>=100?" done":"")+'" style="left:'+ax+'mm;width:'+aw+'mm">'+
+        (pr>0?'<div class="pf" style="width:'+pr+'%"></div>':"")+'</div>';
+    });
+    if(PR.label){ const rn=(t.res||[]).map(r=>(resById(r.id)||{}).init||"").filter(Boolean).join("・");
+      const txt=rn+((t.pct||0)>0&&(t.pct||0)<100?" "+t.pct+"%":"");
+      if(txt&&prevEnd!=null&&prevEnd+2+txt.length*1.9<chartW) h+='<div class="p-blab" style="left:'+(prevEnd+1.2)+'mm">'+esc(txt)+'</div>'; }
+    return h;
+  }
   const cut=(dayDiff(rg.s,t._s)<0?"border-left-style:dashed;border-left-width:0.5mm;":"")+
             (dayDiff(t._f,rg.f)<0?"border-right-style:dashed;border-right-width:0.5mm;":"");
   if(PR.base&&D.baseline&&D.baseline[t.id]){ const b=D.baseline[t.id];
