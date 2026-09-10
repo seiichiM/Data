@@ -141,15 +141,21 @@ python3 tools/update_master.py --add prtr2.xlsx --set 化管法=第二種
 python3 tools/build_master.py
 ```
 
-## 法令一覧のPDF
+## 法令リファレンス（PDF・HTML）
 
-`化学物質関係法令_確認点一覧.pdf`（A4・20ページ）を同梱しています。24法令・96項目について、**該当条件・必要実施事項・確認点・周期・記録保存年数**を法令ごとに整理したものです。表紙に事業場名と確認日の記入欄があり、そのまま配布・回覧できます。
+24法令・96項目について、**該当条件・必要実施事項・確認点・周期・記録保存年数**を法令ごとに整理した資料です。2つの形式で同梱しています。
 
-アプリの判定エンジンと同じ定義から生成しているため、紙と画面が食い違いません。項目を増やしたら作り直してください。
+| ファイル | 用途 |
+|---|---|
+| `化学物質関係法令_確認点一覧.pdf` | A4・20ページ。表紙に事業場名と確認日の記入欄があり、そのまま配布・回覧できます |
+| `chem-checklist.html` | 画面で読む用。**検索・分類の絞り込み・法令への移動**ができます。印刷ボタンからA4体裁でPDF化も可能 |
+
+どちらも `chemical-compliance.html` のチェック項目定義から生成しているため、**アプリ・画面・紙が食い違いません**。項目を増やしたら作り直してください。
 
 ```bash
-python3 tools/build_pdf.py out.html
-# out.html をブラウザで開いて印刷 → PDF
+python3 tools/build_checklist.py --mode web   --out chem-checklist.html
+python3 tools/build_checklist.py --mode print --out print.html
+# print.html をブラウザで開いて印刷 → PDF
 ```
 
 ## 位置づけ
