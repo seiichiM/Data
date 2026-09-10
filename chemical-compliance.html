@@ -515,6 +515,7 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
           自社で使う物質がここに無い場合は、下の取り込みで追加してください。取り込んだ物質は内蔵側より優先されます。
         </div>
 
+        <div id="msEnv"></div>
         <div class="grid3" id="masterStats"></div>
 
         <div class="ms-src">
@@ -558,6 +559,23 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
           <input type="file" id="fileMs" accept=".csv,text/csv" hidden>
           <button class="btn danger" id="btnMsReset" type="button" hidden>取り込んだ物質を全て削除</button>
         </div>
+
+        <details id="msPasteBox">
+          <summary style="cursor:pointer;font-size:13px;color:var(--accent)">CSVを貼り付けて取り込む</summary>
+          <div style="padding:10px 2px 0; display:flex; flex-direction:column; gap:8px">
+            <p style="font-size:12.5px;color:var(--ink-2);line-height:1.8">
+              Excelで開いたマスタの範囲をコピーして貼り付けるか、CSVファイルの中身をそのまま貼り付けてください。
+              1行目は見出し行にしてください。ファイル選択が使えない環境でも取り込めます。
+            </p>
+            <textarea id="msPaste" rows="6" spellcheck="false"
+              placeholder="CAS番号,物質名,安衛法,皮膚等障害,がん原性,特化則,...&#10;108-88-3,トルエン,対象物,該当,,,..."
+              style="font-family:var(--mono); font-size:12px"></textarea>
+            <div class="btnrow">
+              <button class="btn" id="btnMsPaste" type="button">貼り付けた内容を取り込む</button>
+              <button class="btn ghost" id="btnMsPasteClear" type="button">消す</button>
+            </div>
+          </div>
+        </details>
 
         <div class="tw"><table id="tblMaster">
           <thead><tr>
@@ -895,8 +913,11 @@ function rebuildMaster(userSubs){
   const byKey = new Map();
   BUILTIN.forEach(m => byKey.set(subKey(m), m));
   (userSubs || []).forEach(u => {
-    const m = Object.assign({}, SUB_DEFAULTS, u, {src:"追加"});
-    byKey.set(subKey(m), m);
+    const k = subKey(u);
+    // 取り込んだ項目は内蔵マスタの行に重ね合わせる。丸ごと置き換えると、
+    // 一部の列しか持たない表を取り込んだときに他の法令の判定が消えてしまう
+    const m = Object.assign({}, SUB_DEFAULTS, byKey.get(k) || {}, u, {src:"追加"});
+    byKey.set(k, m);
   });
   MASTER = [...byKey.values()];
   MASTER_BY_CAS = {}; MASTER_BY_NAME = {};
@@ -1671,26 +1692,29 @@ function importMasterCsv(text, opt){
   rows.slice(1).forEach(c => {
     const cas = normCas(g(c,iCas)), name = g(c,iName).trim();
     if(!cas && !name) return;
-    const sub = {
-      cas: cas || "-", name: name || (lookupCas(cas) ? lookupCas(cas).name : cas),
-      an:    vYN(g(c, at("安衛法"))) || (at("安衛法")<0 ? 1 : 0),
-      skin:  vYN(g(c, at("皮膚"))),
-      cancer:vYN(g(c, at("がん原性"))) ? 1 : 0,
-      tokka: vRank(g(c, at("特化則"))),
-      sp:    vYN(g(c, at("特別管理"))) ? 1 : 0,
-      yuki:  vRank(g(c, at("有機則"))),
-      lead:  vYN(g(c, at("鉛則"))) ? 1 : 0,
-      dust:  vYN(g(c, at("粉じん"))) ? 1 : 0,
-      kakan: vKakan(g(c, at("化管法"))),
-      doku:  vDoku(g(c, at("毒劇"))),
-      shi:   vShi(g(c, at("消防法"))),
-      kashin: /第[1一]種特定|1特/.test(g(c, at("化審法"))) ? "1特" : "",
-      taiki: g(c, at("大防法")).trim(),
-      sui:   vYN(g(c, at("水濁法"))),
-      dojo:  vYN(g(c, at("土対法"))) ? 1 : 0,
-      josei: vYN(g(c, at("女性則"))) ? 1 : 0,
-      note:  g(c, at("備考")).trim()
-    };
+    const sub = {cas: cas || "-", name: name || (lookupCas(cas) ? lookupCas(cas).name : cas)};
+    // CSVに含まれる列だけを書き換える。列が無い項目は既存の値をそのまま残す。
+    // 一部の列だけを持つ表を取り込んだときに、他の法令の判定を消さないため。
+    const put = (key, col, conv) => { const i = at(col); if(i >= 0) sub[key] = conv(g(c,i)); };
+    put("an",     "安衛法",   vYN);
+    put("skin",   "皮膚",     vYN);
+    put("cancer", "がん原性", v => vYN(v) ? 1 : 0);
+    put("tokka",  "特化則",   vRank);
+    put("sp",     "特別管理", v => vYN(v) ? 1 : 0);
+    put("yuki",   "有機則",   vRank);
+    put("lead",   "鉛則",     v => vYN(v) ? 1 : 0);
+    put("dust",   "粉じん",   v => vYN(v) ? 1 : 0);
+    put("kakan",  "化管法",   vKakan);
+    put("doku",   "毒劇",     vDoku);
+    put("shi",    "消防法",   vShi);
+    put("kashin", "化審法",   v => /第[1一]種特定|1特/.test(v) ? "1特" : "");
+    put("taiki",  "大防法",   v => String(v||"").trim());
+    put("sui",    "水濁法",   vYN);
+    put("dojo",   "土対法",   v => vYN(v) ? 1 : 0);
+    put("josei",  "女性則",   v => vYN(v) ? 1 : 0);
+    put("note",   "備考",     v => String(v||"").trim());
+    // 安衛法の列を持たない表で新規に増える物質は、見落としを避けて対象物として扱う
+    if(at("安衛法") < 0 && !byKey.has(subKey(sub))) sub.an = 1;
     if(opt.auto) sub.auto = 1;
     const k = subKey(sub);
     if(byKey.has(k)){ Object.assign(byKey.get(k), sub); updated++; }
@@ -1707,6 +1731,10 @@ function importMasterCsv(text, opt){
    ・アーティファクト上は外部への通信がCSPで遮断される
    ・官公庁のサイトはCORSを許可していないため直接は読めない
    したがって社内サーバ配置時のみ有効な、任意の上乗せ機能として扱う。 */
+/* claude.ai のアーティファクトとして開かれているか。
+   この環境では枠外への通信がCSPで遮断され、同じフォルダという概念も無いため、
+   自動読み込みは原理的に働かない。取り込み手段の案内を切り替えるために使う。 */
+const IN_ARTIFACT = !!(window.claude && typeof window.claude.use === "function");
 const DEFAULT_MASTER_CSV = "chem-master.csv";
 const DEFAULT_MASTER_JS  = "chem-master.js";
 /* file:// で開いたときは fetch が必ずCORSで失敗する。script要素の読み込みだけは
@@ -1754,6 +1782,8 @@ function announceAutoLoad(){
   toast(`${src.url} から${n}物質を読み込みました（物質マスタ 計${MASTER.length}物質）`);
 }
 async function autoLoadMaster(){
+  // claude.ai上では枠外への通信も同フォルダの参照もできない。試行自体を省く
+  if(IN_ARTIFACT) return;
   const explicit = (state.masterUrl||"").trim();
 
   // ① URLを明示指定しているときはそれを最優先
@@ -1804,8 +1834,17 @@ function renderMaster(){
   ].map(([k,v])=>`<div class="ms-stat"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`).join("");
 
   const src = state.masterSrc;
-  const mode = location.protocol === "file:" ? "ローカルのファイルとして実行中（相対パスの自動取得は使えません）"
-             : location.protocol === "https:" || location.protocol === "http:" ? "サーバから配信中" : "";
+  const mode = IN_ARTIFACT ? "claude.ai上で実行中のため、自動読み込みは使えません"
+             : location.protocol === "file:" ? "ローカルのファイルとして実行中"
+             : /^https?:$/.test(location.protocol) ? "サーバから配信中" : "";
+  $("#msEnv").innerHTML = IN_ARTIFACT
+    ? `<div class="callout"><b>この画面では自動読み込みは使えません。</b>
+        claude.ai上では枠外への通信が遮断されており、同じフォルダという概念もないため、
+        <b>chem-master.csv / chem-master.js の自動読み込みと、URL指定での取得は働きません</b>。
+        下の<b>「CSVで取り込み」「ドラッグ&amp;ドロップ」「貼り付けて取り込む」</b>のいずれかで取り込んでください。
+        取り込んだ内容はこのブラウザに保存され、次に開いたときも残ります。
+        自動読み込みを使いたい場合は、HTMLファイルを社内サーバに置くか、手元に保存して直接開いてください。</div>`
+    : "";
   $("#msState").innerHTML = src
     ? (src.error
         ? `<span class="pill p-crit">取得失敗</span><b>${esc(src.url)}</b><span>${esc(src.error)}</span><span>取り込み済みの内容で動作しています</span>`
@@ -2163,6 +2202,18 @@ function bind(){
     if(!/\.csv$/i.test(f.name)) return toast("CSVファイルを置いてください");
     readCsvFile(f);
   });
+
+  $("#btnMsPaste").addEventListener("click", () => {
+    const t = ($("#msPaste").value||"").trim();
+    if(!t) return toast("取り込む内容を貼り付けてください");
+    // Excelから直接コピーするとタブ区切りになるためカンマに直す
+    const text = t.indexOf("\t") >= 0 && t.indexOf(",") < 0
+      ? t.split(/\r?\n/).map(l => l.split("\t").map(c => `"${c.replace(/"/g,'""')}"`).join(",")).join("\r\n")
+      : t;
+    try{ if(importMasterCsv(text)) $("#msPaste").value = ""; }
+    catch(err){ toast("取り込めませんでした：" + err.message); }
+  });
+  $("#btnMsPasteClear").addEventListener("click", () => { $("#msPaste").value = ""; });
 
   $("#btnMsImport").addEventListener("click", ()=>$("#fileMs").click());
   $("#fileMs").addEventListener("change", e => {
