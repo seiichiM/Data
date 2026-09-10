@@ -340,6 +340,60 @@ for law, f in [("特化則 第1類", lambda r: r["tokka"]=="1"),
                ("がん原性物質", lambda r: r["cancer"]==1),
                ("皮膚等障害", lambda r: r["skin"]==1)]:
     print("  %-16s %3d" % (law, sum(1 for r in rows if f(r))))
+
+# ------------------------------------------------------------
+# 参照用CSV（アプリの「マスタをCSVで書き出し」と同じ列構成）
+# 社内サーバでこのHTMLと同じ場所に chem-master.csv として置くと
+# 起動時に自動で読み込まれる。
+# ------------------------------------------------------------
+SHOBO_LABEL = {
+ "4|特殊引火物":"第4類 特殊引火物","4|第1石油類(非水溶性)":"第4類 第1石油類 非水溶性",
+ "4|第1石油類(水溶性)":"第4類 第1石油類 水溶性","4|アルコール類":"第4類 アルコール類",
+ "4|第2石油類(非水溶性)":"第4類 第2石油類 非水溶性","4|第2石油類(水溶性)":"第4類 第2石油類 水溶性",
+ "4|第3石油類(非水溶性)":"第4類 第3石油類 非水溶性","4|第3石油類(水溶性)":"第4類 第3石油類 水溶性",
+ "4|第4石油類":"第4類 第4石油類","4|動植物油類":"第4類 動植物油類",
+ "1|酸化性固体 第1種":"第1類 酸化性固体 第1種","1|酸化性固体 第2種":"第1類 酸化性固体 第2種",
+ "1|酸化性固体 第3種":"第1類 酸化性固体 第3種","2|硫黄・赤りん・硫化りん":"第2類 硫黄・赤りん・硫化りん",
+ "2|金属粉・マグネシウム 第1種":"第2類 金属粉・マグネシウム 第1種","2|鉄粉":"第2類 鉄粉",
+ "2|金属粉・マグネシウム 第2種":"第2類 金属粉・マグネシウム 第2種","2|引火性固体":"第2類 引火性固体",
+ "3|黄りん":"第3類 黄りん","3|自然発火性・禁水性 第1種":"第3類 自然発火性物質・禁水性物質 第1種",
+ "3|自然発火性・禁水性 第2種":"第3類 自然発火性物質・禁水性物質 第2種",
+ "3|自然発火性・禁水性 第3種":"第3類 自然発火性物質・禁水性物質 第3種",
+ "5|自己反応性 第1種":"第5類 自己反応性物質 第1種","5|自己反応性 第2種":"第5類 自己反応性物質 第2種",
+ "6|酸化性液体":"第6類 酸化性液体"}
+KAKAN_LABEL = {"1":"第一種","1T":"特定第一種","2":"第二種","?":"要確認"}
+CSV_COLS = [
+ ("CAS番号",       lambda r: r["cas"]),
+ ("物質名",        lambda r: r["name"]),
+ ("安衛法",        lambda r: "対象物" if r["an"]==1 else ("要確認" if r["an"]==2 else "非該当")),
+ ("皮膚等障害",    lambda r: "該当" if r["skin"]==1 else ("要確認" if r["skin"]==2 else "")),
+ ("がん原性",      lambda r: "該当" if r["cancer"]==1 else ""),
+ ("特化則",        lambda r: ("第%s類" % r["tokka"]) if r["tokka"] else ""),
+ ("特別管理物質",  lambda r: "該当" if r["sp"]==1 else ""),
+ ("有機則",        lambda r: ("第%s種" % r["yuki"]) if r["yuki"] else ""),
+ ("鉛則",          lambda r: "該当" if r["lead"]==1 else ""),
+ ("粉じん則",      lambda r: "該当" if r["dust"]==1 else ""),
+ ("化管法",        lambda r: KAKAN_LABEL.get(r["kakan"], "")),
+ ("毒劇法",        lambda r: (r["doku"]+"物") if r["doku"] else ""),
+ ("消防法品名",    lambda r: SHOBO_LABEL.get(r["shi"], "")),
+ ("化審法",        lambda r: "第一種特定" if r["kashin"]=="1特" else ""),
+ ("大防法",        lambda r: r["taiki"]),
+ ("水濁法有害物質",lambda r: "該当" if r["sui"]==1 else ("要確認" if r["sui"]==2 else "")),
+ ("土対法",        lambda r: "該当" if r["dojo"]==1 else ""),
+ ("女性則",        lambda r: "該当" if r["josei"]==1 else ""),
+ ("備考",          lambda r: r["note"]),
+ ("出所",          lambda r: "内蔵"),
+]
+def cell(v): return '"' + str(v).replace('"', '""') + '"'
+csv_lines = [",".join(cell(c[0]) for c in CSV_COLS)]
+csv_lines += [",".join(cell(c[1](r)) for c in CSV_COLS) for r in rows]
+io.open("chem-master.csv", "w", encoding="utf-8-sig").write("\r\n".join(csv_lines) + "\r\n")
+print("\nchem-master.csv を出力しました（%d行）" % len(rows))
+
+for shi in set(r["shi"] for r in rows if r["shi"]):
+    if shi not in SHOBO_LABEL:
+        print("  !! 消防法品名の対応表に無いキー:", shi)
+
 if dups:
     print("\n統合した重複 %d件:" % len(dups))
     for k, a, b in dups: print("  %s : %s / %s" % (k, a, b))

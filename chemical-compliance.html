@@ -272,6 +272,13 @@ tr.sev-info td:first-child{border-left-color:var(--line-2)}
 }
 .gauge-scale{height:15px}
 
+.ms-src{border:1px solid var(--line); border-radius:7px; padding:12px 14px; background:var(--surface-2);
+  display:flex; flex-direction:column; gap:9px}
+.ms-src .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.ms-src .row input[type=text]{flex:1 1 260px; min-width:0}
+.ms-state{font-size:11.5px; color:var(--muted); display:flex; gap:7px; align-items:baseline; flex-wrap:wrap}
+.ms-state b{font-family:var(--mono); color:var(--ink-2); font-weight:500}
+#panel-master.drop{outline:2px dashed var(--accent); outline-offset:-6px; border-radius:10px}
 .ms-stat{border:1px solid var(--line); border-radius:6px; padding:9px 12px; background:var(--surface-2); display:flex; flex-direction:column; gap:1px}
 .ms-stat .k{font-size:11px; color:var(--muted)}
 .ms-stat .v{font-family:var(--mono); font-size:21px; font-weight:600; font-variant-numeric:tabular-nums}
@@ -504,6 +511,23 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
         </div>
 
         <div class="grid3" id="masterStats"></div>
+
+        <div class="ms-src">
+          <div>
+            <p class="sec-label" style="margin-bottom:6px">マスタの参照元</p>
+            <p style="font-size:12.5px;color:var(--ink-2);line-height:1.8">
+              社内サーバやイントラネットにこのファイルを置いている場合は、同じ場所に <b style="font-family:var(--mono)">chem-master.csv</b>
+              を置くだけで起動時に読み込みます。別の場所にあるときは下にURLを入れてください。
+              ファイルをこの画面にドラッグしても取り込めます。
+            </p>
+          </div>
+          <div class="row">
+            <input type="text" id="msUrl" placeholder="https://intra.example.co.jp/chem/chem-master.csv" spellcheck="false" autocomplete="off">
+            <button class="btn ghost" id="btnMsFetch" type="button">今すぐ取得</button>
+            <button class="btn ghost" id="btnMsFetchClear" type="button">URLを消す</button>
+          </div>
+          <div class="ms-state" id="msState"></div>
+        </div>
 
         <div class="btnrow">
           <input type="search" id="msQuery" placeholder="CAS番号・物質名で検索" style="max-width:260px">
@@ -1623,14 +1647,17 @@ const vShi  = v => { v = String(v==null?"":v).trim();
   const hit = SHOBO.find(x => x.label.replace(/\s/g,"") === v.replace(/\s/g,""));
   return hit ? hit.key : ""; };
 
-function importMasterCsv(text){
+function importMasterCsv(text, opt){
+  opt = opt || {};
   const rows = parseCsv(text);
-  if(rows.length < 2) return toast("データ行がありません");
+  if(rows.length < 2){ if(!opt.silent) toast("データ行がありません"); return null; }
   const head = rows[0].map(h => h.replace(/\s/g,""));
   const at = n => head.findIndex(h => h.indexOf(n) >= 0);
   const iCas = at("CAS"), iName = at("物質名");
-  if(iCas < 0 && iName < 0) return toast("「CAS番号」または「物質名」の列が必要です");
+  if(iCas < 0 && iName < 0){ if(!opt.silent) toast("「CAS番号」または「物質名」の列が必要です"); return null; }
   const g = (c,i) => i>=0 ? (c[i]||"") : "";
+  // 自動取得は前回の自動取得分を入れ替える。手で取り込んだ物質は残す
+  if(opt.auto) state.userSubs = (state.userSubs||[]).filter(u => !u.auto);
   const list = state.userSubs || (state.userSubs = []);
   const byKey = new Map(list.map(u => [subKey(u), u]));
   let added = 0, updated = 0;
@@ -1657,12 +1684,50 @@ function importMasterCsv(text){
       josei: vYN(g(c, at("女性則"))) ? 1 : 0,
       note:  g(c, at("備考")).trim()
     };
+    if(opt.auto) sub.auto = 1;
     const k = subKey(sub);
     if(byKey.has(k)){ Object.assign(byKey.get(k), sub); updated++; }
     else { list.push(sub); byKey.set(k, sub); added++; }
   });
   rebuildMaster(state.userSubs); refresh(true); renderMaster();
-  toast(`物質マスタに${added}件を追加、${updated}件を更新しました`);
+  if(!opt.silent) toast(`物質マスタに${added}件を追加、${updated}件を更新しました`);
+  return {added, updated};
+}
+
+/* ---------- 外部CSVの参照 ----------
+   ブラウザの制約により、実行時に取得できるのは同一生成元のCSVだけです。
+   ・file:// で開いた場合は相対パスのfetchがCORSで必ず失敗する
+   ・アーティファクト上は外部への通信がCSPで遮断される
+   ・官公庁のサイトはCORSを許可していないため直接は読めない
+   したがって社内サーバ配置時のみ有効な、任意の上乗せ機能として扱う。 */
+const DEFAULT_MASTER_CSV = "chem-master.csv";
+async function fetchMasterCsv(url, opt){
+  opt = opt || {};
+  const res = await fetch(url, {cache:"no-cache"});
+  if(!res.ok) throw new Error("HTTP " + res.status + " " + res.statusText);
+  const text = await res.text();
+  const r = importMasterCsv(text, {silent:true, auto:true});
+  if(!r) throw new Error("CSVの形式を読み取れませんでした");
+  state.masterSrc = {url, at:new Date().toISOString(), added:r.added, updated:r.updated};
+  save(); renderMaster();
+  if(!opt.silent) toast(`${url} から${r.added + r.updated}物質を取り込みました`);
+  return r;
+}
+async function autoLoadMaster(){
+  const explicit = (state.masterUrl||"").trim();
+  const url = explicit || DEFAULT_MASTER_CSV;
+  // file:// では相対パスの取得が必ず失敗するため、黙って内蔵マスタで動かす
+  if(location.protocol === "file:" && !/^https?:/i.test(url)) return;
+  try{
+    await fetchMasterCsv(url, {silent:!explicit});
+  }catch(e){
+    // 既定パスに置いていないのは正常な状態。明示指定の失敗だけ知らせる
+    if(explicit){
+      state.masterSrc = {url, at:new Date().toISOString(), error:String(e.message||e)};
+      save(); renderMaster();
+      toast("マスタを取得できませんでした：" + (e.message||e) + "（取り込み済みの内容で続けます）");
+    }
+  }
 }
 
 function renderMaster(){
@@ -1677,6 +1742,16 @@ function renderMaster(){
     ["消防法 危険物", n(m=>m.shi)],
     ["がん原性物質", n(m=>m.cancer===1)]
   ].map(([k,v])=>`<div class="ms-stat"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`).join("");
+
+  const src = state.masterSrc;
+  const mode = location.protocol === "file:" ? "ローカルのファイルとして実行中（相対パスの自動取得は使えません）"
+             : location.protocol === "https:" || location.protocol === "http:" ? "サーバから配信中" : "";
+  $("#msState").innerHTML = src
+    ? (src.error
+        ? `<span class="pill p-crit">取得失敗</span><b>${esc(src.url)}</b><span>${esc(src.error)}</span><span>取り込み済みの内容で動作しています</span>`
+        : `<span class="pill p-ok">参照中</span><b>${esc(src.url)}</b><span>最終取得 ${esc(String(src.at).slice(0,16).replace("T"," "))}</span><span>${(src.added||0)+(src.updated||0)}物質</span>`)
+    : `<span class="pill p-mute">参照なし</span><span>内蔵マスタと、手で取り込んだ物質だけで動作しています。${esc(mode)}</span>`;
+  if($("#msUrl") !== document.activeElement) $("#msUrl").value = state.masterUrl || "";
 
   const q = ($("#msQuery").value||"").trim().toLowerCase(), f = $("#msFilter").value;
   const test = {
@@ -1979,6 +2054,51 @@ function bind(){
   $("#msFilter").addEventListener("change", renderMaster);
   $("#btnMsExport").addEventListener("click", () =>
     download(`物質マスタ_${iso(TODAY)}.csv`, csvMaster()));
+  $("#msUrl").addEventListener("input", e => { state.masterUrl = e.target.value.trim(); save(); });
+  $("#btnMsFetch").addEventListener("click", async () => {
+    const url = ($("#msUrl").value||"").trim();
+    if(!url) return toast("取得元のURLを入力してください");
+    state.masterUrl = url;
+    $("#btnMsFetch").disabled = true;
+    try{ await fetchMasterCsv(url); }
+    catch(e){
+      state.masterSrc = {url, at:new Date().toISOString(), error:String(e.message||e)};
+      save(); renderMaster();
+      const hint = /^https?:/i.test(url) && !url.startsWith(location.origin)
+        ? "別のサイトのCSVはブラウザの制約で読めません。同じサーバに置いたものを指定してください。"
+        : "URLとファイルの配置を確認してください。";
+      toast("取得できませんでした：" + (e.message||e) + " " + hint);
+    }
+    finally{ $("#btnMsFetch").disabled = false; }
+  });
+  $("#btnMsFetchClear").addEventListener("click", () => {
+    state.masterUrl = ""; state.masterSrc = null;
+    $("#msUrl").value = ""; save(); renderMaster(); toast("参照元URLを消しました");
+  });
+
+  const readCsvFile = f => {
+    const r = new FileReader();
+    r.onload = () => { try{ importMasterCsv(String(r.result)); }
+                       catch(err){ toast("取り込めませんでした：" + err.message); } };
+    r.readAsText(f, "UTF-8");
+  };
+  const panel = $("#panel-master");
+  ["dragenter","dragover"].forEach(ev => panel.addEventListener(ev, e => {
+    if(!e.dataTransfer || ![...e.dataTransfer.types].includes("Files")) return;
+    e.preventDefault(); panel.classList.add("drop");
+  }));
+  ["dragleave","drop"].forEach(ev => panel.addEventListener(ev, e => {
+    if(ev==="dragleave" && panel.contains(e.relatedTarget)) return;
+    panel.classList.remove("drop");
+  }));
+  panel.addEventListener("drop", e => {
+    if(!e.dataTransfer || !e.dataTransfer.files.length) return;
+    e.preventDefault();
+    const f = [...e.dataTransfer.files].find(x => /\.csv$/i.test(x.name)) || e.dataTransfer.files[0];
+    if(!/\.csv$/i.test(f.name)) return toast("CSVファイルを置いてください");
+    readCsvFile(f);
+  });
+
   $("#btnMsImport").addEventListener("click", ()=>$("#fileMs").click());
   $("#fileMs").addEventListener("change", e => {
     const f = e.target.files[0]; if(!f) return;
@@ -2037,6 +2157,7 @@ function bind(){
   document.getElementById("footVer").textContent = `版 ${APP_VER}／物質マスタ ${MASTER_REV}（収録 ${MASTER.length}物質）／チェック項目 ${TASKS.length}件。判定日 ${iso(TODAY)}。`;
   document.getElementById("chipStore").textContent = "このブラウザ";
   bind(); renderSite(); refresh(true);
+  autoLoadMaster();
   if(window.claude && typeof window.claude.use === "function"){
     window.claude.use("downloads").then(d => { if(d) canDownload = d; }).catch(()=>{});
   }
