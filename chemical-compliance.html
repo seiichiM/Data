@@ -263,6 +263,23 @@ tr.sev-info td:first-child{border-left-color:var(--line-2)}
 .comp-row .rm:hover{color:var(--crit); border-color:var(--crit)}
 @media (max-width:620px){.comp-row{grid-template-columns:1fr 1fr 80px 34px}}
 
+/* ---- 供給者への含有調査 ---- */
+.decl{border:1px solid var(--line); border-radius:6px; background:var(--surface-2)}
+.decl > summary{cursor:pointer; padding:8px 12px; font-size:12.5px; color:var(--accent); font-weight:700; list-style:none}
+.decl > summary::-webkit-details-marker{display:none}
+.decl > summary::before{content:"▸ "; }
+.decl[open] > summary::before{content:"▾ "; }
+.decl-bd{padding:4px 12px 12px; display:flex; flex-direction:column; gap:10px}
+.decl-row{display:grid; grid-template-columns:1fr 118px 92px; gap:8px; align-items:center;
+  padding:5px 0; border-top:1px solid var(--line)}
+.decl-row .dl{font-size:12.5px; line-height:1.5}
+.decl-row .dl small{display:block; color:var(--muted); font-size:10.5px; line-height:1.45}
+.decl-row select, .decl-row input{padding:4px 7px; font-size:12px}
+.decl-row.y{background:var(--crit-soft); border-radius:4px; padding-left:6px; padding-right:6px}
+.decl-row.n{opacity:.72}
+@media (max-width:620px){.decl-row{grid-template-columns:1fr 104px; }.decl-row input[data-declpct]{grid-column:2}}
+.decl-meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+
 /* ---- gauge (消防法 指定数量倍数) ---- */
 .gauge{display:flex; flex-direction:column; gap:6px}
 .gauge-bar{position:relative; height:22px; background:var(--surface-2); border:1px solid var(--line-2); border-radius:4px; overflow:hidden}
@@ -748,6 +765,13 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
             <span class="hint">Excelで文字化けしないようBOM付きUTF-8で出力します。</span>
           </div>
           <div class="field">
+            <p class="sec-label">供給者への照会</p>
+            <div class="btnrow">
+              <button class="btn" data-dl="decl-csv" type="button">含有調査依頼書をCSVで保存</button>
+            </div>
+            <span class="hint">成分が非開示の製品について、法令ごとに「該当物質が含まれているか」を供給者に確認するための様式です。得ている回答は転記済みなので、空欄だけ埋めてもらえば足ります。</span>
+          </div>
+          <div class="field">
             <p class="sec-label">カレンダー登録</p>
             <div class="btnrow">
               <button class="btn" data-dl="ics" type="button">年間予定をICSで保存</button>
@@ -1099,6 +1123,29 @@ const SHOBO = [
 ].map(r=>({key:r[0],label:r[1],qty:r[2],unit:r[3]}));
 const SHOBO_BY_KEY = Object.fromEntries(SHOBO.map(s=>[s.key,s]));
 
+/* ---------- 供給者への含有調査項目 ----------
+   原材料が非開示の製品は、CAS番号から判定できない。法令ごとに
+   「該当物質が含まれているか」を供給者に確認し、その回答で判定する。
+   pct=true の項目は、裾切り値の判定に含有率が要るもの。 */
+const DECL_ITEMS = [
+ ["ra",     "労働安全衛生法 ラベル表示・SDS交付・リスクアセスメント対象物", true,  "裾切り値は物質ごとに1%または0.1%"],
+ ["skin",   "皮膚等障害化学物質等", false, "不浸透性の保護具の使用義務に関わります"],
+ ["cancer", "がん原性物質", false, "作業記録の30年保存に関わります"],
+ ["tokka",  "特定化学物質（特化則の第1類〜第3類）", true,  "原則1%超で適用。物質により0.1%超"],
+ ["tokkaS", "うち特別管理物質", false, "各種記録の30年保存に関わります"],
+ ["yuki",   "有機溶剤（有機則）", true,  "他の有機溶剤との合計が5%超で適用"],
+ ["yuki12", "うち第1種・第2種有機溶剤", false, "作業環境測定と特殊健康診断の対象"],
+ ["lead",   "鉛またはその化合物", false, ""],
+ ["dust",   "粉じん則の対象物（結晶質シリカ等）", false, ""],
+ ["kakan",  "化管法の指定化学物質", true,  "第一種は1%以上、特定第一種は0.1%以上"],
+ ["kakan1T","うち特定第一種指定化学物質", true,  "PRTR届出の要件が0.5tに下がります"],
+ ["doku",   "毒物・劇物", false, "表示・保管・譲渡手続の義務が生じます"],
+ ["sui",    "水質汚濁防止法の有害物質", false, "排水と地下浸透の規制に関わります"],
+ ["haz_air","有害大気汚染物質（優先取組物質）", false, ""],
+ ["kashin1","化審法の第一種特定化学物質", false, "原則として使用できません"]
+];
+const DECL_LABEL = Object.fromEntries(DECL_ITEMS.map(d => [d[0], d[1]]));
+
 /* ---------- 事業場の条件 ---------- */
 const SITE_Q = [
   ["g1","prtrIndustry","化管法の対象業種である","製造業、燃料小売業、洗濯業など政令で定める24業種"],
@@ -1331,6 +1378,44 @@ function analyze(st){
     });
   });
 
+  // --- 供給者への確認結果を取り込む ---
+  //   成分が開示されていない製品でも、法令ごとの含有の有無が分かれば判定できる。
+  //   ただし化管法の届出のように物質単位の数量が要るものは、これだけでは足りない。
+  (st.products||[]).forEach(p => {
+    const d = p.decl || {}, dp = p.declPct || {};
+    let answered = 0, hasHit = false;
+    DECL_ITEMS.forEach(([k]) => {
+      const v = d[k];
+      if(v === "y" || v === "n") answered++;
+      if(v !== "y") return;
+      hasHit = true;
+      const pct = dp[k];
+      const src = `${p.name}（供給者回答${pct ? "・含有率" + pct + "%" : ""}）`;
+      hit(k, src);
+      if(k === "kakan1T") hit("kakan", src);
+      if(k === "yuki12")  hit("yuki", src);
+      if(k === "tokkaS")  hit("tokka", src);
+      if(k === "ra" || k === "tokka" || k === "yuki" || k === "kakan"){
+        if(!pct) issues.push({type:"含有率が未回答", sub:DECL_LABEL[k], prod:p.name,
+          msg:"裾切り値の判定に含有率が必要です。供給者に含有率の回答を求めてください。"});
+      }
+      if(k === "kakan" || k === "kakan1T"){
+        issues.push({type:"PRTRの数量が不明", sub:DECL_LABEL[k], prod:p.name,
+          msg:"PRTR届出の判定には物質ごとの年間取扱量が必要です。該当物質の名称と含有率を供給者に確認し、成分欄に登録してください。"});
+      }
+    });
+    if(p.undisclosed && !answered){
+      hit("unknown", `${p.name}（成分非開示・供給者未回答）`);
+      issues.push({type:"供給者へ未照会", sub:"成分が非開示", prod:p.name,
+        msg:"成分が非開示のため、CAS番号からは判定できません。「書き出し」タブの含有調査依頼書で供給者に確認してください。"});
+    } else if(p.undisclosed && answered < DECL_ITEMS.length){
+      issues.push({type:"回答が一部のみ", sub:`${answered}/${DECL_ITEMS.length}項目`, prod:p.name,
+        msg:"未回答の法令については該当の有無が確定していません。回答が揃うまで対象外とは判断できません。"});
+    }
+    if(hasHit && !(p.comps||[]).some(c => (c.cas||"").trim() || (c.name||"").trim()))
+      subs.set("decl:"+p.id, {m:{cas:"-", name:"（供給者回答による）", note:"成分非開示"}, kg:0, maxPct:0, prods:[p.name]});
+  });
+
   // --- 化管法PRTR ---
   const prtrRows = [];
   subs.forEach((s,k) => {
@@ -1445,7 +1530,13 @@ function sampleState(){
        comps:[{cas:"1310-73-2",name:"水酸化ナトリウム",pct:20}]},
       {id:uid(), name:"水溶性切削油 W-20", maker:"（例）D油化", sdsDate:"", use:"マシニングセンタ",
        annualKg:2000, stockQty:0, shobo:"",
-       comps:[{cas:"",name:"切削油(水溶性)",pct:100}]}
+       comps:[{cas:"",name:"切削油(水溶性)",pct:100}]},
+      {id:uid(), name:"離型剤 MR-70", maker:"（例）E化学工業", sdsDate:"2025-02-10", use:"金型への塗布",
+       annualKg:600, stockQty:40, shobo:"4|第2石油類(非水溶性)", comps:[],
+       undisclosed:true,
+       decl:{ra:"y", skin:"n", cancer:"n", tokka:"n", yuki:"y", yuki12:"y", doku:"n", sui:"n"},
+       declPct:{ra:"35", yuki:"30"},
+       declBy:"（例）E化学工業 品質保証部　回答書 QA-2025-118", declDate:"2026-02-20"}
     ],
     done:(()=>{ const D=m=>iso(addMonths(TODAY,m)); const o={};
       [["ANZ-01",-14,"品質保証課"],["ANZ-02",-14,"品質保証課"],["ANZ-03",-4,"製造課"],["ANZ-04",-4,"品質保証課"],
@@ -1701,6 +1792,14 @@ function compHit(c){
   return b.join(" ");
 }
 
+const declCount = p => DECL_ITEMS.filter(([k]) => ((p.decl||{})[k]||"") !== "").length;
+const declHits  = p => DECL_ITEMS.filter(([k]) => ((p.decl||{})[k]||"") === "y").length;
+function declSummary(p){
+  const n = declCount(p), y = declHits(p);
+  if(!n) return p.undisclosed ? "　<span style=\"color:var(--crit)\">未照会</span>" : "";
+  return `　<span style="font-weight:400;color:var(--muted)">${n}/${DECL_ITEMS.length}項目回答${y ? `・該当${y}件` : "・該当なし"}</span>`;
+}
+
 function prodTags(p){
   const t=[]; let anyTokka=false, anyYuki=false, anyDoku="", anyKakan=false, unknown=false;
   (p.comps||[]).forEach(c=>{
@@ -1719,6 +1818,8 @@ function prodTags(p){
   if(anyKakan) t.push('<span class="pill p-info">化管法</span>');
   if(p.shobo) t.push('<span class="pill p-warn">危険物</span>');
   if(unknown) t.push('<span class="pill p-mute">要確認</span>');
+  if(p.undisclosed) t.push(declCount(p) ? '<span class="pill p-info">供給者回答</span>' : '<span class="pill p-crit">成分非開示・未照会</span>');
+  else if(declCount(p)) t.push('<span class="pill p-info">供給者回答</span>');
   if(!p.sdsDate) t.push('<span class="pill p-mute">SDS未登録</span>');
   return t.join(" ");
 }
@@ -1760,6 +1861,33 @@ function renderProducts(){
           </div>`).join("")}
           <button class="btn ghost" data-addcomp="${p.id}" type="button" style="margin-top:4px">＋ 成分を追加</button>
         </div>
+
+        <details class="decl"${(p.undisclosed || declCount(p)) ? " open" : ""}>
+          <summary>供給者への確認結果${declSummary(p)}</summary>
+          <div class="decl-bd">
+            <label class="check"><input type="checkbox" data-pfchk="undisclosed"${p.undisclosed ? " checked" : ""}>
+              <span>成分が非開示のため、供給者への確認で判定する<small>SDSに「その他」「企業秘密」としか書かれていない場合はこちらに切り替えてください</small></span></label>
+            <div>
+              ${DECL_ITEMS.map(([k, label, needPct, hint]) => {
+                const v = (p.decl||{})[k] || "";
+                return `<div class="decl-row ${esc(v)}">
+                  <span class="dl">${esc(label)}${hint ? `<small>${esc(hint)}</small>` : ""}</span>
+                  <select data-decl="${k}">
+                    <option value=""${v===""?" selected":""}>未回答</option>
+                    <option value="y"${v==="y"?" selected":""}>含有あり</option>
+                    <option value="n"${v==="n"?" selected":""}>含有なし</option>
+                  </select>
+                  ${needPct ? `<input type="number" data-declpct="${k}" min="0" max="100" step="0.01"
+                     value="${(p.declPct||{})[k]||""}" placeholder="含有率%">` : "<span></span>"}
+                </div>`;
+              }).join("")}
+            </div>
+            <div class="decl-meta">
+              <div class="field"><label>回答者・回答書番号</label><input type="text" data-pf="declBy" value="${esc(p.declBy||"")}" placeholder="○○化成 品質保証部"></div>
+              <div class="field"><label>回答日</label><input type="date" data-pf="declDate" value="${esc(p.declDate||"")}"></div>
+            </div>
+          </div>
+        </details>
       </div>
     </div>`).join("");
 }
@@ -2293,6 +2421,27 @@ function csvTasks(){
     t.keep?t.keep+"年":"", t.reasons.join(" / "), t.memo]));
   return toCsv(rows);
 }
+/* 供給者へ渡す含有調査依頼書。既に得ている回答は転記しておき、
+   未回答の行だけ埋めてもらえばよい形にする。 */
+function csvDecl(){
+  const rows = [["供給者","製品名","用途","確認項目","含有の有無","含有率(%)","該当物質名とCAS番号","備考"]];
+  (state.products||[]).forEach(p => {
+    DECL_ITEMS.forEach(([k, label, needPct, hint]) => {
+      const v = (p.decl||{})[k] || "";
+      rows.push([p.maker||"", p.name||"", p.use||"", label,
+                 v==="y" ? "含有あり" : (v==="n" ? "含有なし" : ""),
+                 needPct ? ((p.declPct||{})[k] || "") : "—",
+                 "", hint]);
+    });
+    rows.push([p.maker||"", p.name||"", p.use||"", "消防法の危険物の類・品名・水溶性",
+               p.shobo && SHOBO_BY_KEY[p.shobo] ? SHOBO_BY_KEY[p.shobo].label : "", "—", "",
+               "SDS第15項に記載があります"]);
+    rows.push(["","","","回答者・回答書番号", p.declBy||"", "", "", ""]);
+    rows.push(["","","","回答日", p.declDate||"", "", "", ""]);
+  });
+  return toCsv(rows);
+}
+
 function csvSubs(){
   const rows=[["CAS番号","物質名","化学品","最大含有率%","年間取扱量kg","安衛法","皮膚等障害","がん原性","特化則","有機則","化管法","毒劇法","水濁法有害物質","備考"]];
   A.subs.forEach(s => { const m=s.m; rows.push([m.cas,m.name,s.prods.join(" / "),s.maxPct,Math.round(s.kg*100)/100,
@@ -2395,6 +2544,11 @@ function bind(){
     const t = e.target, host = t.closest("[data-pid]"); if(!host) return;
     const p = prodOf(t); if(!p) return;
     state.sample = false;
+    if(t.dataset.declpct !== undefined){
+      p.declPct = p.declPct || {};
+      p.declPct[t.dataset.declpct] = t.value;
+      state.sample = false; refresh(false); return;
+    }
     if(t.dataset.pf){ p[t.dataset.pf] = t.type==="number" ? Number(t.value)||0 : t.value; refresh(false); }
     else if(t.dataset.cf){
       const wrap = t.closest("[data-ci]"); if(!wrap) return;
@@ -2440,8 +2594,15 @@ function bind(){
     refresh(false);
   });
   $("#prodList").addEventListener("change", e => {
-    const t = e.target; if(!t.dataset.pf || t.tagName!=="SELECT") return;
-    const p = prodOf(t); if(!p) return;
+    const t = e.target, p = prodOf(t); if(!p) return;
+    if(t.dataset.decl !== undefined){
+      p.decl = p.decl || {}; p.decl[t.dataset.decl] = t.value;
+      state.sample = false; refresh(true); return;
+    }
+    if(t.dataset.pfchk !== undefined){
+      p[t.dataset.pfchk] = t.checked; state.sample = false; refresh(true); return;
+    }
+    if(!t.dataset.pf || t.tagName!=="SELECT") return;
     p[t.dataset.pf] = t.value; state.sample=false; refresh(true);
   });
   $("#prodList").addEventListener("click", async e => {
@@ -2613,6 +2774,7 @@ function bind(){
     const d = iso(TODAY);
     if(b.dataset.dl==="tasks-csv") download(`化学物質法令チェック表_${site}_${d}.csv`, csvTasks());
     if(b.dataset.dl==="subs-csv")  download(`物質別法令判定_${site}_${d}.csv`, csvSubs());
+    if(b.dataset.dl==="decl-csv")  download(`含有調査依頼書_${site}_${d}.csv`, csvDecl());
     if(b.dataset.dl==="ics")       download(`化学物質法令年間予定_${site}.ics`, icsCal());
     if(b.dataset.dl==="json")      download(`化学物質台帳_${site}_${d}.json`, JSON.stringify(state,null,2));
   }));
