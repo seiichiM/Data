@@ -563,6 +563,8 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
               ブラウザの制約で、直接開いたときに読めるのは後者だけです。どちらも同じ内容で、両方置いておけば環境を問わず動きます。
               別の場所にあるときは下にURLを入れてください。
               公式サイトのExcel（.xlsx）やCSVは、この画面にドラッグするか「Excel・CSVを取り込み」から読み込めます。
+              <br>置いたファイルから読み込んだ分はブラウザに保存せず、起動のたびに読み直します。
+              NITEの化審法辞書のように数万件ある辞書でも扱えます。手で取り込んだ物質は従来どおり保存されます。
             </p>
           </div>
           <div class="row">
@@ -588,7 +590,8 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
             <option value="sui">水濁法 有害物質</option>
             <option value="cancer">がん原性物質</option>
             <option value="skin">皮膚等障害</option>
-            <option value="user">取り込んだ物質</option>
+            <option value="user">手で取り込んだ物質</option>
+            <option value="ext">外部辞書の物質</option>
           </select>
           <button class="btn ghost" id="btnMsExport" type="button">マスタをCSVで書き出し</button>
           <button class="btn ghost" id="btnMsExportJs" type="button">chem-master.js で書き出し</button>
@@ -1033,22 +1036,28 @@ const SUB_DEFAULTS = {cas:"",name:"",an:1,skin:0,cancer:0,tokka:"",sp:0,yuki:"",
    2,000物質を大きく超える規模へ拡大するため、公式リストを取り込んで上書きできるようにする。
    同じCAS番号があれば利用者が取り込んだ側を優先する。 */
 let MASTER = [], MASTER_BY_CAS = {}, MASTER_BY_NAME = {};
+/* 外部ファイルから読み込んだ辞書。NITEの化審法辞書のように数万件になることが
+   あるため、ブラウザの保存領域には入れず、起動のたびに読み直す。
+   手で取り込んだ物質（state.userSubs）だけを保存する。 */
+let AUTOSUBS = [];
 function subKey(m){ return (m.cas && m.cas!=="-") ? m.cas : "name:"+m.name; }
-function rebuildMaster(userSubs){
+function rebuildMaster(userSubs, autoSubs){
   const byKey = new Map();
   BUILTIN.forEach(m => byKey.set(subKey(m), m));
-  (userSubs || []).forEach(u => {
+  // 取り込んだ項目は下の層に重ね合わせる。丸ごと置き換えると、一部の列しか
+  // 持たない表を取り込んだときに他の法令の判定が消えてしまう。
+  // 内蔵 → 外部辞書 → 手で取り込んだもの の順で、手入力が最優先になる。
+  const layer = (list, src) => (list || []).forEach(u => {
     const k = subKey(u);
-    // 取り込んだ項目は内蔵マスタの行に重ね合わせる。丸ごと置き換えると、
-    // 一部の列しか持たない表を取り込んだときに他の法令の判定が消えてしまう
-    const m = Object.assign({}, SUB_DEFAULTS, byKey.get(k) || {}, u, {src:"追加"});
-    byKey.set(k, m);
+    byKey.set(k, Object.assign({}, SUB_DEFAULTS, byKey.get(k) || {}, u, {src}));
   });
+  layer(autoSubs, "外部辞書");
+  layer(userSubs, "追加");
   MASTER = [...byKey.values()];
   MASTER_BY_CAS = {}; MASTER_BY_NAME = {};
   MASTER.forEach(m => { if(m.cas && m.cas!=="-") MASTER_BY_CAS[m.cas] = m; MASTER_BY_NAME[m.name] = m; });
 }
-rebuildMaster([]);
+rebuildMaster([], []);
 /* CAS番号の表記ゆれ（全角数字・各種ハイフン・空白）を吸収してから照合する */
 function normCas(v){
   return String(v==null?"":v)
@@ -1650,9 +1659,16 @@ function renderSite(){
 }
 
 const SHOBO_OPTS = `<option value="">危険物に該当しない</option>` + SHOBO.map(s=>`<option value="${esc(s.key)}">${esc(s.label)}（${s.qty}${s.unit}）</option>`).join("");
-const casDatalist = () =>
-  `<datalist id="casList">${MASTER.filter(m=>m.cas&&m.cas!=="-").map(m=>`<option value="${esc(m.cas)}">${esc(m.name)}</option>`).join("")}</datalist>` +
-  `<datalist id="nameList">${MASTER.map(m=>`<option value="${esc(m.name)}">${esc(m.cas==="-"?"CAS番号なし":m.cas)}</option>`).join("")}</datalist>`;
+/* 入力候補は内蔵マスタと手で取り込んだ物質に限る。外部辞書は数万件になり、
+   datalistに並べるとブラウザが固まるため。CAS番号を打ち込んだときの照合は
+   外部辞書も含めた全件に対して行われる。 */
+const casDatalist = () => {
+  const list = BUILTIN.concat((state.userSubs || []).map(u => Object.assign({}, SUB_DEFAULTS, u)));
+  const seen = {}, uniq = [];
+  list.forEach(m => { const k = subKey(m); if(!seen[k]){ seen[k] = 1; uniq.push(m); } });
+  return `<datalist id="casList">${uniq.filter(m=>m.cas&&m.cas!=="-").map(m=>`<option value="${esc(m.cas)}">${esc(m.name)}</option>`).join("")}</datalist>` +
+         `<datalist id="nameList">${uniq.map(m=>`<option value="${esc(m.name)}">${esc(m.cas==="-"?"CAS番号なし":m.cas)}</option>`).join("")}</datalist>`;
+};
 
 /* 成分1行ぶんの照合結果。CAS番号を打った瞬間に何の法令に当たるかを返す */
 function compHit(c){
@@ -1809,9 +1825,9 @@ function importMasterCsv(text, opt){
   const iCas = at("CAS"), iName = at("物質名");
   if(iCas < 0 && iName < 0){ if(!opt.silent) toast("「CAS番号」または「物質名」の列が必要です"); return null; }
   const g = (c,i) => i>=0 ? (c[i]||"") : "";
-  // 自動取得は前回の自動取得分を入れ替える。手で取り込んだ物質は残す
-  if(opt.auto) state.userSubs = (state.userSubs||[]).filter(u => !u.auto);
-  const list = state.userSubs || (state.userSubs = []);
+  // 自動取得ぶんは外部辞書の層をまるごと入れ替える。手で取り込んだ物質は残る
+  if(opt.auto) AUTOSUBS = [];
+  const list = opt.auto ? AUTOSUBS : (state.userSubs || (state.userSubs = []));
   const byKey = new Map(list.map(u => [subKey(u), u]));
   let added = 0, updated = 0;
   rows.slice(1).forEach(c => {
@@ -1840,12 +1856,11 @@ function importMasterCsv(text, opt){
     put("note",   "備考",     v => String(v||"").trim());
     // 安衛法の列を持たない表で新規に増える物質は、見落としを避けて対象物として扱う
     if(at("安衛法") < 0 && !byKey.has(subKey(sub))) sub.an = 1;
-    if(opt.auto) sub.auto = 1;
     const k = subKey(sub);
     if(byKey.has(k)){ Object.assign(byKey.get(k), sub); updated++; }
     else { list.push(sub); byKey.set(k, sub); added++; }
   });
-  rebuildMaster(state.userSubs); refresh(true); renderMaster();
+  rebuildMaster(state.userSubs, AUTOSUBS); refresh(true); renderMaster();
   if(!opt.silent) toast(`物質マスタに${added}件を追加、${updated}件を更新しました`);
   return {added, updated};
 }
@@ -1937,8 +1952,11 @@ async function autoLoadMaster(){
 /* 取り込み状況はどのタブからでも見えるようにヘッダーに出す */
 function renderMasterChip(){
   const el = $("#chipMaster"); if(!el) return;
-  const total = MASTER.length, imported = MASTER.filter(m => m.src === "追加").length;
-  el.innerHTML = `物質マスタ <b>${total}</b>` + (imported ? ` <s>取込 ${imported}</s>` : "");
+  const total = MASTER.length;
+  const ext = MASTER.filter(m => m.src === "外部辞書").length;
+  const man = MASTER.filter(m => m.src === "追加").length;
+  const extra = [ext ? `外部 ${ext.toLocaleString("ja-JP")}` : "", man ? `追加 ${man}` : ""].filter(Boolean).join(" ");
+  el.innerHTML = `物質マスタ <b>${total.toLocaleString("ja-JP")}</b>` + (extra ? ` <s>${extra}</s>` : "");
   const src = state.masterSrc;
   el.title = src && src.error ? `取り込みに失敗しました：${src.error}（内蔵マスタで動作中）`
            : src ? `${src.url} から取り込み済み　最終取得 ${String(src.at).slice(0,16).replace("T"," ")}`
@@ -2157,7 +2175,8 @@ function renderMaster(){
   const n = f => MASTER.filter(f).length;
   $("#masterStats").innerHTML = [
     ["収録物質", MASTER.length],
-    ["うち取り込み", n(m=>m.src==="追加")],
+    ["うち外部辞書", n(m=>m.src==="外部辞書")],
+    ["うち手動追加", n(m=>m.src==="追加")],
     ["特化則", n(m=>m.tokka)],
     ["有機則", n(m=>m.yuki)],
     ["化管法", n(m=>["1","1T","2"].includes(m.kakan))],
@@ -2181,7 +2200,7 @@ function renderMaster(){
   $("#msState").innerHTML = src
     ? (src.error
         ? `<span class="pill p-crit">取得失敗</span><b>${esc(src.url)}</b><span>${esc(src.error)}</span><span>取り込み済みの内容で動作しています</span>`
-        : `<span class="pill p-ok">参照中</span><b>${esc(src.url)}</b><span>最終取得 ${esc(String(src.at).slice(0,16).replace("T"," "))}</span><span>${(src.added||0)+(src.updated||0)}物質</span>`)
+        : `<span class="pill p-ok">参照中</span><b>${esc(src.url)}</b><span>最終取得 ${esc(String(src.at).slice(0,16).replace("T"," "))}</span><span>${((src.added||0)+(src.updated||0)).toLocaleString("ja-JP")}物質</span><span>この分は保存せず、起動のたびに読み込みます</span>`)
     : `<span class="pill p-mute">参照なし</span><span>内蔵マスタと、手で取り込んだ物質だけで動作しています。${esc(mode)}</span>`;
   if($("#msUrl") !== document.activeElement) $("#msUrl").value = state.masterUrl || "";
 
@@ -2189,7 +2208,8 @@ function renderMaster(){
   const test = {
     tokka:m=>!!m.tokka, sp:m=>m.sp===1, yuki:m=>!!m.yuki, lead:m=>m.lead===1, dust:m=>m.dust===1,
     kakan:m=>["1","1T","2"].includes(m.kakan), doku:m=>!!m.doku, shi:m=>!!m.shi,
-    sui:m=>m.sui===1, cancer:m=>m.cancer===1, skin:m=>m.skin===1, user:m=>m.src==="追加"
+    sui:m=>m.sui===1, cancer:m=>m.cancer===1, skin:m=>m.skin===1,
+    user:m=>m.src==="追加", ext:m=>m.src==="外部辞書"
   }[f];
   const nq = normCas(q);
   const list = MASTER.filter(m =>
@@ -2567,9 +2587,9 @@ function bind(){
     const ok = await askConfirm(`取り込んだ${cnt}物質を全て削除し、内蔵マスタだけに戻します。`, "削除する");
     if(!ok) return;
     const backup = state.userSubs; state.userSubs = [];
-    rebuildMaster(state.userSubs); refresh(true); renderMaster();
+    rebuildMaster(state.userSubs, AUTOSUBS); refresh(true); renderMaster();
     toast(`取り込んだ${cnt}物質を削除しました`, () => {
-      state.userSubs = backup; rebuildMaster(state.userSubs); refresh(true); renderMaster(); });
+      state.userSubs = backup; rebuildMaster(state.userSubs, AUTOSUBS); refresh(true); renderMaster(); });
   });
 
   $("#btnImportCsv").addEventListener("click", ()=>$("#fileCsv").click());
@@ -2584,7 +2604,7 @@ function bind(){
     r.onload = () => { try{ const s = JSON.parse(String(r.result));
         if(!s || !s.site || !Array.isArray(s.products)) throw new Error("形式が違います");
         state = s; state.done = state.done||{}; state.userSubs = state.userSubs||[];
-        rebuildMaster(state.userSubs); refresh(true); renderSite(); renderMaster(); toast("復元しました");
+        rebuildMaster(state.userSubs, AUTOSUBS); refresh(true); renderSite(); renderMaster(); toast("復元しました");
       }catch(err){ toast("読み込めませんでした：" + err.message); } };
     r.readAsText(f, "UTF-8"); e.target.value="";
   });
@@ -2606,7 +2626,7 @@ function bind(){
 (function init(){
   try{ const th = localStorage.getItem(LS_KEY+"-theme"); if(th) document.documentElement.setAttribute("data-theme", th); }catch(e){}
   state = load(); state.done = state.done||{}; state.site.flags = state.site.flags||{};
-  state.userSubs = state.userSubs||[]; rebuildMaster(state.userSubs);
+  state.userSubs = state.userSubs||[]; rebuildMaster(state.userSubs, AUTOSUBS);
   document.getElementById("lawCountInline").textContent = LAW_LIST.length;
   document.querySelector("#statLaws .u").textContent = `法令 / 全${LAW_LIST.length}法令中`;
   document.getElementById("footVer").textContent = `版 ${APP_VER}／物質マスタ ${MASTER_REV}（収録 ${MASTER.length}物質）／チェック項目 ${TASKS.length}件。判定日 ${iso(TODAY)}。`;
