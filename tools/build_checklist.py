@@ -100,6 +100,87 @@ def cond_text(when):
 
 E = lambda s: (str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;"))
 
+# ------------------------------------------------------------
+# 対象物質のリストが公表されている用語。本文中で太字にし、
+# 公表リストが特定できるものはそこへリンクする。
+# URLは実在を確認したページのみを載せ、確認できないものはリンクを付けない。
+# 除外規則は、法令名や役職名の一部として現れる場合に太字にしないためのもの。
+# ------------------------------------------------------------
+TERMS = [
+ # (本文で探す正規表現, 表示名, 定められている一覧, 参照先URL, 補足)
+ (r"リスクアセスメント対象物", "リスクアセスメント対象物", "労働安全衛生法 表示・通知対象物質",
+  "https://anzeninfo.mhlw.go.jp/anzen_pg/GHS_MSD_FND.aspx",
+  "職場のあんぜんサイト。「表示・通知対象物質の一覧をダウンロード」からExcelを入手できます"),
+ (r"皮膚等障害化学物質等", "皮膚等障害化学物質等", "皮膚等障害化学物質",
+  "https://anzeninfo.mhlw.go.jp/user/anzen/kag/ankgc13.html", "職場のあんぜんサイト"),
+ (r"がん原性物質", "がん原性物質", "がん原性物質",
+  "https://anzeninfo.mhlw.go.jp/user/anzen/kag/ankgc12.html", "職場のあんぜんサイト。作業記録30年保存の対象"),
+ (r"濃度基準値", "濃度基準値", "濃度基準値等",
+  "https://anzeninfo.mhlw.go.jp/user/anzen/kag/ankgc11.html", "職場のあんぜんサイト"),
+ (r"特別管理物質", "特別管理物質", "特化則 別表第3",
+  "https://laws.e-gov.go.jp/law/347M50002000039/", "e-Gov法令検索 特定化学物質障害予防規則"),
+ (r"特定化学物質(?!及び|作業主任者|健康診断|障害予防規則)", "特定化学物質", "特化則 別表第1・第2（第1類〜第3類物質）",
+  "https://laws.e-gov.go.jp/law/347M50002000039/", "e-Gov法令検索 特定化学物質障害予防規則"),
+ (r"第1種・第2種有機溶剤等", "第1種・第2種有機溶剤等", "有機則 別表（第1種・第2種有機溶剤）",
+  "https://laws.e-gov.go.jp/law/347M50002000036/", "e-Gov法令検索 有機溶剤中毒予防規則"),
+ (r"有機溶剤等", "有機溶剤等", "有機則 別表（有機溶剤44物質）",
+  "https://laws.e-gov.go.jp/law/347M50002000036/", "e-Gov法令検索 有機溶剤中毒予防規則"),
+ (r"鉛またはその化合物|鉛業務", "鉛またはその化合物／鉛業務", "鉛則 第1条（鉛業務）",
+  "https://laws.e-gov.go.jp/law/347M50002000037/", "e-Gov法令検索 鉛中毒予防規則"),
+ (r"粉じん作業", "粉じん作業", "粉じん則 別表第1（粉じん作業）",
+  "https://laws.e-gov.go.jp/law/354M50002000018/", "e-Gov法令検索 粉じん障害防止規則"),
+ (r"石綿(?!障害予防規則)", "石綿", "石綿", "",
+  "石綿則および大気汚染防止法。製造等が禁止されています"),
+ (r"特定第一種指定化学物質", "特定第一種指定化学物質", "化管法 特定第一種指定化学物質",
+  "https://www.meti.go.jp/policy/chemical_management/law/prtr/2.html", "経済産業省 PRTR制度 対象化学物質"),
+ (r"第一種指定化学物質", "第一種指定化学物質", "化管法 第一種指定化学物質",
+  "https://www.meti.go.jp/policy/chemical_management/law/prtr/2.html", "経済産業省 PRTR制度 対象化学物質"),
+ (r"第二種指定化学物質", "第二種指定化学物質", "化管法 第二種指定化学物質",
+  "https://www.meti.go.jp/policy/chemical_management/law/msds/2.html", "経済産業省 化管法SDS制度 対象化学物質"),
+ (r"第一種特定化学物質", "第一種特定化学物質", "化審法 第一種特定化学物質",
+  "https://www.meti.go.jp/policy/chemical_management/kasinhou/about/substance_list.html",
+  "経済産業省 化審法 対象物質等一覧"),
+ (r"指定化学物質", "指定化学物質", "化管法 指定化学物質",
+  "https://www.meti.go.jp/policy/chemical_management/law/prtr/2.html", "経済産業省 PRTR制度 対象化学物質"),
+ (r"毒物または劇物|毒物及び劇物(?!取締法)|医薬用外毒物", "毒物・劇物", "毒物及び劇物指定令",
+  "https://laws.e-gov.go.jp/law/325AC0000000303/",
+  "e-Gov法令検索 毒物及び劇物取締法。品目は毒物及び劇物指定令で定められています"),
+ (r"危険物(?!取扱者|保安監督者|施設|製造所|の規制)", "危険物", "消防法 別表第1（危険物の品名）",
+  "https://laws.e-gov.go.jp/law/323AC1000000186",
+  "e-Gov法令検索 消防法。指定数量は危険物の規制に関する政令 別表第3"),
+ (r"有害大気汚染物質", "有害大気汚染物質", "優先取組物質23物質",
+  "https://www.env.go.jp/air/osen/law/yugai.html", "環境省 有害大気汚染物質対策等"),
+ (r"第一種特定製品", "第一種特定製品", "フロン排出抑制法 第一種特定製品",
+  "https://www.env.go.jp/earth/furon/operator/isshu.html", "環境省 フロン排出抑制法ポータルサイト"),
+ (r"女性則の就業制限対象物質", "女性則の就業制限対象物質", "女性則 第2条（就業制限業務）",
+  "https://laws.e-gov.go.jp/law/361M50002000003/", "e-Gov法令検索 女性労働基準規則"),
+ (r"特別管理産業廃棄物(?!管理責任者)", "特別管理産業廃棄物", "廃棄物処理法施行令 第2条の4", "",
+  "廃油・廃酸・廃アルカリ・特定有害産業廃棄物などの区分があります"),
+ (r"有害物質", "有害物質", "水質汚濁防止法施行令 第2条", "",
+  "カドミウム・シアン・有機塩素系溶剤などが定められています"),
+ (r"特定粉じん", "特定粉じん", "大気汚染防止法施行令（石綿）", "", "大気汚染防止法施行令"),
+]
+_TERM_RE = re.compile("|".join("(?P<t%d>%s)" % (i, t[0]) for i, t in enumerate(TERMS)))
+
+def mark_terms(escaped, linked=True):
+    """HTMLエスケープ済みの文字列に用語の太字とリンクを埋める。1回走査なので入れ子は起きない。"""
+    def sub(m):
+        i = int(m.lastgroup[1:]); word = m.group(0)
+        label, url = TERMS[i][2], TERMS[i][3]
+        if linked and url:
+            return ('<a class="term" href="%s" target="_blank" rel="noopener noreferrer" title="%s">%s</a>'
+                    % (url, E(label), word))
+        return '<b class="term">%s</b>' % word
+    return _TERM_RE.sub(sub, escaped), None
+
+def collect_terms(tasks):
+    """本文に実際に現れた用語だけを、TERMSの並び順で返す"""
+    blob = "\n".join(t["title"] + t["memo"] + cond_text(t["when"]) for t in tasks)
+    out = []
+    for t in TERMS:
+        if re.search(t[0], blob) and t not in out: out.append(t)
+    return out
+
 def build_html(tasks):
     laws = []
     for t in tasks:
@@ -116,16 +197,17 @@ def build_html(tasks):
   <h2><span class="ln">{i:02d}</span>{E(law)}<span class="cnt">{len(items)}項目</span></h2>''')
         for j, t in enumerate(items, 1):
             keep = f'{t["keep"]}年' if t["keep"] else "—"
+            mt = lambda x: mark_terms(E(x), linked=False)[0]
             body.append(f'''  <article class="item">
     <div class="no">{i:02d}-{j:02d}</div>
     <div class="bd">
-      <h3>{E(t["title"])}</h3>
+      <h3>{mt(t["title"])}</h3>
       <p class="meta"><span class="art">{E(t["art"])}</span>
         <span class="tag">{E(t["cat"])}</span>
         <span class="tag">{E(cyc_label(t["cyc"]))}</span>
         <span class="tag">記録保存 {E(keep)}</span></p>
-      <p class="cond"><b>該当条件</b>{E(cond_text(t["when"]))}</p>
-      <p class="memo"><b>確認点</b>{E(t["memo"])}</p>
+      <p class="cond"><b>該当条件</b>{mt(cond_text(t["when"]))}</p>
+      <p class="memo"><b>確認点</b>{mt(t["memo"])}</p>
     </div>
   </article>''')
         body.append("</section>")
@@ -195,6 +277,16 @@ h1,h2,h3 {{ margin:0; }}
 .cond {{ background:#f2f5fa; border-left:2px solid #99a8c4; padding:1.4mm 3mm; color:#3d4a5e; }}
 .cond b, .memo b {{ display:inline-block; min-width:17mm; color:#1f3f73; font-size:8pt; }}
 .memo {{ color:#25324a; }}
+.term {{ font-weight:700; color:#16202e; border-bottom:1.2px solid #99a8c4; }}
+
+/* 参照先 */
+.refs {{ break-before: page; }}
+.refs h2 {{ font-size:12pt; color:#1f3f73; border-bottom:2px solid #1f3f73; padding-bottom:2mm; margin-bottom:4mm; }}
+.refs p.lead {{ font-size:8.6pt; color:#3d4a5e; margin-bottom:4mm; line-height:1.8; }}
+.refs table {{ width:100%; border-collapse:collapse; font-size:8.2pt; }}
+.refs th, .refs td {{ border:1px solid #d2d9e6; padding:2mm 2.6mm; text-align:left; vertical-align:top; }}
+.refs th {{ background:#eef2f8; color:#3d4a5e; white-space:nowrap; }}
+.refs td.u {{ font-family:"IPAGothic",monospace; font-size:7.4pt; color:#1f3f73; word-break:break-all; }}
 
 /* 巻末 */
 .tail {{ break-before: page; }}
@@ -247,6 +339,18 @@ h1,h2,h3 {{ margin:0; }}
 
 {"".join(body)}
 
+<div class="refs">
+  <h2>対象物質リストの参照先</h2>
+  <p class="lead">本文中で<b style="border-bottom:1.2px solid #99a8c4">太字</b>にした用語は、対象となる物質が法令や告示で一覧として定められているものです。
+    自社で扱う物質が該当するかは、下の参照先で確認してください。参照先のページ構成やファイル名は改正のたびに変わります。</p>
+  <table>
+    <thead><tr><th>本文中の用語</th><th>定められている一覧</th><th>参照先</th></tr></thead>
+    <tbody>
+    {"".join(f"<tr><td><b>{E(t[1])}</b></td><td>{E(t[2])}</td><td class='u'>{E(t[3]) if t[3] else E(t[4])}</td></tr>" for t in collect_terms(tasks))}
+    </tbody>
+  </table>
+</div>
+
 <div class="tail">
   <h2>該当条件の一覧</h2>
   <div class="cols">
@@ -278,10 +382,17 @@ def build_web(tasks):
     for t in tasks:
         if t["cat"] not in cats: cats.append(t["cat"])
     today = datetime.date.today().strftime("%Y年%m月%d日")
-    data = [dict(law=t["law"], art=t["art"], title=t["title"], cat=t["cat"],
-                 cyc=cyc_label(t["cyc"]), keep=(f'{t["keep"]}年' if t["keep"] else ""),
-                 cond=cond_text(t["when"]), memo=t["memo"]) for t in tasks]
-    payload = json.dumps({"laws": laws, "cats": cats, "items": data}, ensure_ascii=False)
+    def item(t):
+        cond = cond_text(t["when"])
+        return dict(law=t["law"], art=t["art"], cat=t["cat"],
+                    cyc=cyc_label(t["cyc"]), keep=(f'{t["keep"]}年' if t["keep"] else ""),
+                    title=t["title"], cond=cond, memo=t["memo"],
+                    titleH=mark_terms(E(t["title"]))[0],
+                    condH=mark_terms(E(cond))[0],
+                    memoH=mark_terms(E(t["memo"]))[0])
+    refs = [dict(word=t[1], list=t[2], url=t[3], note=t[4]) for t in collect_terms(tasks)]
+    payload = json.dumps({"laws": laws, "cats": cats, "items": [item(t) for t in tasks],
+                          "refs": refs}, ensure_ascii=False)
 
     return '''<!doctype html>
 <html lang="ja">
@@ -400,6 +511,22 @@ main{padding:22px 0 70px}
 .field.memo .v{color:var(--ink-2)}
 @media (max-width:560px){.field{grid-template-columns:1fr; gap:2px}.field .k{padding-top:0}}
 mark{background:var(--warn-soft); color:var(--ink); padding:0 2px; border-radius:2px}
+a.term{font-weight:700; color:var(--ink); text-decoration:none;
+  border-bottom:1.5px solid var(--accent); padding-bottom:.5px}
+a.term:hover{color:var(--accent); background:var(--accent-soft)}
+b.term{font-weight:700; color:var(--ink); border-bottom:1.5px dotted var(--line-2)}
+.legend-line{font-size:12px; color:var(--muted); margin-bottom:14px; line-height:1.8}
+.legend-line b.term, .legend-line a.term{font-size:12px}
+.refs{margin-top:34px; border-top:1px solid var(--line); padding-top:20px}
+.refs h2{font-family:var(--serif); font-size:18px; font-weight:400; margin-bottom:6px}
+.refs p.lead{font-size:12.5px; color:var(--muted); margin-bottom:12px; max-width:70ch; line-height:1.85}
+.refs .tw{overflow-x:auto}
+.refs table{border-collapse:collapse; width:100%; font-size:12.5px}
+.refs th,.refs td{border-bottom:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top}
+.refs th{background:var(--surface-2); color:var(--muted); font-size:11px; white-space:nowrap}
+.refs td.w{white-space:nowrap; font-weight:700}
+.refs td.n{color:var(--muted); font-size:11.5px}
+.refs a{color:var(--accent); word-break:break-all}
 
 .empty{padding:40px 16px; text-align:center; color:var(--muted); font-size:13.5px}
 .foot{border-top:1px solid var(--line); margin-top:30px; padding:18px 0 44px; color:var(--muted); font-size:11.5px}
@@ -441,7 +568,11 @@ mark{background:var(--warn-soft); color:var(--ink); padding:0 2px; border-radius
 
 <main class="wrap"><div class="cols">
   <nav class="toc" id="toc" aria-label="法令の目次"></nav>
-  <div id="list"></div>
+  <div>
+    <p class="legend-line" id="legend"></p>
+    <div id="list"></div>
+    <section class="refs" id="refs"></section>
+  </div>
 </div></main>
 
 <footer class="foot"><div class="wrap">
@@ -459,13 +590,16 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let query = "", cat = "";
 
-function hl(text){
-  const t = esc(text);
-  if(!query) return t;
-  try{
-    return t.replace(new RegExp(query.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&"), "gi"), m => `<mark>${m}</mark>`);
-  }catch(e){ return t; }
+/* 用語のリンクは生成時に埋め込んである。検索語のハイライトはタグの外側だけに掛ける */
+function hl(html){
+  if(!query) return html;
+  let re;
+  try{ re = new RegExp(query.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&"), "gi"); }
+  catch(e){ return html; }
+  return html.replace(/(<[^>]*>)|([^<]+)/g, (m, tag, text) =>
+    tag ? tag : text.replace(re, x => `<mark>${x}</mark>`));
 }
+const hlt = text => hl(esc(text));
 const matches = it => {
   if(cat && it.cat !== cat) return false;
   if(!query) return true;
@@ -487,15 +621,15 @@ function render(){
     const i = DATA.laws.indexOf(l);
     return `<section class="law" id="law-${i}">
       <div class="law-hd"><span class="n">${String(i+1).padStart(2,"0")}</span>
-        <h2>${hl(l)}</h2><span class="c">${byLaw[l].length}項目</span></div>
+        <h2>${hlt(l)}</h2><span class="c">${byLaw[l].length}項目</span></div>
       ${byLaw[l].map(it => `<article class="item">
-        <h3>${hl(it.title)}</h3>
-        <div class="meta"><span class="art">${hl(it.art)}</span>
+        <h3>${hl(it.titleH)}</h3>
+        <div class="meta"><span class="art">${hlt(it.art)}</span>
           <span class="tag${cat===it.cat?" cat-sel":""}">${esc(it.cat)}</span>
           <span class="tag">${esc(it.cyc)}</span>
           ${it.keep ? `<span class="tag">記録保存 ${esc(it.keep)}</span>` : ""}</div>
-        <div class="field cond"><span class="k">該当条件</span><span class="v">${hl(it.cond)}</span></div>
-        <div class="field memo"><span class="k">確認点</span><span class="v">${hl(it.memo)}</span></div>
+        <div class="field cond"><span class="k">該当条件</span><span class="v">${hl(it.condH)}</span></div>
+        <div class="field memo"><span class="k">確認点</span><span class="v">${hl(it.memoH)}</span></div>
       </article>`).join("")}
     </section>`;
   }).join("") : `<div class="empty">条件に合う項目がありません。検索語を変えるか、分類の絞り込みを外してください。</div>`;
@@ -510,6 +644,17 @@ function init(){
   $("#cLaw").textContent = DATA.laws.length;
   $("#cItem").textContent = DATA.items.length;
   $("#ver").textContent = `作成 ${GEN}　化学物質法令チェック台帳のチェック項目定義から生成しています。`;
+  const linked = DATA.refs.filter(r => r.url).length;
+  $("#legend").innerHTML =
+    `本文中の<a class="term" href="#refs">太字の用語</a>は、対象となる物質が法令や告示で一覧として定められているものです。` +
+    `下線が実線のものは公表リストへ移動できます（${linked}件）。点線のものは参照先を巻末に示しています。`;
+  $("#refs").innerHTML = `<h2>対象物質リストの参照先</h2>
+    <p class="lead">自社で扱う物質が該当するかは、下の参照先で確認してください。
+      各ページの構成やファイル名は改正のたびに変わります。見つからない場合はサイト内で「対象物質」「指定化学物質」「一覧」を手がかりに探してください。</p>
+    <div class="tw"><table><thead><tr><th>本文中の用語</th><th>定められている一覧</th><th>参照先</th></tr></thead><tbody>
+    ${DATA.refs.map(r => `<tr><td class="w">${esc(r.word)}</td><td>${esc(r.list)}</td>
+      <td class="n">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.url)}</a><br>` : ""}${esc(r.note)}</td></tr>`).join("")}
+    </tbody></table></div>`;
   $("#cats").innerHTML = DATA.cats.map(c =>
     `<button class="cat" type="button" data-cat="${esc(c)}" aria-pressed="false">${esc(c)}</button>`).join("");
   $("#cats").addEventListener("click", e => {
