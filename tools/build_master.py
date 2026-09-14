@@ -285,9 +285,11 @@ add("106-97-8","ブタン", note="高圧ガス保安法。液化石油ガス")
 # ============================================================
 # 生成
 # ============================================================
-KEYS = ["cas","name","an","skin","cancer","noudo","ankiken","tokka","sp","yuki","lead","dust",
+KEYS = ["cas","name","an","skin","cancer","noudo","n8","ns","nd","ankiken","ban","perm","muta",
+        "tokka","sp","yuki","lead","dust",
         "kakan","doku","shi","kashin","taiki","sui","dojo","josei","note"]
-DEF  = {"an":1,"skin":0,"cancer":0,"noudo":0,"ankiken":0,"tokka":"","sp":0,"yuki":"","lead":0,"dust":0,
+DEF  = {"an":1,"skin":0,"cancer":0,"noudo":0,"n8":"","ns":"","nd":"","ankiken":0,
+        "ban":0,"perm":0,"muta":0,"tokka":"","sp":0,"yuki":"","lead":0,"dust":0,
         "kakan":"","doku":"","shi":"","kashin":"","taiki":"","sui":0,"dojo":0,"josei":0,"note":""}
 
 merged, order, dups = {}, [], []
@@ -301,6 +303,24 @@ for cas, name, kw in S:
     merged[key] = row; order.append(key)
 
 rows = [merged[k] for k in order]
+
+# 製造等が禁止される有害物等（安衛法第55条・令第16条）。
+# ベンゼンは「ベンゼンを含有するゴムのり（重量の5%超）」、黄りんは「黄りんマッチ」が
+# 禁止の対象で、物質そのものの製造が全面的に禁じられているわけではない。
+BAN_CAS = {"92-87-5":"", "91-59-8":"", "92-67-1":"", "92-93-3":"", "542-88-1":"",
+           "1332-21-4":"", "12001-28-4":"", "12001-29-5":"", "12172-73-5":"",
+           "77536-66-4":"", "77536-67-5":"", "77536-68-6":"",
+           "71-43-2":"禁止の対象はベンゼンを含有するゴムのり（重量の5%超）",
+           "12185-10-3":"禁止の対象は黄りんマッチ"}
+for r in rows:
+    if r["cas"] in BAN_CAS:
+        r["ban"] = 1
+        note = BAN_CAS[r["cas"]]
+        if note and note not in r["note"]:
+            r["note"] = (r["note"] + "。" if r["note"] else "") + note
+    # 製造の許可を受けるべき有害物（法第56条・令第17条）＝特化則の第1類物質
+    if r["tokka"] == "1": r["perm"] = 1
+
 
 def js(v):
     if isinstance(v, str):
@@ -371,7 +391,13 @@ CSV_COLS = [
  ("皮膚等障害",    lambda r: "該当" if r["skin"]==1 else ("要確認" if r["skin"]==2 else "")),
  ("がん原性",      lambda r: "該当" if r["cancer"]==1 else ""),
  ("濃度基準値",    lambda r: "該当" if r["noudo"]==1 else ""),
+ ("八時間濃度基準値", lambda r: r["n8"]),
+ ("短時間濃度基準値", lambda r: r["ns"]),
+ ("濃度基準値適用日", lambda r: r["nd"]),
  ("安衛法危険物",  lambda r: "該当" if r["ankiken"]==1 else ""),
+ ("製造禁止",      lambda r: "該当" if r["ban"]==1 else ""),
+ ("製造許可",      lambda r: "該当" if r["perm"]==1 else ""),
+ ("強い変異原性",  lambda r: "該当" if r["muta"]==1 else ""),
  ("特化則",        lambda r: ("第%s類" % r["tokka"]) if r["tokka"] else ""),
  ("特別管理物質",  lambda r: "該当" if r["sp"]==1 else ""),
  ("有機則",        lambda r: ("第%s種" % r["yuki"]) if r["yuki"] else ""),
