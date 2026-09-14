@@ -1332,6 +1332,9 @@ window.MathJax = {
     return window.claude.use('downloads').then(function(ns){ dlNs = ns || null; return dlNs; },
                                                function(){ dlNs = null; return null; });
   }
+  function inFrame(){
+    try{ return window.self !== window.top; }catch(e){ return true; }
+  }
   function blobDownload(name, text, type){
     try{
       var blob = new Blob([text], {type: type + ';charset=utf-8'});
@@ -1342,7 +1345,10 @@ window.MathJax = {
       a.click();
       a.remove();
       setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
-      toast(name + ' を保存しました');
+      /* A link-driven save is inert inside an embedding frame that withholds
+         download permission, so do not claim a save we cannot observe. */
+      if(inFrame()) toast('この表示では保存が制限されています。「コピー」をお使いください');
+      else toast(name + ' を保存しました');
     }catch(e){ toast('保存できませんでした。コピーをお使いください'); }
   }
   function download(name, text, type){
