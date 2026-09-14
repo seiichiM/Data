@@ -793,6 +793,14 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
             <span class="hint">別のPCへ移すとき、担当者が替わるときはこれ1つで引き継げます。</span>
           </div>
           <div class="field">
+            <p class="sec-label">配布ファイル</p>
+            <div class="btnrow">
+              <button class="btn" data-asset="chem-checklist.html" type="button">法令リファレンスをHTMLで保存</button>
+              <button class="btn ghost" data-asset="chem-checklist.pdf" type="button">確認点一覧をPDFで保存</button>
+            </div>
+            <span class="hint" id="assetHint">24法令100項目の該当条件・必要実施事項・確認点・周期・記録保存年数をまとめた資料です。HTMLは検索と絞り込みができ、PDFはそのまま配れます。</span>
+          </div>
+          <div class="field">
             <p class="sec-label">監査・是正対応</p>
             <div class="btnrow">
               <button class="btn ghost" id="btnPrint2" type="button">チェック表を印刷 / PDF</button>
@@ -2117,8 +2125,14 @@ function announceAutoLoad(){
   toast(`${src.url} から${n}物質を読み込みました（物質マスタ 計${MASTER.length}物質）`);
 }
 async function autoLoadMaster(){
-  // claude.ai上では枠外への通信も同フォルダの参照もできない。試行自体を省く
-  if(IN_ARTIFACT) return;
+  // claude.ai上では枠外への通信はCSPで遮断されるが、公開したページに同梱した
+  // ファイルは同じ場所から読める。chem-master.js だけを試す。
+  if(IN_ARTIFACT){
+    try{
+      if(await loadLocalMasterScript() && applyLocalMasterScript()) announceAutoLoad();
+    }catch(e){ /* 同梱していなければ内蔵マスタのまま動く */ }
+    return;
+  }
   const explicit = (state.masterUrl||"").trim();
 
   // ① URLを明示指定しているときはそれを最優先
@@ -2386,17 +2400,23 @@ function renderMaster(){
   ].map(([k,v])=>`<div class="ms-stat"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`).join("");
 
   const src = state.masterSrc;
-  const mode = IN_ARTIFACT ? "claude.ai上で実行中のため、自動読み込みは使えません"
+  const bundled = IN_ARTIFACT && src && !src.error;
+  const mode = IN_ARTIFACT ? "claude.ai上で実行中"
              : location.protocol === "file:" ? "ローカルのファイルとして実行中"
              : /^https?:$/.test(location.protocol) ? "サーバから配信中" : "";
-  $("#msEnv").innerHTML = IN_ARTIFACT
-    ? `<div class="callout"><b>この画面では自動読み込みは使えません。</b>
-        claude.ai上では枠外への通信が遮断されており、同じフォルダという概念もないため、
-        <b>chem-master.csv / chem-master.js の自動読み込みと、URL指定での取得は働きません</b>。
+  $("#msEnv").innerHTML = !IN_ARTIFACT ? ""
+    : bundled
+    ? `<div class="callout"><b>このページに同梱された物質マスタを読み込んでいます。</b>
+        claude.ai上では枠外への通信が遮断されるため<b>URL指定での取得は働きません</b>が、
+        このページと一緒に置かれた <b>chem-master.js</b> は読めるので、起動のたびに自動で取り込みます。
+        この分はブラウザには保存せず、開くたびに読み直します。
+        手で足した物質だけが保存されます。
+        自分のCSVを重ねたいときは、下の<b>「Excel・CSVを取り込み」</b>から取り込んでください。</div>`
+    : `<div class="callout"><b>この画面では自動読み込みは使えません。</b>
+        claude.ai上では枠外への通信が遮断されており、
+        <b>chem-master.csv の自動読み込みと、URL指定での取得は働きません</b>。
         下の<b>「Excel・CSVを取り込み」「ドラッグ&amp;ドロップ」「貼り付けて取り込む」</b>のいずれかで取り込んでください。
-        取り込んだ内容はこのブラウザに保存され、次に開いたときも残ります。
-        自動読み込みを使いたい場合は、HTMLファイルを社内サーバに置くか、手元に保存して直接開いてください。</div>`
-    : "";
+        取り込んだ内容はこのブラウザに保存され、次に開いたときも残ります。</div>`;
   $("#msState").innerHTML = src
     ? (src.error
         ? `<span class="pill p-crit">取得失敗</span><b>${esc(src.url)}</b><span>${esc(src.error)}</span><span>取り込み済みの内容で動作しています</span>`
@@ -2473,6 +2493,40 @@ async function download(filename, text){
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], {type:"text/plain;charset=utf-8"}));
   a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+  toast("保存しました");
+}
+/* 同梱ファイル（法令リファレンス・PDF）の保存。
+   claude.ai上では枠外への通信は遮断されるが、公開したページに同梱したファイルは
+   同じ場所から読める。ファイルを置いていない環境では読み込みに失敗するので、
+   その旨を伝えて終わる。 */
+const ASSET_LABEL = {
+  "chem-checklist.html": {name:"化学物質関係法令_確認点一覧.html", type:"text/html"},
+  "chem-checklist.pdf":  {name:"化学物質関係法令_確認点一覧.pdf",  type:"application/pdf"}
+};
+async function downloadAsset(path){
+  const info = ASSET_LABEL[path] || {name:path, type:"application/octet-stream"};
+  let blob;
+  try{
+    const res = await fetch(path, {cache:"no-cache"});
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    blob = await res.blob();
+    if(!blob.size) throw new Error("中身が空です");
+  }catch(e){
+    toast(`${info.name} を読み込めませんでした（${e.message||e}）。このHTMLと同じ場所に ${path} を置いてください。`);
+    return;
+  }
+  if(canDownload){
+    try{ await canDownload.save({filename:info.name, data:blob}); toast("保存しました"); return; }
+    catch(err){
+      if(err && err.code === "declined") return;
+      toast("保存できませんでした" + (err&&err.message?"："+err.message:""));
+      return;
+    }
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = info.name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
   toast("保存しました");
 }
@@ -2857,6 +2911,7 @@ function bind(){
     if(b.dataset.dl==="ics")       download(`化学物質法令年間予定_${site}.ics`, icsCal());
     if(b.dataset.dl==="json")      download(`化学物質台帳_${site}_${d}.json`, JSON.stringify(state,null,2));
   }));
+  $$("[data-asset]").forEach(b => b.addEventListener("click", () => downloadAsset(b.dataset.asset)));
   const doPrint = () => { $$(".tab").forEach(x=>x.setAttribute("aria-selected", String(x.dataset.tab==="task")));
     $$(".panel").forEach(p=>p.hidden = p.id!=="panel-task"); setTimeout(()=>window.print(), 60); };
   $("#btnPrint").addEventListener("click", doPrint);

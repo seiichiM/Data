@@ -159,6 +159,7 @@ b.term{font-weight:700; color:var(--ink); border-bottom:1.5px dotted var(--line-
   <div class="mast-meta">
     <span class="chip">収録法令 <b id="cLaw">0</b></span>
     <span class="chip">項目 <b id="cItem">0</b></span>
+    <button class="iconbtn" id="btnSave" type="button">HTMLで保存</button>
     <button class="iconbtn" id="btnPrint" type="button">印刷 / PDF</button>
     <button class="iconbtn" id="btnTheme" type="button">◐ テーマ</button>
   </div>
@@ -269,6 +270,27 @@ function init(){
   });
   $("#q").addEventListener("input", e => { query = e.target.value.trim(); render(); });
   $("#btnPrint").addEventListener("click", () => window.print());
+
+  /* このページ自身をHTMLファイルとして保存する。外部ファイルを参照していないので
+     保存したものをそのまま社内で配れる。claude.ai上では downloads 機能を使い、
+     それ以外の環境では通常のリンクで保存する。 */
+  let canDownload = null;
+  if(window.claude && typeof window.claude.use === "function"){
+    window.claude.use("downloads").then(d => { if(d) canDownload = d; }).catch(()=>{});
+  }
+  $("#btnSave").addEventListener("click", async () => {
+    const name = "化学物質関係法令_確認点一覧.html";
+    const html = ["<!doctype html>", '<html lang="ja">',
+                  document.documentElement.innerHTML, "</html>", ""].join(String.fromCharCode(10));
+    if(canDownload){
+      try{ await canDownload.save({filename:name, data:html}); return; }
+      catch(err){ if(err && err.code === "declined") return; }
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([html], {type:"text/html;charset=utf-8"}));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+  });
   $("#btnTheme").addEventListener("click", () => {
     const cur = document.documentElement.getAttribute("data-theme");
     const next = cur === "dark" ? "light" : (cur === "light" ? null : "dark");
