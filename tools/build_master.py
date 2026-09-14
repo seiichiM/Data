@@ -285,9 +285,9 @@ add("106-97-8","ブタン", note="高圧ガス保安法。液化石油ガス")
 # ============================================================
 # 生成
 # ============================================================
-KEYS = ["cas","name","an","skin","cancer","tokka","sp","yuki","lead","dust",
+KEYS = ["cas","name","an","skin","cancer","noudo","ankiken","tokka","sp","yuki","lead","dust",
         "kakan","doku","shi","kashin","taiki","sui","dojo","josei","note"]
-DEF  = {"an":1,"skin":0,"cancer":0,"tokka":"","sp":0,"yuki":"","lead":0,"dust":0,
+DEF  = {"an":1,"skin":0,"cancer":0,"noudo":0,"ankiken":0,"tokka":"","sp":0,"yuki":"","lead":0,"dust":0,
         "kakan":"","doku":"","shi":"","kashin":"","taiki":"","sui":0,"dojo":0,"josei":0,"note":""}
 
 merged, order, dups = {}, [], []
@@ -327,6 +327,8 @@ for law, f in [("特化則 第1類", lambda r: r["tokka"]=="1"),
                ("特化則 第2類", lambda r: r["tokka"]=="2"),
                ("特化則 第3類", lambda r: r["tokka"]=="3"),
                ("うち特別管理物質", lambda r: r["sp"]==1),
+               ("濃度基準値", lambda r: r["noudo"]==1),
+               ("安衛法危険物", lambda r: r["ankiken"]==1),
                ("有機則 第1種", lambda r: r["yuki"]=="1"),
                ("有機則 第2種", lambda r: r["yuki"]=="2"),
                ("有機則 第3種", lambda r: r["yuki"]=="3"),
@@ -368,6 +370,8 @@ CSV_COLS = [
  ("安衛法",        lambda r: "対象物" if r["an"]==1 else ("要確認" if r["an"]==2 else "非該当")),
  ("皮膚等障害",    lambda r: "該当" if r["skin"]==1 else ("要確認" if r["skin"]==2 else "")),
  ("がん原性",      lambda r: "該当" if r["cancer"]==1 else ""),
+ ("濃度基準値",    lambda r: "該当" if r["noudo"]==1 else ""),
+ ("安衛法危険物",  lambda r: "該当" if r["ankiken"]==1 else ""),
  ("特化則",        lambda r: ("第%s類" % r["tokka"]) if r["tokka"] else ""),
  ("特別管理物質",  lambda r: "該当" if r["sp"]==1 else ""),
  ("有機則",        lambda r: ("第%s種" % r["yuki"]) if r["yuki"] else ""),
@@ -387,21 +391,21 @@ CSV_COLS = [
 def cell(v): return '"' + str(v).replace('"', '""') + '"'
 csv_lines = [",".join(cell(c[0]) for c in CSV_COLS)]
 csv_lines += [",".join(cell(c[1](r)) for c in CSV_COLS) for r in rows]
-io.open("chem-master.csv", "w", encoding="utf-8-sig").write("\r\n".join(csv_lines) + "\r\n")
-print("\nchem-master.csv を出力しました（%d行）" % len(rows))
+io.open("chem-master-seed.csv", "w", encoding="utf-8-sig").write("\r\n".join(csv_lines) + "\r\n")
+print("\nchem-master-seed.csv を出力しました（%d行）" % len(rows))
 
 # file:// で開いたときは fetch が使えないため、同じ内容をJSの文字列として出力する。
 # HTMLと同じフォルダに置くと chem-master.js として読み込まれる。
 import json as _json
 _csv_text = "\r\n".join(csv_lines) + "\r\n"
-io.open("chem-master.js", "w", encoding="utf-8").write(
+io.open("chem-master-seed.js", "w", encoding="utf-8").write(
     "/* 化学物質法令チェック台帳 物質マスタ\n"
-    "   chemical-compliance.html と同じフォルダに置いてください。\n"
+    "   内蔵マスタのみのシードです。配布用は tools/merge_chrip.py で作ってください。\n"
     "   ファイルを直接開く（ダブルクリックする）場合は、ブラウザの制約により\n"
     "   CSVではなくこのファイルが読み込まれます。内容は chem-master.csv と同一です。\n"
     "   tools/build_master.py または tools/update_master.py が生成します。 */\n"
     "window.CHEM_MASTER_CSV = " + _json.dumps(_csv_text, ensure_ascii=False) + ";\n")
-print("chem-master.js を出力しました（%d bytes）" % len(io.open("chem-master.js",encoding="utf-8").read()))
+print("chem-master-seed.js を出力しました（%d bytes）" % len(io.open("chem-master-seed.js",encoding="utf-8").read()))
 
 for shi in set(r["shi"] for r in rows if r["shi"]):
     if shi not in SHOBO_LABEL:
