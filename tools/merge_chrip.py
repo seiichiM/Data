@@ -77,6 +77,11 @@ def main():
     ap.add_argument("--base", default="chem-master.csv")
     ap.add_argument("--out",  default="chem-master.csv")
     ap.add_argument("--js",   default="chem-master.js")
+    ap.add_argument("--anzen", choices=["auto", "all", "none"], default="auto",
+                    help="新規物質の安衛法列の扱い。"
+                         "all=すべて表示・通知対象物とする（CHRIPで安衛法の対象物質に絞って出力した一覧の場合）。"
+                         "auto=安衛法の各列に●があるものだけ対象物とし、他は要確認（既定）。"
+                         "none=安衛法列を空のままにする")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
@@ -133,14 +138,21 @@ def main():
             if col in idx and g(idx[col]) == "●": fill(col, val)
         if "kakan" in idx and g(idx["kakan"]) == "●": fill("化管法", "要確認")
 
-        # CHRIPは表示・通知対象かどうかの列を持たない。ただし特化則・有機則・
-        # がん原性・濃度基準値・皮膚等障害に該当する物質は、いずれも表示・通知
-        # 対象物に含まれるため「対象物」としてよい。それ以外は判断材料がない
-        # ので「要確認」とし、実際に使う物質だけが要確認として上がるようにする。
+        # CHRIPの出力には表示・通知対象かどうかの列が無い。CHRIPで安衛法の
+        # 対象物質に絞って出力した一覧なら、全行が表示・通知対象物になる
+        # （絞り込み条件そのものなので列に現れない）。その場合は --anzen all。
+        # 絞らずに出力した一覧なら、特化則・有機則・がん原性・濃度基準値・
+        # 皮膚等障害のいずれかに該当するものは表示・通知対象物に含まれるため
+        # 対象物とし、判断材料が無いものは要確認として実際に使う物質だけを
+        # 拾い上げる。
         if new:
-            rec["安衛法"] = "対象物" if any(rec.get(c) for c in ANZEN_COLS) else "要確認"
+            if a.anzen == "all":
+                rec["安衛法"] = "対象物"
+            elif a.anzen == "auto":
+                rec["安衛法"] = "対象物" if any(rec.get(c) for c in ANZEN_COLS) else "要確認"
 
-    print("CHRIP: 新規 %d物質 / 既存に照合 %d物質 / CAS番号なし %d行" % (added, updated, nocas))
+    print("CHRIP: 新規 %d物質 / 既存に照合 %d物質 / CAS番号なし %d行（--anzen %s）"
+          % (added, updated, nocas, a.anzen))
     print("空欄を埋めた件数:")
     for c in ["安衛法危険物", "濃度基準値", "がん原性", "皮膚等障害", "特化則", "有機則", "化審法", "化管法"]:
         if filled.get(c): print("  %-12s %5d" % (c, filled[c]))
