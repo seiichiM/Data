@@ -1,0 +1,1540 @@
+<title>Inkwell Markdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap">
+
+<style>
+/* ---------------------------------------------------------------
+   Inkwell Markdown — tokens
+   Light palette is defined on bare :root so the un-stamped
+   (system) state always resolves. Dark redefines tokens only.
+----------------------------------------------------------------*/
+:root{
+  --bg:#eef1ec;
+  --surface:#fafbf8;
+  --surface-2:#e5e9e1;
+  --surface-3:#dbe0d6;
+  --ink:#171b18;
+  --ink-2:#4c544d;
+  --ink-3:#79827a;
+  --rule:#d3d9cf;
+  --rule-strong:#bdc5b8;
+  --accent:#1f6f5c;
+  --accent-hover:#185745;
+  --accent-soft:#dcebe4;
+  --accent-ink:#17513f;
+  --warn:#9c5c16;
+  --danger:#a1362f;
+  --danger-soft:#f5e2e0;
+  --code-bg:#e8ece5;
+  --sel:#c6e2d6;
+
+  --syn-key:#2f6089;
+  --syn-str:#4a6b2a;
+  --syn-com:#8a9289;
+  --syn-num:#94551f;
+  --syn-fn:#1f6f5c;
+  --syn-attr:#77488a;
+
+  --ui:"IBM Plex Sans","Noto Sans JP",system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic UI",sans-serif;
+  --serif:"IBM Plex Serif","Noto Serif JP",Georgia,"Hiragino Mincho ProN","Yu Mincho",serif;
+  --mono:"IBM Plex Mono","Noto Sans JP",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  --bar-h:52px;
+  --tool-h:40px;
+  --status-h:30px;
+  --split:50%;
+  --radius:7px;
+  --shadow:0 1px 2px rgba(23,27,24,.06),0 8px 24px -12px rgba(23,27,24,.22);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#12160f;
+    --surface:#191e1a;
+    --surface-2:#222a24;
+    --surface-3:#2b342d;
+    --ink:#e7ece5;
+    --ink-2:#a4afa4;
+    --ink-3:#78826f;
+    --rule:#2c342e;
+    --rule-strong:#3b453d;
+    --accent:#6fc4a6;
+    --accent-hover:#8ad6bb;
+    --accent-soft:#1d2f28;
+    --accent-ink:#8fd9bc;
+    --warn:#d3a065;
+    --danger:#e08a82;
+    --danger-soft:#31201f;
+    --code-bg:#1d241f;
+    --sel:#2b4a3e;
+
+    --syn-key:#86b6e0;
+    --syn-str:#a9c97a;
+    --syn-com:#6f7a70;
+    --syn-num:#d6a16a;
+    --syn-fn:#6fc4a6;
+    --syn-attr:#c6a0d8;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12160f;
+  --surface:#191e1a;
+  --surface-2:#222a24;
+  --surface-3:#2b342d;
+  --ink:#e7ece5;
+  --ink-2:#a4afa4;
+  --ink-3:#78826f;
+  --rule:#2c342e;
+  --rule-strong:#3b453d;
+  --accent:#6fc4a6;
+  --accent-hover:#8ad6bb;
+  --accent-soft:#1d2f28;
+  --accent-ink:#8fd9bc;
+  --warn:#d3a065;
+  --danger:#e08a82;
+  --danger-soft:#31201f;
+  --code-bg:#1d241f;
+  --sel:#2b4a3e;
+
+  --syn-key:#86b6e0;
+  --syn-str:#a9c97a;
+  --syn-com:#6f7a70;
+  --syn-num:#d6a16a;
+  --syn-fn:#6fc4a6;
+  --syn-attr:#c6a0d8;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--ui);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+::selection{background:var(--sel);color:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+
+/* ---------------- command bar ---------------- */
+.bar{
+  flex:0 0 auto;height:var(--bar-h);display:flex;align-items:center;gap:14px;
+  padding:0 14px;background:var(--surface);border-bottom:1px solid var(--rule);
+  position:relative;z-index:20;
+}
+.brand{display:flex;align-items:baseline;gap:8px;min-width:0}
+.brand b{
+  font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em;
+  white-space:nowrap;
+}
+.brand b i{font-style:normal;color:var(--accent)}
+.brand .file{
+  font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:22ch;
+}
+
+/* segmented mode switch — the one control the whole app pivots on */
+.seg{
+  display:flex;background:var(--surface-2);border:1px solid var(--rule);
+  border-radius:var(--radius);padding:2px;gap:2px;
+}
+.seg button{
+  padding:4px 13px;border-radius:5px;font-size:12.5px;font-weight:500;
+  color:var(--ink-2);white-space:nowrap;transition:background .12s,color .12s;
+}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent-ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+:root[data-theme="dark"] .seg button[aria-pressed="true"],
+:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{box-shadow:none}
+
+.bar-spacer{flex:1 1 auto}
+.actions{display:flex;align-items:center;gap:4px}
+.icon-btn{
+  width:32px;height:32px;display:grid;place-items:center;border-radius:6px;
+  color:var(--ink-2);transition:background .12s,color .12s;
+}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.icon-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-ink)}
+.icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+.menu-wrap{position:relative}
+.menu{
+  position:absolute;right:0;top:38px;min-width:238px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:5px;display:flex;flex-direction:column;gap:1px;z-index:30;
+}
+.menu[hidden]{display:none!important}
+.menu button{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:7px 10px;border-radius:5px;font-size:13px;text-align:left;width:100%;
+}
+.menu button:hover{background:var(--surface-2)}
+.menu button span{color:var(--ink-3);font-family:var(--mono);font-size:11px}
+.menu hr{border:0;border-top:1px solid var(--rule);margin:5px 2px}
+.menu .note{padding:4px 10px 7px;font-size:11px;color:var(--ink-3);line-height:1.45}
+
+/* ---------------- markdown toolbar ---------------- */
+.tools{
+  flex:0 0 auto;height:var(--tool-h);display:flex;align-items:center;gap:2px;
+  padding:0 10px;background:var(--surface);border-bottom:1px solid var(--rule);
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
+}
+body[data-mode="read"] .tools{display:none}
+.tools button{
+  flex:0 0 auto;height:26px;padding:0 9px;border-radius:5px;color:var(--ink-2);
+  font-size:12px;line-height:1;display:flex;align-items:center;gap:5px;
+  transition:background .12s,color .12s;
+}
+.tools button:hover{background:var(--surface-2);color:var(--ink)}
+.tools button .g{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--accent)}
+.tools .div{flex:0 0 auto;width:1px;height:17px;background:var(--rule);margin:0 5px}
+
+/* ---------------- stage ---------------- */
+.stage{flex:1 1 auto;display:flex;min-height:0;position:relative}
+
+/* outline rail — generated from the document's own headings */
+.outline{
+  flex:0 0 236px;background:var(--surface);border-right:1px solid var(--rule);
+  overflow-y:auto;padding:16px 6px 40px;
+}
+body:not([data-outline="on"]) .outline{display:none}
+.outline h2{
+  margin:0 0 8px;padding:0 10px;font-size:10.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+}
+.outline a{
+  display:block;padding:4px 10px;border-radius:5px;font-size:12.5px;
+  color:var(--ink-2);text-decoration:none;border-left:2px solid transparent;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.outline a:hover{background:var(--surface-2);color:var(--ink)}
+.outline a.is-current{color:var(--accent-ink);border-left-color:var(--accent);background:var(--accent-soft)}
+.outline a[data-lv="2"]{padding-left:22px}
+.outline a[data-lv="3"]{padding-left:34px;font-size:12px}
+.outline a[data-lv="4"],.outline a[data-lv="5"],.outline a[data-lv="6"]{padding-left:46px;font-size:12px;color:var(--ink-3)}
+.outline .empty{padding:6px 10px;font-size:12px;color:var(--ink-3)}
+
+.panes{flex:1 1 auto;display:flex;min-width:0;min-height:0}
+
+/* ---------------- editor ---------------- */
+.pane-edit{
+  flex:0 0 var(--split);min-width:0;display:flex;flex-direction:column;position:relative;
+  background:var(--surface);border-right:1px solid var(--rule);
+}
+body[data-mode="read"] .pane-edit{display:none}
+body[data-mode="write"] .pane-edit{flex-basis:100%;border-right:0}
+#editor{
+  flex:1 1 auto;width:100%;resize:none;border:0;outline:none;background:transparent;
+  color:var(--ink);font-family:var(--mono);font-size:13.5px;line-height:1.85;
+  padding:22px 24px 45vh;tab-size:2;white-space:pre-wrap;word-break:break-word;
+  caret-color:var(--accent);
+}
+#editor::placeholder{color:var(--ink-3)}
+
+.divider{
+  flex:0 0 5px;cursor:col-resize;background:transparent;position:relative;
+  margin:0 -2px;z-index:5;
+}
+body:not([data-mode="split"]) .divider{display:none}
+.divider::after{
+  content:"";position:absolute;inset:0 2px;background:transparent;transition:background .15s;
+}
+.divider:hover::after,.divider.is-dragging::after{background:var(--accent)}
+
+/* ---------------- preview ---------------- */
+.pane-view{flex:1 1 auto;min-width:0;overflow-y:auto;overflow-x:hidden;background:var(--bg);scroll-behavior:auto}
+body[data-mode="write"] .pane-view{display:none}
+.doc{max-width:74ch;margin:0 auto;padding:40px 32px 45vh}
+body[data-mode="split"] .doc{padding:28px 28px 45vh}
+
+/* front matter, shown as metadata rather than dropped on the floor */
+.frontmatter{
+  margin:0 0 30px;border:1px solid var(--rule);border-radius:var(--radius);
+  background:var(--surface);padding:12px 15px;
+  display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:baseline;
+}
+.frontmatter dt{
+  font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-3);
+  text-transform:uppercase;margin:0;
+}
+.frontmatter dd{margin:0;font-size:13px;color:var(--ink-2)}
+
+/* document typography — serif, because this is the "typeset" register */
+.doc{font-family:var(--serif);font-size:16.5px;line-height:1.78;color:var(--ink)}
+.doc>*:first-child{margin-top:0}
+.doc h1,.doc h2,.doc h3,.doc h4,.doc h5,.doc h6{
+  font-family:var(--ui);font-weight:600;line-height:1.3;text-wrap:balance;
+  margin:2.1em 0 .6em;scroll-margin-top:20px;position:relative;
+}
+.doc h1{font-size:1.95em;letter-spacing:-.02em;margin-top:0}
+.doc h2{font-size:1.4em;letter-spacing:-.012em;padding-bottom:.3em;border-bottom:1px solid var(--rule)}
+.doc h3{font-size:1.16em}
+.doc h4{font-size:1em}
+.doc h5,.doc h6{font-size:.92em;color:var(--ink-2)}
+.doc h1 .anchor,.doc h2 .anchor,.doc h3 .anchor,.doc h4 .anchor{
+  position:absolute;left:-.85em;top:0;color:var(--accent);opacity:0;
+  text-decoration:none;font-family:var(--mono);font-weight:400;transition:opacity .12s;
+}
+.doc h1:hover .anchor,.doc h2:hover .anchor,.doc h3:hover .anchor,.doc h4:hover .anchor{opacity:.55}
+.doc p{margin:0 0 1.05em}
+.doc a{color:var(--accent-ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2.5px}
+.doc a:hover{color:var(--accent)}
+.doc strong{font-weight:600}
+.doc em{font-style:italic}
+.doc del{color:var(--ink-3)}
+.doc hr{border:0;border-top:1px solid var(--rule);margin:2.4em 0}
+.doc ul,.doc ol{margin:0 0 1.05em;padding-left:1.5em}
+.doc li{margin:.24em 0}
+.doc li::marker{color:var(--ink-3)}
+.doc li>ul,.doc li>ol{margin:.24em 0}
+.doc blockquote{
+  margin:1.4em 0;padding:.1em 0 .1em 1.15em;border-left:2px solid var(--accent);
+  color:var(--ink-2);font-style:italic;
+}
+.doc blockquote p:last-child{margin-bottom:0}
+.doc img{max-width:100%;height:auto;border-radius:var(--radius);display:block}
+.doc input[type="checkbox"]{
+  accent-color:var(--accent);margin-right:.45em;transform:translateY(1px);
+}
+.doc ul:has(>li>input[type="checkbox"]){list-style:none;padding-left:.2em}
+
+.doc code{
+  font-family:var(--mono);font-size:.845em;background:var(--code-bg);
+  padding:.14em .38em;border-radius:4px;
+}
+.doc pre{
+  margin:1.4em 0;padding:14px 16px;background:var(--code-bg);border:1px solid var(--rule);
+  border-radius:var(--radius);overflow-x:auto;position:relative;
+}
+.doc pre code{background:none;padding:0;font-size:12.9px;line-height:1.7;display:block}
+.copy-code{
+  position:absolute;top:7px;right:7px;padding:3px 8px;border-radius:4px;font-family:var(--ui);
+  font-size:10.5px;color:var(--ink-3);background:var(--surface);border:1px solid var(--rule);
+  opacity:0;transition:opacity .12s;
+}
+.doc pre:hover .copy-code,.copy-code:focus-visible{opacity:1}
+.copy-code:hover{color:var(--accent-ink);border-color:var(--accent)}
+
+.table-scroll{overflow-x:auto;margin:1.5em 0}
+.doc table{border-collapse:collapse;width:100%;font-family:var(--ui);font-size:.86em;font-variant-numeric:tabular-nums}
+.doc th,.doc td{border:1px solid var(--rule);padding:7px 12px;text-align:left;vertical-align:top}
+.doc th{background:var(--surface-2);font-weight:600;white-space:nowrap}
+.doc tbody tr:nth-child(even) td{background:var(--surface)}
+
+/* math + diagrams */
+mjx-container[jax="SVG"]{color:var(--ink)}
+mjx-container[jax="SVG"][display="true"]{margin:1.5em 0!important;overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.mermaid-block{
+  margin:1.6em 0;padding:16px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:var(--radius);overflow-x:auto;text-align:center;
+}
+.mermaid-block svg{max-width:100%;height:auto}
+.render-error{
+  margin:1.4em 0;padding:11px 14px;border:1px solid var(--danger);background:var(--danger-soft);
+  border-radius:var(--radius);color:var(--danger);font-family:var(--mono);font-size:12px;
+  white-space:pre-wrap;word-break:break-word;
+}
+.loading-note{
+  font-family:var(--ui);font-size:12px;color:var(--ink-3);
+  padding:10px 0;display:flex;align-items:center;gap:8px;
+}
+
+/* highlight.js theme, written inline — external CDN stylesheets are blocked */
+.hljs-comment,.hljs-quote{color:var(--syn-com);font-style:italic}
+.hljs-keyword,.hljs-selector-tag,.hljs-literal,.hljs-doctag{color:var(--syn-key);font-weight:500}
+.hljs-string,.hljs-regexp,.hljs-addition{color:var(--syn-str)}
+.hljs-number,.hljs-symbol,.hljs-bullet{color:var(--syn-num)}
+.hljs-title,.hljs-title.function_,.hljs-section,.hljs-name{color:var(--syn-fn);font-weight:500}
+.hljs-attr,.hljs-attribute,.hljs-variable,.hljs-template-variable,.hljs-type,.hljs-selector-attr,.hljs-selector-class{color:var(--syn-attr)}
+.hljs-built_in,.hljs-class .hljs-title{color:var(--syn-key)}
+.hljs-meta,.hljs-tag{color:var(--ink-3)}
+.hljs-deletion{color:var(--danger)}
+.hljs-emphasis{font-style:italic}
+.hljs-strong{font-weight:600}
+
+/* ---------------- find bar ---------------- */
+.findbar{
+  position:absolute;top:10px;left:14px;z-index:15;display:flex;align-items:center;gap:5px;
+  background:var(--surface);border:1px solid var(--rule-strong);border-radius:var(--radius);
+  padding:6px;box-shadow:var(--shadow);flex-wrap:wrap;max-width:calc(100% - 28px);
+}
+.findbar[hidden]{display:none!important}
+.findbar input{
+  width:150px;background:var(--bg);border:1px solid var(--rule);border-radius:5px;
+  padding:4px 8px;font-family:var(--mono);font-size:12px;outline:none;
+}
+.findbar input:focus{border-color:var(--accent)}
+.findbar button{padding:4px 9px;border-radius:5px;font-size:12px;color:var(--ink-2);border:1px solid transparent}
+.findbar button:hover{background:var(--surface-2);color:var(--ink)}
+.findbar .count{font-family:var(--mono);font-size:11px;color:var(--ink-3);min-width:6ch;text-align:center}
+
+/* ---------------- status bar ---------------- */
+.status{
+  flex:0 0 auto;height:var(--status-h);display:flex;align-items:center;gap:0;
+  padding:0 14px;background:var(--surface);border-top:1px solid var(--rule);
+  font-size:11.5px;color:var(--ink-3);overflow-x:auto;white-space:nowrap;scrollbar-width:none;
+}
+.status .m{display:flex;align-items:center;gap:5px;padding-right:14px;margin-right:14px;border-right:1px solid var(--rule)}
+.status .m:last-child{border-right:0;margin-right:0;padding-right:0}
+.status .m b{font-family:var(--mono);font-weight:500;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.status .grow{flex:1 1 auto;border:0}
+.status .dot{width:6px;height:6px;border-radius:50%;background:var(--ink-3);transition:background .2s}
+.status .dot.is-saved{background:var(--accent)}
+.status .dot.is-dirty{background:var(--warn)}
+
+/* ---------------- dialog ---------------- */
+dialog{
+  border:1px solid var(--rule-strong);border-radius:10px;background:var(--surface);color:var(--ink);
+  padding:0;max-width:min(520px,92vw);box-shadow:var(--shadow);
+}
+dialog::backdrop{background:rgba(10,14,11,.45)}
+.dlg-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 18px 10px}
+.dlg-head h2{margin:0;font-family:var(--serif);font-size:17px;font-weight:600}
+.dlg-body{padding:0 18px 18px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:7px 18px;align-items:baseline;font-size:13px}
+.keys kbd{
+  font-family:var(--mono);font-size:11.5px;background:var(--surface-2);border:1px solid var(--rule);
+  border-bottom-width:2px;border-radius:4px;padding:2px 6px;white-space:nowrap;color:var(--ink-2);
+}
+.keys span{color:var(--ink-2)}
+
+.toast{
+  position:fixed;left:50%;bottom:46px;transform:translateX(-50%) translateY(8px);
+  background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:12.5px;
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:60;
+}
+.toast.is-on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:900px){
+  body:not([data-outline="force"]) .outline{display:none}
+  .brand .file{display:none}
+}
+@media (max-width:640px){
+  :root{--bar-h:48px}
+  .brand b{font-size:15px}
+  .seg button{padding:4px 10px;font-size:12px}
+  .doc{padding:26px 18px 45vh;font-size:16px}
+  body[data-mode="split"] .panes{flex-direction:column}
+  body[data-mode="split"] .pane-edit{flex:0 0 46%;border-right:0;border-bottom:1px solid var(--rule)}
+  body[data-mode="split"] .divider{flex:0 0 5px;cursor:row-resize;margin:-2px 0}
+  #editor{padding:16px 16px 30vh}
+}
+
+/* ---------------- print ---------------- */
+@media print{
+  :root{--bg:#fff;--surface:#fff;--ink:#000;--ink-2:#333;--rule:#ccc;--code-bg:#f4f4f4}
+  body{display:block;overflow:visible;height:auto}
+  .bar,.tools,.outline,.pane-edit,.divider,.status,.findbar,.copy-code,.toast{display:none!important}
+  .stage,.panes{display:block}
+  .pane-view{overflow:visible}
+  .doc{max-width:none;padding:0;font-size:11.5pt}
+  .doc h1,.doc h2,.doc h3{break-after:avoid}
+  .doc pre,.doc table,.mermaid-block{break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:0s!important;animation-duration:0s!important}
+}
+</style>
+
+<header class="bar">
+  <div class="brand">
+    <b>Ink<i>well</i></b>
+    <span class="file" id="filename">untitled.md</span>
+  </div>
+
+  <div class="seg" role="group" aria-label="表示モード">
+    <button id="m-read"  aria-pressed="true"  title="閲覧のみ (Ctrl+1)">閲覧</button>
+    <button id="m-split" aria-pressed="false" title="2分割 (Ctrl+E)">分割</button>
+    <button id="m-write" aria-pressed="false" title="編集のみ (Ctrl+3)">編集</button>
+  </div>
+
+  <div class="bar-spacer"></div>
+
+  <div class="actions">
+    <button class="icon-btn" id="btn-outline" aria-pressed="false" title="アウトライン (Ctrl+\)">
+      <svg viewBox="0 0 24 24"><path d="M4 6h3M4 12h3M4 18h3M10 6h10M10 12h10M10 18h10"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-find" title="検索・置換 (Ctrl+F)">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-theme" title="配色を切り替え">
+      <svg viewBox="0 0 24 24" id="icon-theme"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6"/></svg>
+    </button>
+    <div class="menu-wrap">
+      <button class="icon-btn" id="btn-file" aria-haspopup="true" aria-expanded="false" title="ファイル・書き出し">
+        <svg viewBox="0 0 24 24"><path d="M13 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z"/><path d="M13 3v6h6"/></svg>
+      </button>
+      <div class="menu" id="menu-file" hidden>
+        <button data-act="new">新規（空の文書）<span>Ctrl+N</span></button>
+        <button data-act="open">.md を開く<span>Ctrl+O</span></button>
+        <button data-act="sample">サンプルを読み込む</button>
+        <hr>
+        <button data-act="dl-md">.md をダウンロード<span>Ctrl+S</span></button>
+        <button data-act="dl-html">HTML を書き出す</button>
+        <button data-act="print">印刷 / PDF<span>Ctrl+P</span></button>
+        <hr>
+        <button data-act="cp-md">Markdown をコピー</button>
+        <button data-act="cp-html">HTML をコピー</button>
+        <hr>
+        <button data-act="keys">キーボードショートカット<span>?</span></button>
+        <p class="note">ダウンロードは確認ダイアログののち保存されます。保存できない環境では「コピー」をお使いください。</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tools" id="tools" aria-label="書式ツール">
+  <button data-md="h1" title="見出し 1"><span class="g">H1</span></button>
+  <button data-md="h2" title="見出し 2"><span class="g">H2</span></button>
+  <button data-md="h3" title="見出し 3"><span class="g">H3</span></button>
+  <i class="div"></i>
+  <button data-md="bold" title="太字 (Ctrl+B)"><b>B</b></button>
+  <button data-md="italic" title="斜体 (Ctrl+I)"><i>I</i></button>
+  <button data-md="strike" title="打ち消し"><s>S</s></button>
+  <button data-md="code" title="インラインコード"><span class="g">&lt;&gt;</span></button>
+  <button data-md="link" title="リンク (Ctrl+K)"><span class="g">[ ]</span></button>
+  <i class="div"></i>
+  <button data-md="ul" title="箇条書き"><span class="g">•</span> リスト</button>
+  <button data-md="ol" title="番号付きリスト"><span class="g">1.</span> 番号</button>
+  <button data-md="task" title="タスクリスト"><span class="g">☐</span> タスク</button>
+  <button data-md="quote" title="引用"><span class="g">&gt;</span> 引用</button>
+  <i class="div"></i>
+  <button data-md="table" title="表を挿入">表</button>
+  <button data-md="fence" title="コードブロック">コード</button>
+  <button data-md="math" title="ブロック数式（TeX）"><span class="g">∑</span> 数式</button>
+  <button data-md="mermaid" title="フローチャート（Mermaid）"><span class="g">◇</span> 図</button>
+  <button data-md="hr" title="水平線">罫線</button>
+</nav>
+
+<div class="stage">
+  <aside class="outline" id="outline" aria-label="アウトライン">
+    <h2>Outline</h2>
+    <div id="outline-list"></div>
+  </aside>
+
+  <div class="panes" id="panes">
+    <section class="pane-edit">
+      <div class="findbar" id="findbar" hidden>
+        <input id="find-q" type="text" placeholder="検索" aria-label="検索語">
+        <span class="count" id="find-count">0 / 0</span>
+        <button id="find-prev" title="前へ (Shift+Enter)">↑</button>
+        <button id="find-next" title="次へ (Enter)">↓</button>
+        <input id="find-r" type="text" placeholder="置換" aria-label="置換語">
+        <button id="find-all">すべて置換</button>
+        <button id="find-close" title="閉じる (Esc)">✕</button>
+      </div>
+      <textarea id="editor" spellcheck="false" placeholder="# 見出し&#10;&#10;ここに Markdown を書きます。" aria-label="Markdown ソース"></textarea>
+    </section>
+
+    <div class="divider" id="divider" role="separator" aria-label="分割幅"></div>
+
+    <section class="pane-view" id="viewport">
+      <article class="doc" id="preview"></article>
+    </section>
+  </div>
+</div>
+
+<footer class="status">
+  <span class="m"><b id="s-chars">0</b> 文字</span>
+  <span class="m"><b id="s-words">0</b> 語</span>
+  <span class="m"><b id="s-lines">0</b> 行</span>
+  <span class="m"><b id="s-heads">0</b> 見出し</span>
+  <span class="m">読了 <b id="s-time">0</b> 分</span>
+  <span class="m grow"></span>
+  <span class="m" id="s-pos">行 1 : 列 1</span>
+  <span class="m"><i class="dot" id="s-dot"></i><span id="s-state">読み込み中</span></span>
+</footer>
+
+<dialog id="dlg-keys">
+  <div class="dlg-head">
+    <h2>キーボードショートカット</h2>
+    <button class="icon-btn" id="dlg-close" aria-label="閉じる">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="dlg-body">
+    <div class="keys">
+      <kbd>Ctrl / ⌘ + E</kbd><span>分割ビューの切り替え</span>
+      <kbd>Ctrl + 1 / 2 / 3</kbd><span>閲覧 / 分割 / 編集</span>
+      <kbd>Ctrl + B</kbd><span>太字</span>
+      <kbd>Ctrl + I</kbd><span>斜体</span>
+      <kbd>Ctrl + K</kbd><span>リンク</span>
+      <kbd>Ctrl + F</kbd><span>検索・置換</span>
+      <kbd>Ctrl + S</kbd><span>.md をダウンロード</span>
+      <kbd>Ctrl + O</kbd><span>.md を開く</span>
+      <kbd>Ctrl + \</kbd><span>アウトラインの表示切り替え</span>
+      <kbd>Ctrl + Shift + Z</kbd><span>新規作成で消した内容を戻す</span>
+      <kbd>Tab / Shift+Tab</kbd><span>選択行のインデント増減</span>
+      <kbd>Enter</kbd><span>リスト・引用の自動継続</span>
+      <kbd>?</kbd><span>このヘルプ（編集中を除く）</span>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="file-input" accept=".md,.markdown,.mdown,.txt,text/markdown,text/plain" hidden>
+
+<script type="text/markdown" id="sample">
+---
+title: Inkwell Markdown — 機能ツアー
+author: 編集部
+updated: 2026-09-14
+---
+
+# Inkwell Markdown
+
+通常は**ビュアー**として開き、上部の「分割」ボタンでソースと組版を並べた
+2分割エディタになります。数式と図はどちらのモードでも描画されます。
+
+> 左のアウトラインは見出しから自動生成され、読んでいる位置を追いかけます。
+
+## 数式 — TeX 記法
+
+文中に $E = mc^2$ のように書けばインライン数式に、`$$` で囲めば別行立てになります。
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
+\qquad
+\frac{\partial u}{\partial t} = \alpha \nabla^2 u
+$$
+
+行列や場合分けも通ります。
+
+$$
+A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}, \quad
+|x| = \begin{cases} x & (x \ge 0) \\ -x & (x < 0) \end{cases}
+$$
+
+## フローチャート — Mermaid
+
+```mermaid
+flowchart TD
+    A[Markdown ソース] --> B{コードブロック?}
+    B -- mermaid --> C[図として描画]
+    B -- その他 --> D[構文ハイライト]
+    A --> E{$ で囲まれている?}
+    E -- はい --> F[数式として組版]
+    E -- いいえ --> G[通常のテキスト]
+    C & D & F & G --> H[プレビュー]
+```
+
+シーケンス図や円グラフなど、Mermaid の他の図種もそのまま使えます。
+
+```mermaid
+sequenceDiagram
+    participant U as 執筆者
+    participant E as エディタ
+    participant V as ビュアー
+    U->>E: 本文を入力
+    E->>V: 180ms 後に再描画
+    V-->>U: 組版結果
+```
+
+## 表とタスク
+
+| 記法 | 入力例 | 結果 |
+| --- | --- | --- |
+| 強調 | `**太字**` | **太字** |
+| 取り消し | `~~削除~~` | ~~削除~~ |
+| インライン数式 | `$a^2+b^2$` | $a^2+b^2$ |
+
+- [x] GFM の表・タスクリスト
+- [x] 構文ハイライト付きコードブロック
+- [ ] 書き出し（.md / HTML / PDF）を試す
+
+## コード
+
+```python
+def fib(n: int) -> list[int]:
+    """フィボナッチ数列を n 項まで返す。"""
+    seq = [0, 1]
+    while len(seq) < n:
+        seq.append(seq[-1] + seq[-2])
+    return seq[:n]
+```
+
+---
+
+*このサンプルは書き換えて構いません。内容はブラウザに自動保存されます。*
+</script>
+
+<script>
+window.MathJax = {
+  tex:{
+    inlineMath:[['$','$'],['\\(','\\)']],
+    displayMath:[['$$','$$'],['\\[','\\]']],
+    processEscapes:true
+  },
+  svg:{fontCache:'local'},
+  options:{enableMenu:false, skipHtmlTags:['script','noscript','style','textarea','pre','code']},
+  startup:{typeset:false}
+};
+</script>
+<script>
+(function(){
+  'use strict';
+
+  /* =========================================================
+     0. small helpers
+  ==========================================================*/
+  var $ = function(id){ return document.getElementById(id); };
+  var editor   = $('editor'),
+      preview  = $('preview'),
+      viewport = $('viewport'),
+      body     = document.body;
+
+  var STORE_KEY = 'inkwell.doc.v1',
+      MODE_KEY  = 'inkwell.mode.v1',
+      THEME_KEY = 'inkwell.theme.v1';
+
+  function store(k, v){
+    try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }
+    catch(e){ return null; }
+  }
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  var toastEl = $('toast'), toastTimer;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('is-on'); }, 2000);
+  }
+
+  /* load a script, trying each mirror in turn (cdnjs first, jsdelivr as backup) */
+  function loadScript(urls){
+    return new Promise(function(resolve, reject){
+      var i = 0;
+      (function next(){
+        if(i >= urls.length){ reject(new Error('load failed')); return; }
+        var s = document.createElement('script');
+        s.src = urls[i++];
+        s.async = false;
+        s.onload = function(){ resolve(); };
+        s.onerror = function(){ s.remove(); next(); };
+        document.head.appendChild(s);
+      })();
+    });
+  }
+
+  /* =========================================================
+     1. theme
+  ==========================================================*/
+  var themeOrder = ['auto','light','dark'],
+      theme = store(THEME_KEY) || 'auto';
+
+  var ICONS = {
+    auto : '<circle cx="12" cy="12" r="8.2"/><path d="M12 3.8v16.4a8.2 8.2 0 0 0 0-16.4z" fill="currentColor" stroke="none"/>',
+    light: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6"/>',
+    dark : '<path d="M20 13.4A8.2 8.2 0 1 1 10.6 4a6.6 6.6 0 0 0 9.4 9.4z"/>'
+  };
+  function applyTheme(){
+    if(theme === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', theme);
+    $('icon-theme').innerHTML = ICONS[theme];
+    $('btn-theme').title = '配色: ' + ({auto:'システムに従う',light:'ライト',dark:'ダーク'})[theme];
+    if(mermaidReady) renderDiagrams(true);
+  }
+  $('btn-theme').addEventListener('click', function(){
+    theme = themeOrder[(themeOrder.indexOf(theme) + 1) % 3];
+    store(THEME_KEY, theme);
+    applyTheme();
+  });
+
+  /* =========================================================
+     2. mode (viewer by default — that is the app's resting state)
+  ==========================================================*/
+  var mode = store(MODE_KEY) || 'read';
+  function setMode(m){
+    mode = m;
+    body.setAttribute('data-mode', m);
+    store(MODE_KEY, m);
+    ['read','split','write'].forEach(function(k){
+      $('m-' + k).setAttribute('aria-pressed', String(k === m));
+    });
+    if(m !== 'read') setTimeout(function(){ editor.focus(); }, 0);
+    else $('findbar').hidden = true;
+  }
+  $('m-read').addEventListener('click',  function(){ setMode('read'); });
+  $('m-split').addEventListener('click', function(){ setMode('split'); });
+  $('m-write').addEventListener('click', function(){ setMode('write'); });
+
+  /* outline rail */
+  var outlineOn = false;
+  function setOutline(on){
+    outlineOn = on;
+    body.setAttribute('data-outline', on ? 'on' : 'off');
+    $('btn-outline').setAttribute('aria-pressed', String(on));
+  }
+  $('btn-outline').addEventListener('click', function(){ setOutline(!outlineOn); });
+
+  /* draggable split */
+  var divider = $('divider'), panes = $('panes'), dragging = false;
+  divider.addEventListener('pointerdown', function(e){
+    dragging = true;
+    divider.classList.add('is-dragging');
+    divider.setPointerCapture(e.pointerId);
+  });
+  divider.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    var r = panes.getBoundingClientRect(), pct;
+    if(window.innerWidth <= 640){
+      pct = ((e.clientY - r.top) / r.height) * 100;
+      document.documentElement.style.setProperty('--split', Math.min(85, Math.max(15, pct)) + '%');
+      document.querySelector('.pane-edit').style.flexBasis = Math.min(85, Math.max(15, pct)) + '%';
+    }else{
+      pct = ((e.clientX - r.left) / r.width) * 100;
+      document.documentElement.style.setProperty('--split', Math.min(85, Math.max(15, pct)) + '%');
+      document.querySelector('.pane-edit').style.flexBasis = '';
+    }
+  });
+  function endDrag(e){
+    if(!dragging) return;
+    dragging = false;
+    divider.classList.remove('is-dragging');
+    try{ divider.releasePointerCapture(e.pointerId); }catch(err){}
+  }
+  divider.addEventListener('pointerup', endDrag);
+  divider.addEventListener('pointercancel', endDrag);
+
+  /* =========================================================
+     3. markdown pipeline
+        front matter -> protect code -> lift math -> marked
+        -> sanitize -> restore math -> MathJax + Mermaid
+  ==========================================================*/
+  var mathStore = [];
+  var PH_A = 'MJXZ', PH_B = 'ZEND';
+
+  var RE_PROTECT = new RegExp(
+    '(^|\\n)(?:```|~~~)[\\s\\S]*?(?:\\n(?:```|~~~)[ \\t]*(?=\\n|$)|$)' + // fenced code
+    '|`[^`\\n]*`' +                                                      // inline code
+    '|\\$\\$[\\s\\S]+?\\$\\$' +                                          // $$ display $$
+    '|\\\\\\[[\\s\\S]+?\\\\\\]' +                                        // \[ display \]
+    '|\\\\\\([\\s\\S]+?\\\\\\)' +                                        // \( inline \)
+    '|\\$(?![\\s$])(?:\\\\.|[^$\\\\\\n])+?\\$',                          // $ inline $
+    'g'
+  );
+
+  function liftMath(src){
+    mathStore = [];
+    return src.replace(RE_PROTECT, function(m){
+      var isMath = (m.charAt(0) === '$') ||
+                   (m.charAt(0) === '\\' && (m.charAt(1) === '[' || m.charAt(1) === '('));
+      if(!isMath) return m;                       // code stays untouched
+      mathStore.push(m);
+      return PH_A + (mathStore.length - 1) + PH_B;
+    });
+  }
+  function dropMath(html){
+    return html.replace(new RegExp(PH_A + '(\\d+)' + PH_B, 'g'), function(_, i){
+      return esc(mathStore[+i] || '');
+    });
+  }
+
+  function splitFrontMatter(src){
+    var m = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/.exec(src);
+    if(!m) return {meta:null, body:src};
+    var meta = [];
+    m[1].split(/\r?\n/).forEach(function(line){
+      var kv = /^([A-Za-z0-9_.\-]+)\s*:\s*(.*)$/.exec(line);
+      if(kv) meta.push([kv[1], kv[2].replace(/^["']|["']$/g,'')]);
+    });
+    return {meta: meta.length ? meta : null, body: src.slice(m[0].length)};
+  }
+
+  var slugSeen = {};
+  function slug(text){
+    var s = text.toLowerCase().replace(/[^\w\u3040-\u30ff\u3400-\u9fff\- ]/g,'').trim().replace(/\s+/g,'-') || 'section';
+    slugSeen[s] = (slugSeen[s] || 0) + 1;
+    return slugSeen[s] > 1 ? s + '-' + slugSeen[s] : s;
+  }
+
+  var mdReady = false, mermaidReady = false, mathReady = false, hlReady = false;
+
+  function configureMarked(){
+    var renderer = {};
+
+    renderer.code = function(code, info){
+      var text = typeof code === 'object' ? code.text : code;
+      var lang = (typeof code === 'object' ? code.lang : info) || '';
+      lang = String(lang).trim().split(/\s+/)[0];
+      if(lang === 'mermaid'){
+        return '<div class="mermaid-block" data-src="' + esc(text) + '">' +
+               '<p class="loading-note">図を描画しています…</p></div>';
+      }
+      var out = esc(text), cls = 'hljs';
+      if(hlReady && lang && window.hljs.getLanguage(lang)){
+        try{ out = window.hljs.highlight(text, {language: lang}).value; cls += ' language-' + lang; }
+        catch(e){}
+      }else if(hlReady && !lang){
+        try{ var a = window.hljs.highlightAuto(text); out = a.value; }catch(e){}
+      }
+      return '<pre><code class="' + cls + '">' + out + '</code></pre>';
+    };
+
+    renderer.heading = function(text, level){
+      var t = typeof text === 'object' ? this.parser.parseInline(text.tokens) : text;
+      var lv = typeof text === 'object' ? text.depth : level;
+      var plain = String(t).replace(/<[^>]*>/g,'').replace(new RegExp(PH_A + '\\d+' + PH_B,'g'),'');
+      var id = slug(plain);
+      return '<h' + lv + ' id="' + id + '" data-outline="' + esc(plain) + '">' +
+             '<a class="anchor" href="#' + id + '" aria-hidden="true" tabindex="-1">#</a>' +
+             t + '</h' + lv + '>';
+    };
+
+    renderer.table = function(){
+      var html = marked.Renderer.prototype.table.apply(this, arguments);
+      return '<div class="table-scroll">' + html + '</div>';
+    };
+
+    marked.use({gfm:true, breaks:false, renderer:renderer});
+  }
+
+  function toHTML(src){
+    slugSeen = {};
+    var fm = splitFrontMatter(src);
+    var html = marked.parse(liftMath(fm.body));
+    if(window.DOMPurify){
+      html = window.DOMPurify.sanitize(html, {
+        ADD_ATTR:['target','data-src','data-outline','id','class'],
+        ADD_TAGS:['mjx-container']
+      });
+    }
+    html = dropMath(html);
+
+    var head = '';
+    if(fm.meta){
+      head = '<dl class="frontmatter">' + fm.meta.map(function(kv){
+        return '<dt>' + esc(kv[0]) + '</dt><dd>' + esc(kv[1]) + '</dd>';
+      }).join('') + '</dl>';
+    }
+    return head + html;
+  }
+
+  /* ---- mermaid ---- */
+  function mermaidTheme(){
+    var cs = getComputedStyle(document.documentElement);
+    var v = function(n){ return cs.getPropertyValue(n).trim(); };
+    return {
+      theme:'base',
+      fontFamily:'"IBM Plex Sans","Noto Sans JP",sans-serif',
+      themeVariables:{
+        background:v('--surface'),
+        primaryColor:v('--accent-soft'),
+        primaryTextColor:v('--ink'),
+        primaryBorderColor:v('--accent'),
+        secondaryColor:v('--surface-2'),
+        tertiaryColor:v('--surface-3'),
+        lineColor:v('--ink-3'),
+        textColor:v('--ink'),
+        mainBkg:v('--accent-soft'),
+        nodeBorder:v('--accent'),
+        clusterBkg:v('--surface-2'),
+        clusterBorder:v('--rule'),
+        titleColor:v('--ink'),
+        edgeLabelBackground:v('--surface'),
+        actorBkg:v('--accent-soft'),
+        actorBorder:v('--accent'),
+        actorTextColor:v('--ink'),
+        signalColor:v('--ink-2'),
+        signalTextColor:v('--ink'),
+        labelBoxBkgColor:v('--surface-2'),
+        labelTextColor:v('--ink'),
+        noteBkgColor:v('--surface-2'),
+        noteTextColor:v('--ink'),
+        noteBorderColor:v('--rule')
+      }
+    };
+  }
+  var mermaidSeq = 0;
+  function renderDiagrams(reinit){
+    if(!mermaidReady) return;
+    var blocks = preview.querySelectorAll('.mermaid-block[data-src]');
+    if(!blocks.length) return;
+    if(reinit){
+      try{
+        window.mermaid.initialize(Object.assign({startOnLoad:false, securityLevel:'strict'}, mermaidTheme()));
+      }catch(e){}
+    }
+    Array.prototype.forEach.call(blocks, function(el){
+      var src = el.getAttribute('data-src');
+      var id = 'mmd-' + (++mermaidSeq);
+      Promise.resolve()
+        .then(function(){ return window.mermaid.render(id, src); })
+        .then(function(res){ el.innerHTML = res.svg; })
+        .catch(function(err){
+          var box = document.getElementById('d' + id);
+          if(box) box.remove();
+          el.innerHTML = '<div class="render-error">Mermaid: ' +
+                          esc((err && err.message) || String(err)) + '</div>';
+        });
+    });
+  }
+
+  /* ---- MathJax ---- */
+  function renderMath(){
+    if(!mathReady || !window.MathJax || !window.MathJax.typesetPromise) return;
+    try{ window.MathJax.typesetClear([preview]); }catch(e){}
+    window.MathJax.typesetPromise([preview]).catch(function(){});
+  }
+
+  /* ---- copy buttons on code blocks ---- */
+  function decorateCode(){
+    Array.prototype.forEach.call(preview.querySelectorAll('pre'), function(pre){
+      if(pre.querySelector('.copy-code')) return;
+      var b = document.createElement('button');
+      b.className = 'copy-code';
+      b.type = 'button';
+      b.textContent = 'コピー';
+      b.addEventListener('click', function(){
+        var code = pre.querySelector('code');
+        copyText(code ? code.textContent : '');
+        b.textContent = 'コピーしました';
+        setTimeout(function(){ b.textContent = 'コピー'; }, 1400);
+      });
+      pre.appendChild(b);
+    });
+  }
+
+  /* =========================================================
+     4. render loop
+  ==========================================================*/
+  var renderTimer, lastHTML = '';
+  function render(){
+    if(!mdReady) return;
+    var html = toHTML(editor.value);
+    if(html !== lastHTML){
+      preview.innerHTML = html;
+      lastHTML = html;
+      decorateCode();
+      renderDiagrams(true);
+      renderMath();
+      buildOutline();
+    }
+    updateStats();
+  }
+  function scheduleRender(){
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(render, 180);
+  }
+
+  /* outline */
+  var headingEls = [];
+  function buildOutline(){
+    var list = $('outline-list');
+    headingEls = Array.prototype.slice.call(preview.querySelectorAll('h1,h2,h3,h4,h5,h6'));
+    if(!headingEls.length){
+      list.innerHTML = '<p class="empty">見出しがありません</p>';
+      return;
+    }
+    list.innerHTML = headingEls.map(function(h, i){
+      return '<a href="#" data-i="' + i + '" data-lv="' + h.tagName.charAt(1) + '">' +
+             esc(h.getAttribute('data-outline') || h.textContent) + '</a>';
+    }).join('');
+  }
+  function topIn(el){
+    return el.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop;
+  }
+  $('outline-list').addEventListener('click', function(e){
+    var a = e.target.closest('a[data-i]');
+    if(!a) return;
+    e.preventDefault();
+    var h = headingEls[+a.getAttribute('data-i')];
+    if(!h) return;
+    viewport.scrollTo({top: Math.max(0, topIn(h) - 16), behavior:'smooth'});
+    if(mode !== 'read'){
+      var needle = h.getAttribute('data-outline') || h.textContent;
+      var idx = editor.value.indexOf(needle);
+      if(idx >= 0){
+        editor.focus();
+        editor.setSelectionRange(idx, idx + needle.length);
+        var ratio = idx / Math.max(1, editor.value.length);
+        editor.scrollTop = ratio * (editor.scrollHeight - editor.clientHeight);
+      }
+    }
+  });
+  function markCurrentHeading(){
+    if(!headingEls.length) return;
+    var y = viewport.scrollTop + 60, cur = 0;
+    for(var i = 0; i < headingEls.length; i++){
+      if(topIn(headingEls[i]) <= y) cur = i; else break;
+    }
+    var links = $('outline-list').children;
+    for(var j = 0; j < links.length; j++){
+      links[j].classList.toggle('is-current', j === cur);
+    }
+  }
+
+  /* stats */
+  function updateStats(){
+    var t = editor.value;
+    var chars = t.replace(/\s/g,'').length;
+    var latin = (t.match(/[A-Za-z0-9]+(?:['’\-][A-Za-z0-9]+)*/g) || []).length;
+    var cjk   = (t.match(/[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]/g) || []).length;
+    var words = latin + cjk;
+    $('s-chars').textContent = chars.toLocaleString();
+    $('s-words').textContent = words.toLocaleString();
+    $('s-lines').textContent = (t ? t.split('\n').length : 0).toLocaleString();
+    $('s-heads').textContent = (t.match(/^#{1,6}\s/gm) || []).length;
+    $('s-time').textContent  = Math.max(1, Math.round(words / 500));
+  }
+  function updateCaret(){
+    var upto = editor.value.slice(0, editor.selectionStart).split('\n');
+    $('s-pos').textContent = '行 ' + upto.length + ' : 列 ' + (upto[upto.length-1].length + 1);
+  }
+
+  /* autosave */
+  var saveTimer;
+  function markDirty(){
+    $('s-dot').className = 'dot is-dirty';
+    $('s-state').textContent = '編集中';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      store(STORE_KEY, editor.value);
+      $('s-dot').className = 'dot is-saved';
+      $('s-state').textContent = '自動保存済み';
+    }, 700);
+  }
+
+  editor.addEventListener('input', function(){ scheduleRender(); markDirty(); });
+  editor.addEventListener('keyup', updateCaret);
+  editor.addEventListener('click', updateCaret);
+
+  /* synced scrolling, proportional, with a re-entry guard */
+  var syncLock = 0;
+  editor.addEventListener('scroll', function(){
+    if(mode !== 'split' || syncLock === 2) return;
+    syncLock = 1;
+    var max = editor.scrollHeight - editor.clientHeight;
+    var r = max > 0 ? editor.scrollTop / max : 0;
+    viewport.scrollTop = r * (viewport.scrollHeight - viewport.clientHeight);
+    requestAnimationFrame(function(){ syncLock = 0; });
+  });
+  viewport.addEventListener('scroll', function(){
+    markCurrentHeading();
+    if(mode !== 'split' || syncLock === 1) return;
+    syncLock = 2;
+    var max = viewport.scrollHeight - viewport.clientHeight;
+    var r = max > 0 ? viewport.scrollTop / max : 0;
+    editor.scrollTop = r * (editor.scrollHeight - editor.clientHeight);
+    requestAnimationFrame(function(){ syncLock = 0; });
+  });
+
+  /* =========================================================
+     5. editing helpers
+  ==========================================================*/
+  function replaceRange(start, end, text, selStart, selEnd){
+    editor.setRangeText(text, start, end, 'end');
+    if(selStart !== undefined) editor.setSelectionRange(selStart, selEnd === undefined ? selStart : selEnd);
+    editor.dispatchEvent(new Event('input', {bubbles:true}));
+    editor.focus();
+  }
+  function wrap(before, after, placeholder){
+    var s = editor.selectionStart, e = editor.selectionEnd;
+    var sel = editor.value.slice(s, e) || placeholder || '';
+    replaceRange(s, e, before + sel + after, s + before.length, s + before.length + sel.length);
+  }
+  function lineBounds(){
+    var v = editor.value;
+    var s = v.lastIndexOf('\n', editor.selectionStart - 1) + 1;
+    var e = v.indexOf('\n', editor.selectionEnd);
+    if(e === -1) e = v.length;
+    return [s, e];
+  }
+  function prefixLines(make){
+    var b = lineBounds(), v = editor.value;
+    var lines = v.slice(b[0], b[1]).split('\n');
+    var out = lines.map(function(l, i){ return make(l, i); }).join('\n');
+    replaceRange(b[0], b[1], out, b[0], b[0] + out.length);
+  }
+  function insertBlock(text){
+    var b = lineBounds(), v = editor.value;
+    var atLineStart = editor.selectionStart === b[0];
+    var lead = (b[0] === 0 || atLineStart && v.slice(b[0], b[1]).trim() === '') ? '' : '\n\n';
+    var pos = atLineStart && v.slice(b[0], b[1]).trim() === '' ? b[0] : b[1];
+    var chunk = lead + text + '\n';
+    replaceRange(pos, pos, chunk, pos + chunk.length);
+  }
+
+  var ACTIONS = {
+    h1: function(){ prefixLines(function(l){ return '# '  + l.replace(/^#{1,6}\s*/,''); }); },
+    h2: function(){ prefixLines(function(l){ return '## ' + l.replace(/^#{1,6}\s*/,''); }); },
+    h3: function(){ prefixLines(function(l){ return '### '+ l.replace(/^#{1,6}\s*/,''); }); },
+    bold:   function(){ wrap('**','**','太字'); },
+    italic: function(){ wrap('*','*','斜体'); },
+    strike: function(){ wrap('~~','~~','取り消し'); },
+    code:   function(){ wrap('`','`','code'); },
+    link:   function(){
+      var s = editor.selectionStart, e = editor.selectionEnd;
+      var sel = editor.value.slice(s, e) || 'リンクテキスト';
+      var t = '[' + sel + '](https://)';
+      replaceRange(s, e, t, s + t.length - 1, s + t.length - 1);
+    },
+    ul:    function(){ prefixLines(function(l){ return '- ' + l.replace(/^[-*+]\s+/,''); }); },
+    ol:    function(){ prefixLines(function(l,i){ return (i+1) + '. ' + l.replace(/^\d+[.)]\s+/,''); }); },
+    task:  function(){ prefixLines(function(l){ return '- [ ] ' + l.replace(/^-\s*\[[ xX]\]\s*/,'').replace(/^[-*+]\s+/,''); }); },
+    quote: function(){ prefixLines(function(l){ return '> ' + l.replace(/^>\s?/,''); }); },
+    hr:    function(){ insertBlock('---'); },
+    fence: function(){ insertBlock('```js\nconsole.log("hello");\n```'); },
+    table: function(){ insertBlock('| 項目 | 説明 | 値 |\n| --- | --- | ---: |\n| A | 説明 A | 1 |\n| B | 説明 B | 2 |'); },
+    math:  function(){ insertBlock('$$\n\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}\n$$'); },
+    mermaid: function(){ insertBlock('```mermaid\nflowchart LR\n    A[開始] --> B{条件}\n    B -- はい --> C[処理]\n    B -- いいえ --> D[終了]\n    C --> D\n```'); }
+  };
+  $('tools').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-md]');
+    if(!b) return;
+    var fn = ACTIONS[b.getAttribute('data-md')];
+    if(fn){ if(mode === 'read') setMode('split'); fn(); }
+  });
+
+  /* Tab indent + list continuation */
+  editor.addEventListener('keydown', function(e){
+    if(e.key === 'Tab'){
+      e.preventDefault();
+      if(editor.selectionStart === editor.selectionEnd && !e.shiftKey){
+        var p = editor.selectionStart;
+        replaceRange(p, p, '  ', p + 2);
+      }else{
+        prefixLines(function(l){
+          return e.shiftKey ? l.replace(/^(\t|  ?)/, '') : '  ' + l;
+        });
+      }
+      return;
+    }
+    if(e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey){
+      var v = editor.value, p = editor.selectionStart;
+      if(p !== editor.selectionEnd) return;
+      var ls = v.lastIndexOf('\n', p - 1) + 1;
+      var line = v.slice(ls, p);
+      var m = /^(\s*)(- \[[ xX]\] |[-*+] |\d+[.)] |> )(.*)$/.exec(line);
+      if(!m) return;
+      e.preventDefault();
+      if(m[3].trim() === ''){                 // empty item -> end the list
+        replaceRange(ls, p, '', ls);
+        return;
+      }
+      var marker = m[2];
+      if(/^\d+[.)] $/.test(marker)) marker = (parseInt(marker, 10) + 1) + '. ';
+      if(/^- \[[xX]\] $/.test(marker)) marker = '- [ ] ';
+      var ins = '\n' + m[1] + marker;
+      replaceRange(p, p, ins, p + ins.length);
+    }
+  });
+
+  /* =========================================================
+     6. find & replace
+  ==========================================================*/
+  var findbar = $('findbar'), fq = $('find-q'), fr = $('find-r');
+  function findMatches(){
+    var q = fq.value;
+    if(!q) return [];
+    var out = [], v = editor.value, i = 0, lq = q.toLowerCase(), lv = v.toLowerCase();
+    while((i = lv.indexOf(lq, i)) !== -1){ out.push(i); i += Math.max(1, q.length); }
+    return out;
+  }
+  function jump(dir){
+    var hits = findMatches();
+    if(!hits.length){ $('find-count').textContent = '0 / 0'; return; }
+    var from = editor.selectionStart, idx;
+    if(dir > 0){
+      idx = hits.findIndex(function(p){ return p > from; });
+      if(idx === -1) idx = 0;
+    }else{
+      var before = hits.filter(function(p){ return p < from - 0.5; });
+      idx = before.length ? hits.indexOf(before[before.length - 1]) : hits.length - 1;
+    }
+    var pos = hits[idx];
+    editor.focus();
+    editor.setSelectionRange(pos, pos + fq.value.length);
+    var ratio = pos / Math.max(1, editor.value.length);
+    editor.scrollTop = ratio * (editor.scrollHeight - editor.clientHeight) - editor.clientHeight / 3;
+    $('find-count').textContent = (idx + 1) + ' / ' + hits.length;
+    updateCaret();
+  }
+  function openFind(){
+    if(mode === 'read') setMode('split');
+    findbar.hidden = false;
+    fq.focus();
+    fq.select();
+    $('find-count').textContent = '0 / ' + findMatches().length;
+  }
+  $('btn-find').addEventListener('click', function(){ findbar.hidden ? openFind() : (findbar.hidden = true); });
+  $('find-next').addEventListener('click', function(){ jump(1); });
+  $('find-prev').addEventListener('click', function(){ jump(-1); });
+  $('find-close').addEventListener('click', function(){ findbar.hidden = true; editor.focus(); });
+  fq.addEventListener('input', function(){ $('find-count').textContent = '0 / ' + findMatches().length; });
+  fq.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); jump(e.shiftKey ? -1 : 1); }
+    if(e.key === 'Escape'){ findbar.hidden = true; editor.focus(); }
+  });
+  fr.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ findbar.hidden = true; editor.focus(); } });
+  $('find-all').addEventListener('click', function(){
+    var hits = findMatches();
+    if(!hits.length){ toast('該当なし'); return; }
+    var q = fq.value, r = fr.value, v = editor.value, out = '', last = 0;
+    hits.forEach(function(p){ out += v.slice(last, p) + r; last = p + q.length; });
+    out += v.slice(last);
+    editor.value = out;
+    editor.dispatchEvent(new Event('input', {bubbles:true}));
+    toast(hits.length + ' 件を置換しました');
+  });
+
+  /* =========================================================
+     7. file menu
+  ==========================================================*/
+  var menu = $('menu-file');
+  $('btn-file').addEventListener('click', function(e){
+    e.stopPropagation();
+    menu.hidden = !menu.hidden;
+    $('btn-file').setAttribute('aria-expanded', String(!menu.hidden));
+  });
+  document.addEventListener('click', function(e){
+    if(!menu.hidden && !menu.contains(e.target)){
+      menu.hidden = true;
+      $('btn-file').setAttribute('aria-expanded','false');
+    }
+  });
+
+  var filename = 'untitled.md', undoStash = null;
+  function setFilename(n){ filename = n; $('filename').textContent = n; }
+
+  function copyText(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text)
+        .then(function(){ toast('クリップボードにコピーしました'); })
+        .catch(function(){ fallbackCopy(text); });
+    }else fallbackCopy(text);
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); toast('クリップボードにコピーしました'); }
+    catch(e){ toast('コピーできませんでした'); }
+    ta.remove();
+  }
+  /* Saving a file: the hosted viewer mediates downloads through the
+     `downloads` capability; a plain blob link is the path when the page
+     runs standalone (opened from disk or a normal web server). */
+  var dlNs;
+  function getDownloads(){
+    if(dlNs !== undefined) return Promise.resolve(dlNs);
+    if(!window.claude || typeof window.claude.use !== 'function'){ dlNs = null; return Promise.resolve(null); }
+    return window.claude.use('downloads').then(function(ns){ dlNs = ns || null; return dlNs; },
+                                               function(){ dlNs = null; return null; });
+  }
+  function blobDownload(name, text, type){
+    try{
+      var blob = new Blob([text], {type: type + ';charset=utf-8'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      toast(name + ' を保存しました');
+    }catch(e){ toast('保存できませんでした。コピーをお使いください'); }
+  }
+  function download(name, text, type){
+    getDownloads().then(function(ns){
+      if(!ns){ blobDownload(name, text, type); return; }
+      ns.save({filename:name, data:text}).then(function(){
+        toast(name + ' を保存しました');
+      }, function(err){
+        var code = err && err.code;
+        if(code === 'declined') return;
+        if(code === 'rate_limited'){ toast('確認ダイアログが開いています'); return; }
+        toast('保存できませんでした。コピーをお使いください');
+      });
+    });
+  }
+  function exportHTML(){
+    var css = Array.prototype.map.call(document.querySelectorAll('style'), function(s){
+      return s.textContent;
+    }).join('\n');
+    var title = (editor.value.match(/^#\s+(.+)$/m) || [,filename.replace(/\.md$/,'')])[1];
+    return '<!doctype html>\n<html lang="ja">\n<meta charset="utf-8">\n' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
+      '<title>' + esc(title) + '</title>\n' +
+      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap">\n' +
+      '<style>\n' + css + '\nhtml,body{height:auto;display:block;overflow:visible}\n' +
+      '.doc{max-width:74ch;margin:0 auto;padding:48px 24px}\n</style>\n' +
+      '<article class="doc">\n' + preview.innerHTML.replace(/<button class="copy-code"[\s\S]*?<\/button>/g,'') +
+      '\n</article>\n';
+  }
+
+  var FILE_ACTIONS = {
+    'new': function(){
+      if(editor.value.trim()){
+        undoStash = {text: editor.value, name: filename};
+        toast('新規作成しました — Ctrl+Shift+Z で元に戻せます');
+      }
+      editor.value = '';
+      setFilename('untitled.md');
+      editor.dispatchEvent(new Event('input', {bubbles:true}));
+      setMode('split');
+    },
+    restore: function(){
+      if(!undoStash){ toast('戻せる内容はありません'); return; }
+      editor.value = undoStash.text;
+      setFilename(undoStash.name);
+      undoStash = null;
+      editor.dispatchEvent(new Event('input', {bubbles:true}));
+      toast('元に戻しました');
+    },
+    open:   function(){ $('file-input').click(); },
+    sample: function(){
+      editor.value = sampleText();
+      setFilename('sample.md');
+      editor.dispatchEvent(new Event('input', {bubbles:true}));
+    },
+    'dl-md':   function(){ download(filename, editor.value, 'text/markdown'); },
+    'dl-html': function(){ download(filename.replace(/\.md$/,'') + '.html', exportHTML(), 'text/html'); },
+    print:   function(){ window.print(); },
+    'cp-md':   function(){ copyText(editor.value); },
+    'cp-html': function(){ copyText(exportHTML()); },
+    keys:    function(){ if(!$('dlg-keys').open) $('dlg-keys').showModal(); }
+  };
+  menu.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-act]');
+    if(!b) return;
+    menu.hidden = true;
+    $('btn-file').setAttribute('aria-expanded','false');
+    var fn = FILE_ACTIONS[b.getAttribute('data-act')];
+    if(fn) fn();
+  });
+  $('dlg-close').addEventListener('click', function(){ $('dlg-keys').close(); });
+
+  $('file-input').addEventListener('change', function(e){
+    var f = e.target.files && e.target.files[0];
+    if(!f) return;
+    loadFile(f);
+    e.target.value = '';
+  });
+  function loadFile(f){
+    var rd = new FileReader();
+    rd.onload = function(){
+      editor.value = String(rd.result);
+      setFilename(f.name);
+      editor.dispatchEvent(new Event('input', {bubbles:true}));
+      toast(f.name + ' を読み込みました');
+    };
+    rd.readAsText(f);
+  }
+  ['dragover','drop'].forEach(function(ev){
+    window.addEventListener(ev, function(e){
+      e.preventDefault();
+      if(ev === 'drop' && e.dataTransfer && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    });
+  });
+
+  /* =========================================================
+     8. global keys
+  ==========================================================*/
+  document.addEventListener('keydown', function(e){
+    var mod = e.ctrlKey || e.metaKey;
+    if(e.key === 'Escape'){
+      if(!menu.hidden){ menu.hidden = true; $('btn-file').setAttribute('aria-expanded','false'); }
+      if(!findbar.hidden) findbar.hidden = true;
+      return;
+    }
+    if(!mod){
+      if(e.key === '?' && !$('dlg-keys').open && document.activeElement !== editor &&
+         document.activeElement !== fq && document.activeElement !== fr){
+        e.preventDefault();
+        $('dlg-keys').showModal();
+      }
+      return;
+    }
+    switch(e.key.toLowerCase()){
+      case 'e': e.preventDefault(); setMode(mode === 'split' ? 'read' : 'split'); break;
+      case '1': e.preventDefault(); setMode('read'); break;
+      case '2': e.preventDefault(); setMode('split'); break;
+      case '3': e.preventDefault(); setMode('write'); break;
+      case 'b': if(mode !== 'read'){ e.preventDefault(); ACTIONS.bold(); } break;
+      case 'i': if(mode !== 'read'){ e.preventDefault(); ACTIONS.italic(); } break;
+      case 'k': if(mode !== 'read'){ e.preventDefault(); ACTIONS.link(); } break;
+      case 'f': e.preventDefault(); openFind(); break;
+      case 's': e.preventDefault(); FILE_ACTIONS['dl-md'](); break;
+      case 'o': e.preventDefault(); FILE_ACTIONS.open(); break;
+      case 'n': e.preventDefault(); FILE_ACTIONS['new'](); break;
+      case 'z': if(e.shiftKey){ e.preventDefault(); FILE_ACTIONS.restore(); } break;
+      case '\\': e.preventDefault(); setOutline(!outlineOn); break;
+    }
+  });
+
+  /* =========================================================
+     9. boot
+  ==========================================================*/
+  function sampleText(){
+    return $('sample').textContent.replace(/^\s*\n/, '').replace(/\s+$/, '\n');
+  }
+
+  var saved = store(STORE_KEY);
+  editor.value = (saved !== null && saved !== undefined && saved !== '') ? saved : sampleText();
+  if(!saved) setFilename('sample.md');
+  editor.setSelectionRange(0, 0);
+  setMode(mode);
+  setOutline(window.innerWidth > 1100);
+  applyTheme();
+  updateStats();
+  updateCaret();
+  $('s-dot').className = 'dot is-saved';
+  $('s-state').textContent = saved ? '自動保存済み' : 'サンプル';
+
+  preview.innerHTML = '<p class="loading-note">描画エンジンを読み込んでいます…</p>';
+
+  var CDN = {
+    marked:  ['https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js',
+              'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js',
+              'https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js'],
+    purify:  ['https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js',
+              'https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js'],
+    hljs:    ['https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
+              'https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js'],
+    mermaid: ['https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js',
+              'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js'],
+    mathjax: ['https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js',
+              'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js']
+  };
+
+  /* syntax highlighting and sanitising are nice-to-have; markdown is not */
+  loadScript(CDN.purify).catch(function(){}).then(function(){
+    return loadScript(CDN.hljs).catch(function(){});
+  }).then(function(){
+    hlReady = !!window.hljs;
+    return loadScript(CDN.marked);
+  }).then(function(){
+    configureMarked();
+    mdReady = true;
+    render();
+  }).catch(function(){
+    preview.innerHTML = '<div class="render-error">Markdown エンジン (marked) を読み込めませんでした。' +
+                        'ネットワークに接続してから再読み込みしてください。</div>';
+  });
+
+  loadScript(CDN.mermaid).then(function(){
+    mermaidReady = true;
+    renderDiagrams(true);
+  }).catch(function(){});
+
+  loadScript(CDN.mathjax).then(function(){
+    return window.MathJax.startup.promise;
+  }).then(function(){
+    mathReady = true;
+    renderMath();
+  }).catch(function(){});
+
+  window.addEventListener('beforeunload', function(){ store(STORE_KEY, editor.value); });
+})();
+</script>
