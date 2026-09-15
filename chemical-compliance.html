@@ -805,8 +805,10 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
             <div class="btnrow">
               <button class="btn" data-asset="chem-checklist.html" type="button">法令リファレンスをHTMLで保存</button>
               <button class="btn ghost" data-asset="chem-checklist.pdf" type="button">確認点一覧をPDFで保存</button>
+              <button class="btn" data-asset="chem-guide.html" type="button">SDS運用ガイドをHTMLで保存</button>
+              <button class="btn ghost" data-asset="chem-guide.pdf" type="button">同じくPDFで保存</button>
             </div>
-            <span class="hint" id="assetHint">24法令100項目の該当条件・必要実施事項・確認点・周期・記録保存年数をまとめた資料です。HTMLは検索と絞り込みができ、PDFはそのまま配れます。</span>
+            <span class="hint" id="assetHint">法令リファレンスは24法令100項目の該当条件・必要実施事項・確認点・周期・記録保存年数の一覧です。SDS運用ガイドは、成分が非開示の製品を含む状態でSDSだけを手がかりに管理を回すための手順書です。いずれもHTMLは検索でき、PDFはそのまま配れます。</span>
           </div>
           <div class="field">
             <p class="sec-label">監査・是正対応</p>
@@ -2511,6 +2513,8 @@ async function download(filename, text){
 const ASSET_LABEL = {
   "chemical-compliance.html": {name:"chemical-compliance.html", type:"text/html"},
   "chem-master.js":           {name:"chem-master.js",           type:"text/javascript"},
+  "chem-guide.html":     {name:"SDSだけで進める化学物質管理.html", type:"text/html"},
+  "chem-guide.pdf":      {name:"SDSだけで進める化学物質管理.pdf",  type:"application/pdf"},
   "chem-checklist.html": {name:"化学物質関係法令_確認点一覧.html", type:"text/html"},
   "chem-checklist.pdf":  {name:"化学物質関係法令_確認点一覧.pdf",  type:"application/pdf"}
 };
@@ -2520,7 +2524,9 @@ const ZIP_FILES = [
   ["chemical-compliance.html", "chemical-compliance.html"],
   ["chem-master.js",           "chem-master.js"],
   ["chem-checklist.html",      "化学物質関係法令_確認点一覧.html"],
-  ["chem-checklist.pdf",       "化学物質関係法令_確認点一覧.pdf"]
+  ["chem-checklist.pdf",       "化学物質関係法令_確認点一覧.pdf"],
+  ["chem-guide.html",          "SDSだけで進める化学物質管理.html"],
+  ["chem-guide.pdf",           "SDSだけで進める化学物質管理.pdf"]
 ];
 
 /* ---- 最小限のZIP書き出し ----
