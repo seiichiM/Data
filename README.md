@@ -308,6 +308,28 @@ python3 tools/build_checklist.py --mode print --out print.html
 # print.html をブラウザで開いて印刷 → PDF
 ```
 
+## 資料をタブとして内蔵する
+
+法令リファレンス（08）とSDS運用ガイド（09）は、台帳のタブとして中に入っています。別ファイルを開かなくても、判定を見ながら根拠を引けます。
+
+```bash
+python3 tools/build_checklist.py --mode web --out chem-checklist.html
+python3 tools/build_guide.py     --mode web --out chem-guide.html
+python3 tools/embed_docs.py      # chemical-compliance.html の <!-- EMBED:xxx --> へ差し込む
+```
+
+別々に作ったHTMLをそのまま入れると、CSSの `:root` や `body`、id名が台帳側とぶつかります。`tools/embed_docs.py` は取り込むときに次を機械的に行います。
+
+| 処理 | 内容 |
+|---|---|
+| CSSのスコープ | 全セレクタを `#panel-ref` / `#panel-guide` の配下に限定。`:root` と `body` はパネル自身に読み替え、`:root[data-theme="dark"]` のようなテーマ指定は `:root[data-theme="dark"] #panel-ref` に組み替えます |
+| idの改名 | `id="x"` を `id="rf-x"` / `id="gd-x"` にし、CSSの `#x`、JSの `"#x"` と `getElementById("x")` も同時に書き換えます |
+| `@page` の除去 | 台帳側の用紙指定を上書きさせません |
+| スクリプトの隔離 | 即時関数で包み、変数が台帳の外に漏れないようにします |
+| 操作ボタンの非表示 | テーマ切替・保存・印刷は台帳側にあるため、埋め込んだ側は隠します |
+
+**元のHTMLとPDFはそのまま残ります。** 単体で配りたいときはそちらを使ってください。
+
 ## SDS運用ガイド
 
 成分が開示されない化学品を含む状態で、SDS第15項（適用法令）だけを手がかりに管理を回すための手順書です。全7章・付録3。

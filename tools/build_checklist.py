@@ -485,7 +485,14 @@ button,input,select{font:inherit; color:inherit}
 
 main{padding:22px 0 70px}
 .cols{display:grid; grid-template-columns:210px 1fr; gap:26px; align-items:start}
-@media (max-width:860px){.cols{grid-template-columns:1fr; gap:14px}}
+/* グリッドの子は既定で内容より狭くならない。法令名が長いと索引が画面をはみ出すため、
+   縮んでよいことを明示し、折り返しも許す。 */
+.cols>*{min-width:0}
+.toc a>span{min-width:0; overflow-wrap:anywhere}
+@media (max-width:860px){
+  .cols{grid-template-columns:1fr; gap:14px}
+  .toc{position:static; max-height:none; overflow:visible}
+}
 .toc{position:sticky; top:70px; max-height:calc(100vh - 92px); overflow:auto; padding-right:4px}
 .toc .h{font-family:var(--mono); font-size:11px; letter-spacing:.13em; text-transform:uppercase;
   color:var(--muted); margin-bottom:8px}
