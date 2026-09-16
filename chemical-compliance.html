@@ -344,6 +344,7 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 .dlg-ft{display:flex; gap:10px; justify-content:flex-end; padding:16px 22px 18px}
 
 .btn.sm{padding:4px 10px; font-size:11.5px}
+.issue-cas{font-size:11px; color:var(--muted); margin-top:1px}
 
 /* ---- 物質の登録ウィザード ---- */
 #wizDlg{max-width:min(660px, calc(100vw - 24px)); width:660px}
@@ -369,6 +370,11 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 .wiz-ask span{font-size:11.5px; color:var(--ink-2); line-height:1.7}
 .wiz-ask .btn{flex:none; white-space:nowrap}
 .wiz-ask.all{flex-direction:column; gap:7px; margin-top:18px}
+.wiz-cut{background:var(--surface-2); border-left:3px solid var(--line-2);
+  border-radius:0 7px 7px 0; padding:10px 14px; margin:0 0 14px}
+.wiz-cut p{margin:0; font-size:12.5px; line-height:1.75; color:var(--ink-2)}
+.wiz-cut .wiz-cut-t{font-size:11px; color:var(--muted); margin-bottom:3px; letter-spacing:.02em}
+.wiz-cut .src{font-size:11px; color:var(--muted); margin-top:4px}
 .wiz-copybox{padding:0 22px 4px}
 .wiz-copybox p{font-size:11.5px; color:var(--warn); margin:0 0 5px}
 .wiz-copybox textarea{font-family:var(--mono); font-size:11px; width:100%; padding:8px 10px;
@@ -2063,7 +2069,7 @@ function analyze(st){
       const label = (m ? m.name : (c.name || c.cas || "名称未入力"));
       const src = `${label}（${p.name}に${pct}%）`;
       if(!m){
-        issues.push({type:"マスタ未収録", sub:label, prod:p.name,
+        issues.push({type:"マスタ未収録", sub:label, cas:normCas(c.cas||""), prod:p.name,
           msg:"この物質が物質マスタにありません。SDS第15項（適用法令）を見ながら登録してください。",
           fix:{cas:c.cas||"", name:c.name||""}});
         hit("unknown", src);
@@ -2075,8 +2081,10 @@ function analyze(st){
       s.kg += kg*pct/100; s.maxPct = Math.max(s.maxPct, pct); if(!s.prods.includes(p.name)) s.prods.push(p.name);
 
       // 安衛法（表示・通知・リスクアセスメント対象物）
-      if(m.an===1 && pct>=0.1){ hit("ra", src); if(pct<1) issues.push({type:"裾切り値", sub:m.name, prod:p.name, msg:"含有率が1%未満です。物質ごとに定められた裾切り値を確認してください。"}); }
-      if(m.an===2){ hit("unknown", src); issues.push({type:"対象性が不明", sub:m.name, prod:p.name, msg:"配合成分ごとのSDSで安衛法の対象物かどうかを判定してください。"}); }
+      if(m.an===1 && pct>=0.1){ hit("ra", src); if(pct<1) issues.push({type:"安衛法の裾切り値", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+        msg:`労働安全衛生法の裾切り値を確定してください。含有率${pct}%です。裾切り値は物質ごとに0.1%または1%と定められており、この帯に入るため該当・非該当が確定できません。`,
+        fix:{cas:m.cas==="-"?"":m.cas, name:m.name, step:"an"}}); }
+      if(m.an===2){ hit("unknown", src); issues.push({type:"対象性が不明", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name, msg:"配合成分ごとのSDSで安衛法の対象物かどうかを判定してください。"}); }
       if(m.skin===1 && pct>=0.1) hit("skin", src);
       if(m.skin===2){ hit("unknown", src); }
       if(m.cancer===1 && pct>=0.1) hit("cancer", src);
@@ -2085,13 +2093,14 @@ function analyze(st){
       // 製造等禁止物質（法第55条・令第16条）。含有率にかかわらず必ず表に出す
       if(m.ban===1){
         hit("ban", src);
-        issues.push({type:"製造等禁止物質", sub:m.name, prod:p.name,
+        issues.push({type:"製造等禁止物質", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
           msg:`製造・輸入・譲渡・提供・使用が禁止されている物です（含有率${pct}%）。裾切り値は重量の1%超（石綿は0.1%超）で、これを超えて含有する製剤も禁止の対象になります。試験研究のために製造・輸入・使用する場合だけ、あらかじめ都道府県労働局長の許可が要ります。直ちに使用の可否と代替を確認してください。`});
       }
       // 製造許可物質（法第56条・令第17条）＝特化則の第1類物質
       if(m.perm===1 && pct>1) hit("perm", src);
-      else if(m.perm===1 && pct>0) issues.push({type:"製造許可物質の裾切り値", sub:m.name, prod:p.name,
-        msg:`含有率${pct}%。製造許可物質（特化則第1類物質）を重量の1%を超えて含有する製剤は、製造に厚生労働大臣の許可が要ります。裾切り値を確認してください。`});
+      else if(m.perm===1 && pct>0) issues.push({type:"製造許可物質の裾切り値", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+        msg:`労働安全衛生法（製造許可物質）の裾切り値を確定してください。含有率${pct}%です。既定は1%超（ベンゾトリクロリドは0.5%超）で、この帯に入るため確定できません。`,
+        fix:{cas:m.cas==="-"?"":m.cas, name:m.name, step:"perm"}});
       // 強い変異原性が認められた化学物質（変異原性指針）
       if(m.muta===1 && pct>=0.1) hit("muta", src);
       // 「わからない」と登録した項目（値が2）は、非該当にせず要確認として出す。
@@ -2099,24 +2108,30 @@ function analyze(st){
       UNSURE_KEYS.forEach(([k, label, note]) => {
         if(m[k] !== 2) return;
         hit("unknown", src);
-        issues.push({type:label + "が未確認", sub:m.name, prod:p.name,
+        issues.push({type:label + "が未確認", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
           msg:`この物質が${label}に該当するかが未確認のままです。${note}対象外とは判断できません。`,
           fix:{cas:m.cas==="-"?"":m.cas, name:m.name}});
       });
 
       // 特化則（原則1%超。0.1〜1%は物質ごとの裾切り値を要確認）
       if(m.tokka){
-        if(m.tokka==="?") issues.push({type:"特化則の区分が未確定", sub:m.name, prod:p.name,
+        if(m.tokka==="?") issues.push({type:"特化則の区分が未確定", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+          fix:{cas:m.cas==="-"?"":m.cas, name:m.name, step:"tokka"},
           msg:"特化則に該当することは分かっていますが、第1類〜第3類の別と特別管理物質かどうかが未確定です。特別管理物質なら各種記録が30年保存になります。特化則別表で確認してください。"});
         if(pct>1){ hit("tokka", src); if(m.sp===1) hit("tokkaS", src); }
-        else if(pct>0.1){ hit("unknown", src); issues.push({type:"特化則の裾切り値", sub:m.name, prod:p.name, msg:`含有率${pct}%。特化則別表第3の裾切り値（1%超または0.1%超）を確認してください。`}); }
+        else if(pct>0.1){ hit("unknown", src); issues.push({type:"特化則の裾切り値", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+          msg:`特定化学物質障害予防規則の裾切り値を確定してください。含有率${pct}%です。既定は1%超、物質により0.1%超で、この帯に入るため確定できません。`,
+          fix:{cas:m.cas==="-"?"":m.cas, name:m.name, step:"tokka"}}); }
       }
       // 有機則（有機溶剤等＝5%超）
       if(m.yuki){
-        if(m.yuki==="?") issues.push({type:"有機則の種別が未確定", sub:m.name, prod:p.name,
+        if(m.yuki==="?") issues.push({type:"有機則の種別が未確定", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+          fix:{cas:m.cas==="-"?"":m.cas, name:m.name, step:"yuki"},
           msg:"有機溶剤に該当することは分かっていますが、第1種〜第3種の別が未確定です。第1種・第2種なら作業環境測定と特殊健康診断が必要になります。有機則別表で確認してください。"});
         if(pct>5){ hit("yuki", src); if(m.yuki==="1"||m.yuki==="2") hit("yuki12", src); }
-        else if(pct>0) issues.push({type:"有機則の裾切り値", sub:m.name, prod:p.name, msg:`含有率${pct}%。他の有機溶剤との合計が5%を超えないか確認してください。`});
+        else if(pct>0) issues.push({type:"有機則の裾切り値", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+          msg:`有機溶剤中毒予防規則の裾切り値を確定してください。含有率${pct}%です。有機則は個々の含有率ではなく、この製品に含まれる有機溶剤の合計で5%を超えるかで判定します。`,
+          fix:{cas:m.cas==="-"?"":m.cas, name:m.name, step:"yuki"}});
       }
       if(m.lead===1 && pct>0) hit("lead", src);
       if(m.dust===1) hit("dust", src);
@@ -2129,7 +2144,9 @@ function analyze(st){
       // 化管法
       const need = m.kakan==="1T" ? 0.1 : 1;
       if((m.kakan==="1"||m.kakan==="1T"||m.kakan==="2") && pct>=need) hit("kakan", src);
-      if(m.kakan==="?"){ hit("unknown", src); issues.push({type:"化管法の区分が不明", sub:m.name, prod:p.name, msg:"化管法の指定化学物質の政令別表で第一種・第二種の別を確認してください。"}); }
+      if(m.kakan==="?"){ hit("unknown", src); issues.push({type:"化管法の区分が不明", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+        msg:"化管法の指定化学物質の政令別表で第一種・第二種の別を確認してください。",
+        fix:{cas:m.cas==="-"?"":m.cas, name:m.name, step:"kakan"}}); }
 
       // 毒劇法
       if(m.doku==="毒"){ hit("doku", src); hit("dokugeki", src); }
@@ -2488,8 +2505,10 @@ function renderLaws(tasks){
   $("#lawUnknownBox").innerHTML = A.issues.length ? `<div class="callout warn">
     <b>${A.issues.length}件の要確認事項があります。</b> 該当なしと判定するにはSDSでの裏取りが必要です。
     <div class="tw" style="margin-top:8px"><table><thead><tr><th>種別</th><th>物質</th><th>化学品</th><th>確認すること</th></tr></thead><tbody>
-    ${A.issues.map(i=>`<tr><td><span class="pill p-warn">${esc(i.type)}</span></td><td>${esc(i.sub)}</td><td>${esc(i.prod)}</td><td>${esc(i.msg)}${
-      i.fix ? `<div style="margin-top:6px"><button type="button" class="btn ghost sm" data-wiz-cas="${esc(i.fix.cas||"")}" data-wiz-name="${esc(i.fix.name||"")}">この物質を登録する</button></div>` : ""
+    ${A.issues.map(i=>`<tr><td><span class="pill p-warn">${esc(i.type)}</span></td>` +
+      `<td>${esc(i.sub)}${i.cas ? `<div class="mono issue-cas">${esc(i.cas)}</div>` : ""}</td>` +
+      `<td>${esc(i.prod)}</td><td>${esc(i.msg)}${
+      i.fix ? `<div style="margin-top:6px"><button type="button" class="btn ghost sm" data-wiz-cas="${esc(i.fix.cas||"")}" data-wiz-name="${esc(i.fix.name||"")}" data-wiz-step="${esc(i.fix.step||"")}">${i.fix.step ? "この項目を確定する" : "この物質を登録する"}</button></div>` : ""
     }</td></tr>`).join("")}
     </tbody></table></div></div>` : `<div class="callout"><b>要確認事項はありません。</b> 登録された全成分が内蔵マスタと一致しています。</div>`;
 }
@@ -3205,6 +3224,7 @@ function refresh(withProducts){
    区分のあるもの（特化則の類、有機則の種別、化管法の種）は区分まで選べる。 */
 const WIZ_STEPS = [
  {key:"an", law:"労働安全衛生法", art:"法第57条・第57条の2・第57条の3", short:"表示・通知対象物",
+  cut:{rule:"物質ごとに0.1%以上または1%以上", src:"労働安全衛生法施行令別表第9および厚生労働省告示。職場のあんぜんサイトの「表示・通知対象物質一覧」に裾切り値の列があります", cmp:"以上"},
   q:"ラベル表示・SDS交付・リスクアセスメントの対象物ですか",
   sds:["名称等を表示すべき危険物及び有害物（法第57条、令第18条）",
        "名称等を通知すべき危険物及び有害物（法第57条の2、令第18条の2）",
@@ -3234,12 +3254,14 @@ const WIZ_STEPS = [
   hint:"消防法の危険物とは対象範囲が異なります。消防法は後の設問で別に聞きます。",
   type:"yn"},
  {key:"ban", law:"労働安全衛生法", art:"法第55条・令第16条", short:"製造等禁止",
+  cut:{rule:"重量の1%を超えるもの（石綿は0.1%を超えるもの）", src:"労働安全衛生法施行令第16条", cmp:"超"},
   q:"製造等が禁止される有害物等ですか",
   sds:["製造等禁止物質（法第55条、令第16条）", "製造、輸入、譲渡、提供又は使用が禁止されている物"],
   why:"該当すると、製造・輸入・譲渡・提供・使用のいずれもできません。直ちに使用の可否と代替の検討が必要です。",
   hint:"ベンゼンは「ベンゼンを含有するゴムのり（重量の5%超）」、黄りんは「黄りんマッチ」が禁止の対象で、物質そのものの全面禁止ではありません。",
   type:"yn"},
  {key:"perm", law:"労働安全衛生法", art:"法第56条・令第17条", short:"製造許可",
+  cut:{rule:"重量の1%を超えるもの（ベンゾトリクロリドは0.5%を超えるもの）", src:"労働安全衛生法施行令第17条・別表第3第1号", cmp:"超"},
   q:"製造の許可を受けるべき有害物ですか",
   sds:["製造許可物質（法第56条、令第17条）", "特定化学物質 第1類物質"],
   why:"該当すると、製造には厚生労働大臣の許可が必要です。購入して取り扱うだけなら許可は不要ですが、特化則の第1類物質としての措置は必要です。",
@@ -3252,6 +3274,7 @@ const WIZ_STEPS = [
   hint:"これは法令上の義務ではなく、行政指導としての指針です。",
   type:"yn"},
  {key:"tokka", law:"特定化学物質障害予防規則", art:"特化則別表第1・第3", short:"特定化学物質",
+  cut:{rule:"原則は重量の1%を超えるもの。物質により0.1%を超えるもの", src:"特定化学物質障害予防規則 別表第3", cmp:"超"},
   q:"特定化学物質ですか。該当する場合は類を選んでください",
   sds:["特定化学物質 第1類物質／第2類物質／第3類物質",
        "特定第2類物質／管理第2類物質／特別有機溶剤等"],
@@ -3264,6 +3287,7 @@ const WIZ_STEPS = [
   why:"該当すると、作業記録・作業環境測定記録・健康診断個人票が30年保存になります。",
   type:"yn", when:m => !!m.tokka},
  {key:"yuki", law:"有機溶剤中毒予防規則", art:"有機則別表第1〜第3", short:"有機溶剤等",
+  cut:{rule:"その製品に含まれる有機溶剤の合計が重量の5%を超えるもの（個々の含有率ではありません）", src:"有機溶剤中毒予防規則 第1条", cmp:"超"},
   q:"有機溶剤等ですか。該当する場合は種別を選んでください",
   sds:["第1種有機溶剤等／第2種有機溶剤等／第3種有機溶剤等", "有機溶剤等"],
   why:"該当すると、作業主任者の選任、区分の色分け表示、掲示、換気装置が必要になります。第1種・第2種はさらに作業環境測定と特殊健康診断が必要です。",
@@ -3281,6 +3305,7 @@ const WIZ_STEPS = [
   hint:"結晶質シリカ（石英）を含む鉱物性の粉体などが該当します。",
   type:"yn"},
  {key:"kakan", law:"化管法（PRTR・SDS）", art:"化管法施行令別表第1", short:"指定化学物質",
+  cut:{rule:"第一種は1質量%以上、特定第一種は0.1質量%以上", src:"化管法施行令別表第1およびSDS省令", cmp:"以上"},
   q:"化管法の指定化学物質ですか。該当する場合は種を選んでください",
   sds:["特定化学物質の環境への排出量の把握等及び管理の改善の促進に関する法律",
        "化管法／PRTR法 第一種指定化学物質（政令番号○○）", "特定第一種指定化学物質", "第二種指定化学物質"],
@@ -3289,6 +3314,7 @@ const WIZ_STEPS = [
   opts:[["1T","特定第一種指定化学物質"],["1","第一種指定化学物質"],["2","第二種指定化学物質"],
         ["?","該当するが種がわからない"]]},
  {key:"doku", law:"毒物及び劇物取締法", art:"毒劇法別表", short:"毒物・劇物",
+  cut:{rule:"物質ごとの除外濃度（例：塩化水素は10%以下を含有するものを劇物から除く）", src:"毒物及び劇物指定令", cmp:"以下を除外"},
   q:"毒物または劇物ですか",
   sds:["毒物及び劇物取締法 毒物／劇物", "医薬用外毒物／医薬用外劇物"],
   why:"該当すると、表示、かぎのかかる場所での保管、盗難・紛失の防止、譲渡手続（譲受書の5年保存）が必要になります。",
@@ -3442,6 +3468,41 @@ PROMPT_CAUTION,
   ].join("\n");
 }
 
+/* 裾切り値は法令ごとに違い、同じ法令の中でも物質ごとに違う。
+   既定値で判定できない帯に入ったときに、その物質の値を調べるためのプロンプト。 */
+function wizPromptCut(st){
+  const c = st.cut;
+  return [
+"次の化学物質について、日本の法令上の裾切り値（含有率の下限）を調べてください。",
+"",
+wizSubjectLines(),
+"",
+"【調べてほしい法令】",
+st.law + "　" + st.art,
+"",
+"【一般的な定め】",
+c.rule,
+"根拠となる一覧: " + c.src,
+"",
+"【知りたいこと】",
+"1. この物質について定められている裾切り値は何%か",
+"2. その値は「" + c.cmp + "」で判定するのか（境界の値を含むかどうか）",
+"3. 根拠とした条文・別表・告示の番号と名称",
+"",
+"【回答の形式】",
+"1行目に、次のいずれかの形で書いてください。",
+"  裾切り値: ○.○%（" + c.cmp + "）",
+"  裾切り値: わからない",
+"2行目以降に、根拠と、その一覧のどこを見れば確認できるかを書いてください。",
+"",
+PROMPT_CAUTION,
+"・裾切り値は法令ごとに異なり、同じ法令の中でも物質ごとに異なります。",
+"  ほかの法令の値や、一般的な値で代用しないでください。",
+"・確認できない場合は、低い方（厳しい方）の値を示したうえで「わからない」と",
+"  明記してください。高い方を選ぶと見落としになります。"
+  ].join("\n");
+}
+
 async function copyText(text, okMsg){
   try{
     if(navigator.clipboard && window.isSecureContext){
@@ -3487,6 +3548,12 @@ function wizOpen(preset){
     existed: !!found
   };
   delete WIZ.sub.src;
+  // 要確認から開いたときは、その法令の画面から始める
+  const want = preset && preset.step;
+  if(want){
+    const at = wizSteps().findIndex(st => st.key === want);
+    if(at >= 0) WIZ.i = at + 1;
+  }
   $("#wizDlg").showModal();
   wizRender();
 }
@@ -3585,8 +3652,14 @@ function wizRenderStep(st){
     </div>
     <div class="wiz-ask">
       <button type="button" class="btn ghost sm" id="wizAsk">この法令のプロンプトをコピー</button>
+      ${st.cut ? `<button type="button" class="btn ghost sm" id="wizAskCut">裾切り値を調べるプロンプトをコピー</button>` : ""}
       <span>SDSに書かれていないときは、コピーした文をAIに貼り付けて聞いてください。</span>
     </div>
+    ${st.cut ? `<div class="wiz-cut">
+      <p class="wiz-cut-t">この法令の裾切り値</p>
+      <p>${esc(st.cut.rule)}</p>
+      <p class="src">${esc(st.cut.src)}</p>
+    </div>` : ""}
     <div class="wiz-opts">${opts}</div>
     ${extra ? `<div class="wiz-extra">${extra}</div>` : ""}
     <p class="wiz-why">${esc(st.why)}</p>
@@ -3600,6 +3673,8 @@ function wizRenderStep(st){
   const sh = $("#wizShobo");
   if(sh) sh.addEventListener("change", () => { WIZ.sub.shi = sh.value; });
   $("#wizAsk").addEventListener("click", () => copyText(wizPrompt(st), "プロンプトをコピーしました"));
+  const ac = $("#wizAskCut");
+  if(ac) ac.addEventListener("click", () => copyText(wizPromptCut(st), "裾切り値のプロンプトをコピーしました"));
 }
 
 function wizApply(st, raw){
@@ -4182,7 +4257,7 @@ function bind(){
   $("#btnMsWizard").addEventListener("click", () => wizOpen());
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-wiz-cas]");
-    if(b) wizOpen({cas:b.dataset.wizCas, name:b.dataset.wizName});
+    if(b) wizOpen({cas:b.dataset.wizCas, name:b.dataset.wizName, step:b.dataset.wizStep || ""});
   });
   $("#wizNext").addEventListener("click", wizNext);
   $("#wizPrev").addEventListener("click", () => { if(WIZ.i > 0){ WIZ.i--; wizRender(); } });
