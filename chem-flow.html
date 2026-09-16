@@ -1,0 +1,358 @@
+<title>SDSから年間チェック表まで</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=BIZ+UDPMincho&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#f4f6fa; --surface:#fff; --surface-2:#eaeef5; --surface-3:#dfe5ef;
+  --ink:#111721; --ink-2:#39445a; --muted:#66718a; --line:#d2d9e6; --line-2:#b3bdd0;
+  --accent:#1f3f73; --accent-2:#33609f; --accent-soft:#e4ebf7; --on-accent:#fff;
+  --ok:#2a6b48; --ok-soft:#e0efe6; --warn:#95650a; --warn-soft:#f8eed6;
+  --crit:#9e1c31; --crit-soft:#f8e3e7;
+  --shadow:0 1px 2px rgba(17,23,33,.06), 0 6px 18px -12px rgba(17,23,33,.28);
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"BIZ UDPGothic","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --serif:"BIZ UDPMincho","Hiragino Mincho ProN","Yu Mincho",serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0d1117; --surface:#151c26; --surface-2:#1c2531; --surface-3:#26313f;
+  --ink:#e7ecf5; --ink-2:#b9c4d6; --muted:#8e9bb2; --line:#2a3542; --line-2:#3b4859;
+  --accent:#82abec; --accent-2:#a2c2f4; --accent-soft:#182741; --on-accent:#0d1117;
+  --ok:#71c295; --ok-soft:#14271d; --warn:#dfb257; --warn-soft:#2c2413;
+  --crit:#f0879b; --crit-soft:#2e141a;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.8);
+}}
+:root[data-theme="dark"]{
+  --paper:#0d1117; --surface:#151c26; --surface-2:#1c2531; --surface-3:#26313f;
+  --ink:#e7ecf5; --ink-2:#b9c4d6; --muted:#8e9bb2; --line:#2a3542; --line-2:#3b4859;
+  --accent:#82abec; --accent-2:#a2c2f4; --accent-soft:#182741; --on-accent:#0d1117;
+  --ok:#71c295; --ok-soft:#14271d; --warn:#dfb257; --warn-soft:#2c2413;
+  --crit:#f0879b; --crit-soft:#2e141a;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+     font-family:var(--sans); font-size:15px; line-height:1.85;
+     -webkit-text-size-adjust:100%}
+.wrap{max-width:960px; margin:0 auto; padding-inline:20px; padding-block:0}
+
+header.cover{padding-block:52px 34px; border-bottom:3px double var(--line-2)}
+.eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.16em;
+         text-transform:uppercase; color:var(--accent-2); margin:0 0 14px}
+h1{font-family:var(--serif); font-weight:700; font-size:clamp(27px,5vw,42px);
+   line-height:1.3; margin:0 0 16px; text-wrap:balance; letter-spacing:.01em}
+.lead{max-width:44em; font-size:16px; color:var(--ink-2); margin:0}
+.meta{display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:24px; padding-top:18px;
+      border-top:1px solid var(--line);
+      font-family:var(--mono); font-size:11.5px; color:var(--muted)}
+
+main{display:flex; flex-direction:column; gap:48px; padding-block:40px 0}
+/* flexの子は既定で内容より狭くならない。横スクロールさせたい図と表が
+   節ごと画面を押し広げてしまうので、縮んでよいことを明示する。 */
+main>section{min-width:0}
+section>h2{font-family:var(--serif); font-size:22px; line-height:1.4; margin:0 0 4px;
+           text-wrap:balance}
+section>h2+.rule{height:2px; background:var(--accent); opacity:.24; margin:0 0 20px}
+p{margin:0 0 16px; max-width:46em}
+h3{font-size:15.5px; margin:28px 0 8px; color:var(--accent); letter-spacing:.02em}
+
+/* ---- 図 ---- */
+figure{margin:0; min-width:0}
+.figbox{overflow-x:auto; background:var(--surface); border:1px solid var(--line);
+        border-radius:10px; padding:18px 14px; box-shadow:var(--shadow)}
+.figbox svg{display:block; min-width:660px; max-width:100%; height:auto; margin:0 auto;
+            color:var(--line-2)}
+figcaption{font-size:12.5px; color:var(--muted); line-height:1.8; margin-top:12px;
+           max-width:46em}
+
+svg .mk{fill:var(--line-2)}
+svg .mkc{fill:var(--crit)}
+svg .box{fill:var(--surface); stroke:var(--line-2); stroke-width:1.2}
+svg .box-hub{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.8}
+svg .box-loop{fill:var(--crit-soft); stroke:var(--crit); stroke-width:1.4}
+svg .t{font-family:var(--sans); font-size:13.5px; font-weight:700; fill:var(--ink)}
+svg .t-hub{fill:var(--accent)}
+svg .t-loop{fill:var(--crit)}
+svg .s{font-family:var(--sans); font-size:11px; fill:var(--muted)}
+svg .tab{font-family:var(--mono); font-size:10.5px; fill:var(--muted)}
+svg .ln{stroke:var(--line-2); stroke-width:1.4; fill:none}
+svg .ln-c{stroke:var(--crit); stroke-width:2; fill:none}
+svg .al{font-family:var(--sans); font-size:11px; fill:var(--ink-2)}
+svg .al-c{fill:var(--crit); font-weight:700}
+
+/* ---- 表 ---- */
+.tw{overflow-x:auto; border:1px solid var(--line); border-radius:8px;
+    background:var(--surface); box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:13.5px}
+thead th{background:var(--surface-2); text-align:left; font-weight:700; padding:11px 14px;
+         border-bottom:1px solid var(--line-2); color:var(--ink-2); font-size:12.5px;
+         white-space:nowrap}
+tbody td{padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top;
+         line-height:1.7}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:color-mix(in srgb, var(--surface-2) 45%, transparent)}
+td.tabcol{font-family:var(--mono); font-size:12px; color:var(--accent-2); white-space:nowrap}
+td b{font-weight:700}
+
+.note{margin:0 0 18px; padding:14px 18px; border-radius:8px;
+      border-left:4px solid var(--crit); background:var(--crit-soft)}
+.note p{margin:0; max-width:44em; font-size:14px}
+.note .nt{font-weight:700; margin-bottom:5px; color:var(--crit)}
+
+footer{border-top:1px solid var(--line); margin-top:48px; padding-block:24px 48px;
+       font-size:12.5px; color:var(--muted)}
+footer p{margin:0 0 8px; max-width:56em}
+@media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important} }
+</style>
+
+<div class="wrap">
+<header class="cover">
+  <p class="eyebrow">化学物質法令チェック台帳 / 運用のながれ</p>
+  <h1>SDSから年間チェック表まで</h1>
+  <p class="lead">化学品を1件登録してから、法令の該当判定を経て、年間の点検・測定・健診・届出として回りだすまでの流れです。
+    成分が開示されている製品と、非開示の製品の2つの入口が判定エンジンで合流します。</p>
+  <div class="meta"><span>24法令 100項目</span><span>物質マスタ 8,199物質</span>
+    <span>照会項目 20</span><span>登録ウィザード 21法令</span></div>
+</header>
+
+<main>
+
+<section>
+  <h2>全体のながれ</h2>
+  <div class="rule"></div>
+
+  <figure>
+    <div class="figbox">
+      <svg viewBox="0 0 880 910" role="img"
+           aria-label="化学品の登録から年間チェック表までの流れ。成分が開示されている場合はCAS番号で物質マスタと照合し、非開示の場合はSDS第15項から20項目に回答する。両方が判定エンジンで合流し、該当したものは年間チェック表へ、確定できないものは要確認として残り、登録ウィザードで確定した値が物質マスタに書き戻されて判定がやり直される。">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path class="mk" d="M0,1 L10,5 L0,9 z"/>
+          </marker>
+          <marker id="arrc" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path class="mkc" d="M0,1 L10,5 L0,9 z"/>
+          </marker>
+        </defs>
+
+        <!-- N1 化学品を登録 -->
+        <rect class="box" x="330" y="24" width="280" height="62" rx="7"/>
+        <text class="t" x="346" y="50">化学品を登録</text>
+        <text class="s" x="346" y="70">製品名・供給者・年間取扱量</text>
+        <text class="tab" x="596" y="50" text-anchor="end">03</text>
+
+        <!-- N1 → 分岐 -->
+        <path class="ln" d="M470,86 V116"/>
+        <path class="ln" d="M250,116 H690"/>
+        <path class="ln" d="M250,116 V168" marker-end="url(#arr)"/>
+        <path class="ln" d="M690,116 V168" marker-end="url(#arr)"/>
+        <text class="al" x="242" y="146" text-anchor="end">成分が開示されている</text>
+        <text class="al" x="698" y="146">成分が非開示</text>
+
+        <!-- N2a CAS番号 -->
+        <rect class="box" x="110" y="168" width="280" height="62" rx="7"/>
+        <text class="t" x="126" y="194">CAS番号を成分欄に入力</text>
+        <text class="s" x="126" y="214">SDS第3項の組成・成分情報から</text>
+        <text class="tab" x="376" y="194" text-anchor="end">03</text>
+
+        <!-- N2b 20項目 -->
+        <rect class="box" x="550" y="168" width="280" height="62" rx="7"/>
+        <text class="t" x="566" y="194">20項目に回答</text>
+        <text class="s" x="566" y="214">SDS第15項の適用法令から</text>
+        <text class="tab" x="816" y="194" text-anchor="end">03</text>
+
+        <!-- N2a → N3 -->
+        <path class="ln" d="M250,230 V280" marker-end="url(#arr)"/>
+        <text class="al" x="262" y="260">CAS番号で照合</text>
+
+        <!-- N3 物質マスタ -->
+        <rect class="box" x="110" y="280" width="280" height="62" rx="7"/>
+        <text class="t" x="126" y="306">物質マスタと照合</text>
+        <text class="s" x="126" y="326">8,199物質・24法令ぶんの区分</text>
+        <text class="tab" x="376" y="306" text-anchor="end">06</text>
+
+        <!-- 合流 → N4 -->
+        <path class="ln" d="M250,342 V374"/>
+        <path class="ln" d="M690,230 V374"/>
+        <path class="ln" d="M250,374 H690"/>
+        <path class="ln" d="M470,374 V406" marker-end="url(#arr)"/>
+
+        <!-- N4 判定エンジン -->
+        <rect class="box-hub" x="300" y="406" width="340" height="62" rx="7"/>
+        <text class="t t-hub" x="318" y="432">判定エンジン</text>
+        <text class="s" x="318" y="452">24法令100項目・裾切り値と含有率で判定</text>
+        <text class="tab" x="622" y="432" text-anchor="end">04</text>
+
+        <!-- N4 → 分岐 -->
+        <path class="ln" d="M470,468 V498"/>
+        <path class="ln" d="M250,498 H690"/>
+        <path class="ln" d="M250,498 V530" marker-end="url(#arr)"/>
+        <path class="ln-c" d="M690,498 V530" marker-end="url(#arrc)"/>
+        <text class="al" x="242" y="522" text-anchor="end">該当</text>
+        <text class="al al-c" x="698" y="522">確定できない</text>
+
+        <!-- N5 年間チェック表 -->
+        <rect class="box" x="110" y="530" width="280" height="62" rx="7"/>
+        <text class="t" x="126" y="556">年間チェック表</text>
+        <text class="s" x="126" y="576">該当した義務だけが並ぶ</text>
+        <text class="tab" x="376" y="556" text-anchor="end">05</text>
+
+        <!-- N6 要確認 -->
+        <rect class="box-loop" x="550" y="530" width="280" height="62" rx="7"/>
+        <text class="t t-loop" x="566" y="556">要確認として残す</text>
+        <text class="s" x="566" y="576">未収録・区分未確定・裾切り値・不明</text>
+        <text class="tab" x="816" y="556" text-anchor="end">04</text>
+
+        <!-- N5 → N8 / N6 → N7 -->
+        <path class="ln" d="M250,592 V640" marker-end="url(#arr)"/>
+        <path class="ln-c" d="M690,592 V640" marker-end="url(#arrc)"/>
+
+        <!-- N8 実施日 -->
+        <rect class="box" x="110" y="640" width="280" height="62" rx="7"/>
+        <text class="t" x="126" y="666">実施日を記録</text>
+        <text class="s" x="126" y="686">次回期限を自動計算</text>
+        <text class="tab" x="376" y="666" text-anchor="end">05</text>
+
+        <!-- N7 ウィザード -->
+        <rect class="box-loop" x="550" y="640" width="280" height="62" rx="7"/>
+        <text class="t t-loop" x="566" y="666">登録ウィザード</text>
+        <text class="s" x="566" y="686">21法令を1つずつ・AIプロンプト</text>
+        <text class="tab" x="816" y="666" text-anchor="end">06</text>
+
+        <!-- N8 → N9 -->
+        <path class="ln" d="M250,702 V750" marker-end="url(#arr)"/>
+
+        <!-- N9 書き出し -->
+        <rect class="box" x="110" y="750" width="280" height="62" rx="7"/>
+        <text class="t" x="126" y="776">書き出し</text>
+        <text class="s" x="126" y="796">CSV・ICS・JSON・含有調査依頼書</text>
+        <text class="tab" x="376" y="776" text-anchor="end">07</text>
+
+        <!-- 戻りループ -->
+        <path class="ln-c" d="M690,702 V862 H56 V311 H110" marker-end="url(#arrc)"/>
+        <text class="al al-c" x="373" y="852" text-anchor="middle">確定した値を物質マスタに書き戻し、判定をやり直す</text>
+      </svg>
+    </div>
+    <figcaption>成分の開示・非開示で入口が分かれ、判定エンジンで合流します。確定できなかったものは非該当にせず要確認として残り、
+      登録ウィザードで確定した値が物質マスタに書き戻されて判定がやり直されます（赤い経路）。
+      各枠の右上の数字は台帳のタブ番号です。</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>段階ごとにやること</h2>
+  <div class="rule"></div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>段階</th><th>やること</th><th>画面</th><th>出てくるもの</th></tr></thead>
+      <tbody>
+        <tr><td><b>化学品を登録</b></td>
+            <td>製品名・供給者・SDS発行日・用途・年間取扱量・在庫量を入れる</td>
+            <td class="tabcol">03 化学品台帳</td>
+            <td>消防法の指定数量の倍数</td></tr>
+        <tr><td><b>成分を入れる</b></td>
+            <td>SDS第3項のCAS番号を成分欄へ。含有率も入れる</td>
+            <td class="tabcol">03 化学品台帳</td>
+            <td>物質名が自動で埋まる</td></tr>
+        <tr><td><b>非開示の製品</b></td>
+            <td>「成分が非開示」にチェックし、SDS第15項を見ながら20項目に答える</td>
+            <td class="tabcol">03 化学品台帳</td>
+            <td>含有調査依頼書（CSV）</td></tr>
+        <tr><td><b>事業場の条件</b></td>
+            <td>対象業種・従業員数・排水先・局所排気・特定施設などに答える</td>
+            <td class="tabcol">02 事業場の条件</td>
+            <td>届出要否の判定材料</td></tr>
+        <tr><td><b>判定を見る</b></td>
+            <td>該当した法令と、その根拠になった物質を確かめる</td>
+            <td class="tabcol">04 法令該当判定</td>
+            <td>該当法令・要確認の一覧</td></tr>
+        <tr><td><b>要確認を潰す</b></td>
+            <td>「この項目を確定する」からウィザードを開き、区分や裾切り値を確定する</td>
+            <td class="tabcol">06 物質マスタ</td>
+            <td>確定すると要確認が消える</td></tr>
+        <tr><td><b>年間で回す</b></td>
+            <td>実施日を入れる。次回期限が自動で繰り上がる</td>
+            <td class="tabcol">05 年間チェック表</td>
+            <td>期限超過・30日以内の件数</td></tr>
+        <tr><td><b>外へ出す</b></td>
+            <td>チェック表・物質別判定・年間予定・全データを書き出す</td>
+            <td class="tabcol">07 書き出し</td>
+            <td>CSV・ICS・JSON・ZIP</td></tr>
+        <tr><td><b>根拠を引く</b></td>
+            <td>条文・該当条件・記録保存年数を確かめる。SDSだけで進める手順を読む</td>
+            <td class="tabcol">08 / 09 資料</td>
+            <td>法令リファレンス・運用ガイド</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>赤い経路がこの台帳の要</h2>
+  <div class="rule"></div>
+
+  <div class="note">
+    <p class="nt">分からないものを「非該当」にしません</p>
+    <p>判定できなかったものは要確認として残り、その物質を使っている製品がある限り出続けます。
+      対象外と判断してしまうと、あとで該当が判明したときに遡って是正できません。</p>
+  </div>
+
+  <p>要確認になるのは次の4つです。いずれも登録ウィザードの該当ページから確定できます。</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>要確認の種類</th><th>何が分かっていないか</th><th>確定する手段</th></tr></thead>
+      <tbody>
+        <tr><td><b>マスタ未収録</b></td>
+            <td>そのCAS番号が物質マスタにない</td>
+            <td>ウィザードで21法令を1つずつ答える</td></tr>
+        <tr><td><b>区分が未確定</b></td>
+            <td>特化則の類、有機則の種別、化管法の種が分からない</td>
+            <td>該当ページで区分を選ぶ</td></tr>
+        <tr><td><b>裾切り値</b></td>
+            <td>含有率が既定値のグレー帯に入り、該当・非該当を決められない</td>
+            <td>その物質の裾切り値（%）を入れる</td></tr>
+        <tr><td><b>わからない</b></td>
+            <td>ウィザードで「わからない」と答えた項目</td>
+            <td>供給者への照会やAIへの質問で確かめて上書きする</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>確定できないまま使い続ける場合</h3>
+  <p>要確認が残ったままでも運用は止まりません。そのときは、SDS第15項に何が書かれていたか、
+    供給者に何をいつ聞いてどう回答されたか、その状態でどう扱うと判断したかの3つを記録に残してください。
+    立入検査で問われるのは判定できていないこと自体ではなく、判定できないと認識したうえで何をしたかです。</p>
+</section>
+
+<section>
+  <h2>供給者への照会は三段階</h2>
+  <div class="rule"></div>
+  <p>成分が非開示の製品は、全成分の開示を求めると営業秘密を理由に断られます。
+    聞き方を下げるほど答えてもらいやすくなり、それでも法令判定には足ります。</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th></th><th>聞く内容</th><th>回答率</th><th>判定に足りるか</th></tr></thead>
+      <tbody>
+        <tr><td class="tabcol">段階1</td><td>成分名・CAS番号・含有率をすべて</td><td>低い</td>
+            <td>すべて足りる。PRTR届出にはこれが必要</td></tr>
+        <tr><td class="tabcol">段階2</td><td>法令対象物質の合計含有率（物質名は不要）</td><td>中</td>
+            <td>裾切り判定に足りる</td></tr>
+        <tr><td class="tabcol">段階3</td><td>裾切り値を超えるかのYes／No</td><td>高い</td>
+            <td>該当・非該当の確定に足りる</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>労働安全衛生法第57条の2の通知対象物については、成分及びその含有量の通知が法令上の義務です。
+    「営業秘密なので出せません」は、これらの対象物質に関しては通りません。</p>
+</section>
+
+</main>
+
+<footer>
+  <p><b>この図の位置づけ。</b> 化学物質法令チェック台帳の運用手順をまとめたものです。
+    最終的な適法性の判断、所轄官庁への確認、専門家への相談に代わるものではありません。</p>
+  <p>判定に使う法令の条件・記録保存年数・裾切り値は、台帳（chemical-compliance.html）の定義に揃えています。</p>
+</footer>
+</div>
