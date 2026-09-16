@@ -346,6 +346,20 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 .btn.sm{padding:4px 10px; font-size:11.5px}
 .issue-cas{font-size:11px; color:var(--muted); margin-top:1px}
 
+/* ---- 根拠の一覧 ---- */
+#reasonDlg{max-width:min(660px, calc(100vw - 24px)); width:660px}
+.reasons{color:var(--muted); font-size:11px; margin-top:2px; line-height:1.7}
+.reasons .rmore{color:var(--accent-2)}
+.reasons .btn{margin-left:4px; vertical-align:baseline}
+.rsn-tools{display:flex; align-items:center; gap:12px; padding:0 22px 14px}
+.rsn-tools input{font:inherit; font-size:13px; flex:1; min-width:0; padding:8px 12px;
+  border-radius:7px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink)}
+.rsn-tools span{font-family:var(--mono); font-size:11.5px; color:var(--muted); white-space:nowrap}
+.rsn-list{margin:0; padding-left:2.2em; display:flex; flex-direction:column; gap:5px}
+.rsn-list li{font-size:13px; line-height:1.7; color:var(--ink-2)}
+.rsn-list li::marker{font-family:var(--mono); font-size:11px; color:var(--muted)}
+.rsn-list li.none{list-style:none; margin-left:-2.2em; color:var(--muted); font-size:12.5px}
+
 /* ---- 物質の登録ウィザード ---- */
 #wizDlg{max-width:min(660px, calc(100vw - 24px)); width:660px}
 .wiz-hd{display:flex; align-items:flex-start; gap:16px; padding:20px 22px 14px}
@@ -1498,6 +1512,30 @@ init();
 
 </main>
 
+<dialog id="reasonDlg" aria-labelledby="rsnTitle">
+  <div class="wiz-hd">
+    <div>
+      <p class="wiz-eyebrow" id="rsnLaw"></p>
+      <h3 id="rsnTitle">根拠の一覧</h3>
+    </div>
+    <button class="btn ghost" id="rsnClose" type="button">閉じる</button>
+  </div>
+  <div class="rsn-tools">
+    <input type="search" id="rsnFilter" placeholder="物質名・化学品名で絞り込む" spellcheck="false">
+    <span id="rsnCount"></span>
+  </div>
+  <div class="wiz-bd"><ol class="rsn-list" id="rsnList"></ol></div>
+  <div class="wiz-copybox" id="rsnCopyBox" hidden>
+    <p>この画面では自動コピーができません。下の枠の中を選択してコピーしてください。</p>
+    <textarea rows="5" spellcheck="false" readonly></textarea>
+  </div>
+  <div class="wiz-ft">
+    <span style="flex:1"></span>
+    <button class="btn ghost" id="rsnCopyAll" type="button">全件をコピー</button>
+    <button class="btn" id="rsnCopy" type="button">表示中をコピー</button>
+  </div>
+</dialog>
+
 <dialog id="wizDlg" aria-labelledby="wizTitle">
   <div class="wiz-hd">
     <div>
@@ -2276,13 +2314,15 @@ function analyze(st){
 function taskApplies(t, flags){
   return t.when.some(cond => Array.isArray(cond) ? cond.every(f=>flags[f]) : !!flags[cond]);
 }
+/* 該当と判定した根拠。物質の数だけ増えるので、ここでは全件を残し、
+   表示と書き出しの側で必要な分だけ切る。全件は「根拠の一覧」で見られる。 */
 function reasonsFor(t, why){
-  const out=[];
+  const seen = new Set(), out = [];
   t.when.forEach(cond => {
-    const list = Array.isArray(cond)?cond:[cond];
-    list.forEach(f => (why[f]||[]).slice(0,3).forEach(r => { if(!out.includes(r)) out.push(r); }));
+    (Array.isArray(cond) ? cond : [cond]).forEach(f =>
+      (why[f]||[]).forEach(r => { if(!seen.has(r)){ seen.add(r); out.push(r); } }));
   });
-  return out.slice(0,4);
+  return out;
 }
 
 function dueOf(t, st){
@@ -2443,9 +2483,13 @@ function renderBand(tasks){
 
 function taskRow(t, withCat){
   const rec = t.rec||{};
-  const rs = withCat ? t.reasons : t.reasons.slice(0,2);
+  // 根拠は物質の数だけ増える。画面には先頭2件だけ出し、全件は一覧で開く
+  const rs = t.reasons.slice(0, 2);
+  const more = t.reasons.length - rs.length;
   return `<tr class="sev sev-${t.status}" data-tid="${t.id}">
-    <td><b>${esc(t.title)}</b>${rs.length?`<div style="color:var(--muted);font-size:11px;margin-top:2px">根拠：${esc(rs.join(" / "))}${t.reasons.length>rs.length?" ほか":""}</div>`:""}
+    <td><b>${esc(t.title)}</b>${t.reasons.length?`<div class="reasons">根拠：${esc(rs.join(" / "))}${
+      more>0 ? ` <span class="rmore">ほか${more}件</span>` : ""
+    } <button type="button" class="btn ghost sm" data-reasons="${t.id}">根拠${t.reasons.length}件の一覧</button></div>`:""}
         <div style="color:var(--muted);font-size:11px;margin-top:3px;white-space:pre-line">${esc(t.memo)}</div></td>
     <td>${esc(t.law)}<div style="color:var(--muted);font-size:11px">${esc(t.art)}</div></td>
     ${withCat?`<td><span class="pill p-mute">${esc(t.cat)}</span></td>`:""}
@@ -2521,10 +2565,14 @@ function renderLaws(tasks){
   tasks.forEach(t => { (byLaw[t.law] = byLaw[t.law]||[]).push(t); });
   const card = (law, ts) => {
     const crit = ts.filter(t=>t.status==="crit").length;
-    const reasons = [...new Set(ts.flatMap(t=>t.reasons))].slice(0,3);
+    const allReasons = [...new Set(ts.flatMap(t=>t.reasons))];
+    const reasons = allReasons.slice(0,3);
     return `<div class="law hit">
       <div class="law-hd"><h3>${esc(law)}</h3>${crit?`<span class="pill p-crit">${crit}件 要対応</span>`:`<span class="pill p-ok">対応済</span>`}</div>
-      <div class="why">${reasons.length?"根拠： "+reasons.map(r=>`<b>${esc(r)}</b>`).join(" ／ "):"事業場の条件により該当"}</div>
+      <div class="why">${reasons.length
+        ? "根拠： "+reasons.map(r=>`<b>${esc(r)}</b>`).join(" ／ ")
+          + (allReasons.length>reasons.length ? ` <span class="rmore">ほか${allReasons.length-reasons.length}件</span>` : "")
+        : "事業場の条件により該当"}</div>
       <div class="cnt">義務 ${ts.length}件（${[...new Set(ts.map(t=>t.cat))].join("・")}）</div></div>`;
   };
   const hitLaws = LAW_LIST.filter(l=>byLaw[l]);
@@ -3552,7 +3600,7 @@ PROMPT_CAUTION,
   ].join("\n");
 }
 
-async function copyText(text, okMsg){
+async function copyText(text, okMsg, boxSel){
   try{
     if(navigator.clipboard && window.isSecureContext){
       await navigator.clipboard.writeText(text);
@@ -3567,18 +3615,54 @@ async function copyText(text, okMsg){
   try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
   ta.remove();
   if(ok){ toast(okMsg || "コピーしました"); return true; }
-  wizShowCopyBox(text);
+  wizShowCopyBox(text, boxSel);
   return false;
 }
 
 /* クリップボードが使えない環境では、選択済みの枠に出して手でコピーしてもらう */
-function wizShowCopyBox(text){
-  const box = $("#wizCopyBox");
+function wizShowCopyBox(text, sel){
+  const box = $(sel || "#wizCopyBox");
   if(!box){ toast("コピーできませんでした"); return; }
   box.hidden = false;
   box.querySelector("textarea").value = text;
   box.querySelector("textarea").select();
   toast("自動コピーができない画面です。枠の中を選択してコピーしてください");
+}
+
+/* ---- 根拠の一覧 ----
+   物質が増えると根拠は数十〜数百件になる。表の中では2件だけ見せ、
+   全件はこの一覧で開いて絞り込み・コピーできるようにする。 */
+let RSN = null;
+
+function openReasons(id){
+  const t = (window.__tasks||[]).find(x => x.id === id);
+  if(!t) return;
+  RSN = t;
+  $("#rsnTitle").textContent = t.title;
+  $("#rsnLaw").textContent = `${t.law}　${t.art}`;
+  $("#rsnFilter").value = "";
+  $("#rsnCopyBox").hidden = true;
+  renderReasons();
+  $("#reasonDlg").showModal();
+  $("#rsnFilter").focus();
+}
+function reasonHits(){
+  const q = ($("#rsnFilter").value||"").trim().toLowerCase();
+  return !q ? RSN.reasons : RSN.reasons.filter(r => r.toLowerCase().includes(q));
+}
+function renderReasons(){
+  const list = reasonHits();
+  $("#rsnList").innerHTML = list.length
+    ? list.map(r => `<li>${esc(r)}</li>`).join("")
+    : `<li class="none">絞り込みに合う根拠がありません。</li>`;
+  $("#rsnCount").textContent = list.length === RSN.reasons.length
+    ? `全${RSN.reasons.length}件`
+    : `${RSN.reasons.length}件中 ${list.length}件`;
+}
+function reasonText(all){
+  const list = all ? RSN.reasons : reasonHits();
+  return [RSN.title, `${RSN.law}　${RSN.art}`, `根拠 ${list.length}件`, ""]
+    .concat(list).join("\n");
 }
 
 let WIZ = null;
@@ -4004,7 +4088,9 @@ function csvTasks(){
   const rows = [["ID","根拠法令","条文","対応事項","分類","周期","次回期限","状態","前回実施日","担当","記録保存年数","該当根拠","留意事項"]];
   (window.__tasks||[]).forEach(t => rows.push([t.id,t.law,t.art,t.title,t.cat,cycLabel(t.cyc),t.due?iso(t.due):"",
     {crit:"要対応",warn:"期限接近",ok:"適合",info:"随時"}[t.status], (t.rec||{}).date||"", (t.rec||{}).by||"",
-    t.keep?t.keep+"年":"", t.reasons.join(" / "), t.memo]));
+    t.keep?t.keep+"年":"",
+    t.reasons.slice(0,10).join(" / ") + (t.reasons.length>10 ? ` ほか${t.reasons.length-10}件（全${t.reasons.length}件）` : ""),
+    t.memo]));
   return toCsv(rows);
 }
 /* 供給者へ渡す含有調査依頼書。既に得ている回答は転記しておき、
@@ -4066,7 +4152,7 @@ function icsCal(){
     L.push("BEGIN:VEVENT", `UID:${t.id}-${ymd(d)}@chem-compliance`, `DTSTAMP:${stamp}`,
       `DTSTART;VALUE=DATE:${ymd(d)}`, `DTEND;VALUE=DATE:${ymd(e)}`,
       fold(`SUMMARY:${esc2("【"+t.law+"】"+t.title)}`),
-      fold(`DESCRIPTION:${esc2(t.art+"\n"+t.memo+(t.keep?"\n記録保存："+t.keep+"年":"")+(t.reasons.length?"\n該当根拠："+t.reasons.join(" / "):""))}`),
+      fold(`DESCRIPTION:${esc2(t.art+"\n"+t.memo+(t.keep?"\n記録保存："+t.keep+"年":"")+(t.reasons.length?"\n該当根拠："+t.reasons.slice(0,10).join(" / ")+(t.reasons.length>10?` ほか${t.reasons.length-10}件`:""):""))}`),
       "BEGIN:VALARM","TRIGGER:-P14D","ACTION:DISPLAY",fold(`DESCRIPTION:${esc2(t.title)}`),"END:VALARM");
     if(rr) L.push(`RRULE:${rr}`);
     L.push("END:VEVENT");
@@ -4316,6 +4402,17 @@ function bind(){
   $("#btnMsPasteClear").addEventListener("click", () => { $("#msPaste").value = ""; });
 
   $("#btnMsImport").addEventListener("click", ()=>$("#fileMs").click());
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-reasons]");
+    if(b) openReasons(b.dataset.reasons);
+  });
+  $("#rsnClose").addEventListener("click", () => $("#reasonDlg").close());
+  $("#reasonDlg").addEventListener("cancel", e => { e.preventDefault(); $("#reasonDlg").close(); });
+  $("#rsnFilter").addEventListener("input", renderReasons);
+  $("#rsnCopy").addEventListener("click", () =>
+    copyText(reasonText(false), "表示中の根拠をコピーしました", "#rsnCopyBox"));
+  $("#rsnCopyAll").addEventListener("click", () =>
+    copyText(reasonText(true), `根拠${RSN.reasons.length}件をコピーしました`, "#rsnCopyBox"));
   $("#btnMsWizard").addEventListener("click", () => wizOpen());
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-wiz-cas]");
