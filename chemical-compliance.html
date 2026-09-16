@@ -364,6 +364,15 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 .wiz-sds-t{font-size:11.5px; color:var(--muted); margin:0 0 6px; letter-spacing:.02em}
 .wiz-sds ul{margin:0; padding-left:1.15em}
 .wiz-sds li{font-size:12.5px; line-height:1.75; color:var(--ink-2)}
+.wiz-ask{display:flex; align-items:flex-start; gap:10px; margin:0 0 14px;
+  padding:10px 14px; border-radius:7px; background:var(--accent-soft)}
+.wiz-ask span{font-size:11.5px; color:var(--ink-2); line-height:1.7}
+.wiz-ask .btn{flex:none; white-space:nowrap}
+.wiz-ask.all{flex-direction:column; gap:7px; margin-top:18px}
+.wiz-copybox{padding:0 22px 4px}
+.wiz-copybox p{font-size:11.5px; color:var(--warn); margin:0 0 5px}
+.wiz-copybox textarea{font-family:var(--mono); font-size:11px; width:100%; padding:8px 10px;
+  border-radius:6px; border:1px solid var(--line-2); background:var(--surface-2); color:var(--ink)}
 .wiz-opts{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
 .wiz-opt{font:inherit; font-size:13px; cursor:pointer; padding:9px 16px; border-radius:7px;
   border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2)}
@@ -396,6 +405,8 @@ table.wiz-review td.v.hit{color:var(--crit); font-weight:700}
 table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
 @media (max-width:560px){
   #wizDlg{width:auto}
+  .wiz-ask{flex-direction:column; gap:7px}
+  .wiz-ask .btn{width:100%}
   .wiz-opts{flex-direction:column}
   .wiz-opt{width:100%; text-align:left}
 }
@@ -1483,6 +1494,10 @@ init();
   </div>
   <div class="wiz-bar"><div class="wiz-bar-in" id="wizBar"></div></div>
   <div class="wiz-bd" id="wizBody"></div>
+  <div class="wiz-copybox" id="wizCopyBox" hidden>
+    <p>この画面では自動コピーができません。下の枠の中を選択してコピーしてください。</p>
+    <textarea rows="5" spellcheck="false" readonly></textarea>
+  </div>
   <div class="wiz-ft">
     <span class="wiz-note" id="wizNote"></span>
     <span style="flex:1"></span>
@@ -3313,6 +3328,149 @@ const WIZ_STEPS = [
   type:"yn"},
 ];
 
+
+/* ---- AIに尋ねるためのプロンプト ----
+   法令の該当判定は、官報・法令検索・職場のあんぜんサイトで裏取りするのが前提。
+   AIには「分からないものは分からないと答える」ことを明示して尋ねる。
+   誤って「非該当」と言われると法令違反を見落とすため、そこだけは強く書く。 */
+const PROMPT_CAUTION = [
+"【必ず守ってください】",
+"・確認できない場合は推測せず「わからない」と答えてください。",
+"  誤って「非該当」とされると、法令違反を見落とします。",
+"・根拠とした条文・別表・告示の番号と名称を必ず示してください。",
+"・令和6年4月1日および令和7年4月1日の対象物質の追加を反映した、",
+"  最新の一覧で判断してください。",
+"・この回答は最終的に人が官報・e-Gov法令検索・職場のあんぜんサイトで裏取りします。"
+].join("\n");
+
+function wizSubjectLines(){
+  const m = WIZ.sub;
+  return ["【対象の物質】",
+          "物質名: " + (m.name || "（未入力）"),
+          "CAS番号: " + (m.cas || "（不明）")].join("\n");
+}
+
+function wizAnswerChoices(st){
+  if(st.type === "yn") return ["該当", "非該当", "わからない"];
+  if(st.type === "shobo") return SHOBO.map(x => x.label).concat(["非該当", "わからない"]);
+  return (st.opts || []).map(o => o[1]).concat(["非該当", "わからない"]);
+}
+
+function wizPrompt(st){
+  const ch = wizAnswerChoices(st);
+  return [
+"次の化学物質が、日本の法令の下記の区分に該当するかを調べてください。",
+"",
+wizSubjectLines(),
+"",
+"【調べてほしい区分】",
+st.law + "　" + st.art,
+st.q.replace(/[。、]?該当する場合は.*$/, "").replace(/ですか$/, ""),
+"",
+"【参考：SDS第15項（適用法令）にこう書かれていれば該当します】",
+st.sds.map(x => "・" + x).join("\n"),
+"",
+"【回答の形式】",
+"1行目に、次のいずれかだけを書いてください。",
+ch.map(x => "  " + x).join("\n"),
+"2行目以降に、根拠とした条文・別表・告示の番号と名称を書いてください。",
+"",
+PROMPT_CAUTION,
+st.hint ? "\n【補足】\n" + st.hint : ""
+  ].join("\n").trim();
+}
+
+/* 全項目をまとめて尋ね、物質マスタに貼り付けられるCSVで返してもらう。
+   返ってきた2行を「物質マスタ」タブの「貼り付けて取り込む」に入れれば登録できる。 */
+function wizPromptAll(){
+  const head = MS_COLS.map(c => c[0]).filter(h => h !== "出所");
+  const spec = [
+"CAS番号: そのまま",
+"物質名: 日本語の名称",
+"安衛法: 対象物 / 非該当 / 要確認",
+"皮膚等障害: 該当 / 非該当 / 要確認",
+"がん原性: 該当 / 非該当 / 要確認",
+"濃度基準値: 該当 / 非該当 / 要確認",
+"八時間濃度基準値: 値と単位（例 2ppm）。無ければ空欄",
+"短時間濃度基準値: 値と単位。無ければ空欄",
+"濃度基準値適用日: 例 令和8年10月1日。無ければ空欄",
+"安衛法危険物: 該当 / 非該当 / 要確認",
+"製造禁止: 該当 / 非該当 / 要確認",
+"製造許可: 該当 / 非該当 / 要確認",
+"強い変異原性: 該当 / 非該当 / 要確認",
+"特化則: 第1類 / 第2類 / 第3類 / 要確認 / 空欄（非該当）",
+"特別管理物質: 該当 / 非該当 / 要確認",
+"有機則: 第1種 / 第2種 / 第3種 / 要確認 / 空欄（非該当）",
+"鉛則: 該当 / 非該当 / 要確認",
+"粉じん則: 該当 / 非該当 / 要確認",
+"化管法: 特定第一種 / 第一種 / 第二種 / 要確認 / 空欄（非該当）",
+"毒劇法: 毒物 / 劇物 / 空欄（非該当）",
+"消防法品名: 次のいずれか、または空欄（非該当）\n" +
+  SHOBO.map(x => "    " + x.label).join("\n"),
+"化審法: 第一種特定 / 空欄（非該当）",
+"大防法: 有害大気 / VOC / VOC/有害大気 / 空欄（非該当）",
+"水濁法有害物質: 該当 / 非該当 / 要確認",
+"土対法: 該当 / 非該当 / 要確認",
+"女性則: 該当 / 非該当 / 要確認",
+"備考: 判断の根拠とした条文・告示、確認できなかった項目を書いてください"
+  ].map(x => "・" + x).join("\n");
+
+  return [
+"次の化学物質について、日本の化学物質関係法令の該当区分を調べ、",
+"最後にCSVの2行（見出し行とデータ行）だけを出力してください。",
+"",
+wizSubjectLines(),
+"",
+"【CSVの見出し行（この順・この名前のまま）】",
+head.join(","),
+"",
+"【各列に入れる値】",
+spec,
+"",
+"【出力の形式】",
+"はじめに、列ごとの判断の根拠を箇条書きで説明してください。",
+"そのあと、```csv で囲んだコードブロックの中に、見出し行とデータ行の2行だけを",
+"出力してください。値にカンマを含む場合はダブルクォートで囲んでください。",
+"",
+PROMPT_CAUTION,
+"・確認できなかった列には、空欄ではなく「要確認」と入れてください。",
+"  空欄は「非該当」として取り込まれ、判定から消えてしまいます。",
+"",
+"【取り込み方（回答者への説明は不要です）】",
+"出力されたCSVの2行を、化学物質法令チェック台帳の「物質マスタ」タブにある",
+"「貼り付けて取り込む」欄に貼り付けると、そのまま登録されます。"
+  ].join("\n");
+}
+
+async function copyText(text, okMsg){
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+      toast(okMsg || "コピーしました"); return true;
+    }
+  }catch(e){ /* 下の方法で試す */ }
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;top:-2000px;left:0;opacity:0";
+  document.body.appendChild(ta); ta.select();
+  let ok = false;
+  try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+  ta.remove();
+  if(ok){ toast(okMsg || "コピーしました"); return true; }
+  wizShowCopyBox(text);
+  return false;
+}
+
+/* クリップボードが使えない環境では、選択済みの枠に出して手でコピーしてもらう */
+function wizShowCopyBox(text){
+  const box = $("#wizCopyBox");
+  if(!box){ toast("コピーできませんでした"); return; }
+  box.hidden = false;
+  box.querySelector("textarea").value = text;
+  box.querySelector("textarea").select();
+  toast("自動コピーができない画面です。枠の中を選択してコピーしてください");
+}
+
 let WIZ = null;
 const wizYNLabel = {1:"該当", 0:"非該当", 2:"わからない"};
 
@@ -3342,6 +3500,7 @@ function wizRender(){
   $("#wizPrev").disabled = i === 0;
   $("#wizNext").textContent = i === total - 1 ? "この内容で登録" : "次へ";
   $("#wizNote").textContent = "";
+  if($("#wizCopyBox")) $("#wizCopyBox").hidden = true;
 
   if(i === 0){ wizRenderIdent(); return; }
   if(i === total - 1){ wizRenderReview(steps); return; }
@@ -3365,7 +3524,13 @@ function wizRenderIdent(){
       <input type="text" id="wizName" placeholder="トルエン" value="${esc(m.name||"")}"
              spellcheck="false" autocomplete="off">
     </div>
-    <div id="wizFound"></div>`;
+    <div id="wizFound"></div>
+    <div class="wiz-ask all">
+      <button type="button" class="btn ghost sm" id="wizAskAll">全法令ぶんのプロンプトをコピー</button>
+      <span>21の法令をひとつのプロンプトで聞きます。回答はCSVで返るので、
+        「貼り付けて取り込む」にそのまま貼れます。1件ずつ確かめたいときは、
+        このまま次へ進んで各画面のボタンを使ってください。</span>
+    </div>`;
   const upd = () => {
     const cas = normCas($("#wizCas").value);
     const hit = cas ? lookupCas(cas) : null;
@@ -3376,6 +3541,12 @@ function wizRenderIdent(){
     if(hit && !$("#wizName").value.trim()) $("#wizName").value = hit.name;
   };
   $("#wizCas").addEventListener("input", upd);
+  $("#wizAskAll").addEventListener("click", () => {
+    WIZ.sub.cas = normCas($("#wizCas").value);
+    WIZ.sub.name = $("#wizName").value.trim();
+    if(!WIZ.sub.cas && !WIZ.sub.name){ $("#wizNote").textContent = "先にCAS番号か物質名を入れてください"; return; }
+    copyText(wizPromptAll(), "プロンプトをコピーしました");
+  });
   upd();
 }
 
@@ -3412,6 +3583,10 @@ function wizRenderStep(st){
       <p class="wiz-sds-t">SDS第15項にこう書かれていれば該当します</p>
       <ul>${sds}</ul>
     </div>
+    <div class="wiz-ask">
+      <button type="button" class="btn ghost sm" id="wizAsk">この法令のプロンプトをコピー</button>
+      <span>SDSに書かれていないときは、コピーした文をAIに貼り付けて聞いてください。</span>
+    </div>
     <div class="wiz-opts">${opts}</div>
     ${extra ? `<div class="wiz-extra">${extra}</div>` : ""}
     <p class="wiz-why">${esc(st.why)}</p>
@@ -3424,6 +3599,7 @@ function wizRenderStep(st){
   }));
   const sh = $("#wizShobo");
   if(sh) sh.addEventListener("change", () => { WIZ.sub.shi = sh.value; });
+  $("#wizAsk").addEventListener("click", () => copyText(wizPrompt(st), "プロンプトをコピーしました"));
 }
 
 function wizApply(st, raw){
@@ -3463,8 +3639,18 @@ function wizRenderReview(steps){
     </div>
     ${unsure ? `<div class="wiz-unsure">「わからない」と答えた項目が <b>${unsure}</b> 件あります。
         これらは非該当にはせず、<b>要確認</b>として法令該当判定に出し続けます。
-        供給者への照会が済んだら、この物質をもう一度開いて更新してください。</div>` : ""}
+        供給者への照会が済んだら、この物質をもう一度開いて更新してください。
+        <div style="margin-top:8px"><button type="button" class="btn ghost sm" id="wizAskAll2">全法令ぶんのプロンプトをコピー</button></div></div>` : ""}
     <div class="tbl-wrap"><table class="wiz-review"><tbody>${rows}</tbody></table></div>`;
+  wizReviewWire();
+}
+
+function wizReviewWire(){
+  const b = $("#wizAskAll2");
+  if(b) b.addEventListener("click", () => {
+    WIZ.sub.name = ($("#wizNameR") ? $("#wizNameR").value : WIZ.sub.name).trim();
+    copyText(wizPromptAll(), "プロンプトをコピーしました");
+  });
 }
 
 function wizSave(){
