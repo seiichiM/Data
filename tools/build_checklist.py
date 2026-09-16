@@ -120,6 +120,9 @@ TERMS = [
   "https://anzeninfo.mhlw.go.jp/user/anzen/kag/ankgc13.html", "職場のあんぜんサイト"),
  (r"がん原性物質", "がん原性物質", "がん原性物質",
   "https://anzeninfo.mhlw.go.jp/user/anzen/kag/ankgc12.html", "職場のあんぜんサイト。作業記録30年保存の対象"),
+ (r"CREATE-SIMPLE", "CREATE-SIMPLE", "厚生労働省の簡易リスクアセスメントツール",
+  "https://anzeninfo.mhlw.go.jp/user/anzen/kag/kagaku_index.html",
+  "職場のあんぜんサイト。リスクアセスメント実施支援のページから入手できます"),
  (r"濃度基準値", "濃度基準値", "濃度基準値等",
   "https://anzeninfo.mhlw.go.jp/user/anzen/kag/ankgc11.html", "職場のあんぜんサイト"),
  (r"製造等が禁止される有害物等|製造等禁止物質", "製造等が禁止される有害物等", "安衛法施行令 第16条",
@@ -523,6 +526,7 @@ main{padding:22px 0 70px}
 .tag{display:inline-block; border:1px solid var(--line-2); background:var(--surface-2);
   border-radius:999px; padding:1px 8px; font-size:11px; color:var(--ink-2); white-space:nowrap}
 .tag.cat-sel{background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:700}
+.field.memo .v{white-space:pre-line}
 .field{display:grid; grid-template-columns:78px 1fr; gap:10px; margin-top:9px; font-size:12.8px; line-height:1.8}
 .field .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:var(--muted); padding-top:3px}
 .field.cond .v{background:var(--surface-2); border-left:2px solid var(--line-2);
