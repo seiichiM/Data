@@ -285,11 +285,11 @@ add("106-97-8","ブタン", note="高圧ガス保安法。液化石油ガス")
 # ============================================================
 # 生成
 # ============================================================
-KEYS = ["cas","name","an","skin","cancer","noudo","n8","ns","nd","ankiken","ban","perm","muta",
-        "tokka","sp","yuki","lead","dust",
+KEYS = ["cas","name","an","cAn","skin","cancer","noudo","n8","ns","nd","ankiken","ban","perm","cPerm","muta",
+        "tokka","cTokka","sp","yuki","lead","dust",
         "kakan","doku","shi","kashin","taiki","sui","dojo","josei","note"]
-DEF  = {"an":1,"skin":0,"cancer":0,"noudo":0,"n8":"","ns":"","nd":"","ankiken":0,
-        "ban":0,"perm":0,"muta":0,"tokka":"","sp":0,"yuki":"","lead":0,"dust":0,
+DEF  = {"an":1,"cAn":"","skin":0,"cancer":0,"noudo":0,"n8":"","ns":"","nd":"","ankiken":0,
+        "ban":0,"perm":0,"cPerm":"","muta":0,"tokka":"","cTokka":"","sp":0,"yuki":"","lead":0,"dust":0,
         "kakan":"","doku":"","shi":"","kashin":"","taiki":"","sui":0,"dojo":0,"josei":0,"note":""}
 
 merged, order, dups = {}, [], []
@@ -388,6 +388,7 @@ CSV_COLS = [
  ("CAS番号",       lambda r: r["cas"]),
  ("物質名",        lambda r: r["name"]),
  ("安衛法",        lambda r: "対象物" if r["an"]==1 else ("要確認" if r["an"]==2 else "非該当")),
+ ("安衛法裾切り値", lambda r: r["cAn"]),
  ("皮膚等障害",    lambda r: "該当" if r["skin"]==1 else ("要確認" if r["skin"]==2 else "")),
  ("がん原性",      lambda r: "該当" if r["cancer"]==1 else ""),
  ("濃度基準値",    lambda r: "該当" if r["noudo"]==1 else ""),
@@ -397,8 +398,10 @@ CSV_COLS = [
  ("安衛法危険物",  lambda r: "該当" if r["ankiken"]==1 else ""),
  ("製造禁止",      lambda r: "該当" if r["ban"]==1 else ""),
  ("製造許可",      lambda r: "該当" if r["perm"]==1 else ""),
+ ("製造許可裾切り値", lambda r: r["cPerm"]),
  ("強い変異原性",  lambda r: "該当" if r["muta"]==1 else ""),
  ("特化則",        lambda r: ("第%s類" % r["tokka"]) if r["tokka"] else ""),
+ ("特化則裾切り値", lambda r: r["cTokka"]),
  ("特別管理物質",  lambda r: "該当" if r["sp"]==1 else ""),
  ("有機則",        lambda r: ("第%s種" % r["yuki"]) if r["yuki"] else ""),
  ("鉛則",          lambda r: "該当" if r["lead"]==1 else ""),
