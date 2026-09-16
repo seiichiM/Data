@@ -344,6 +344,25 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 .dlg-ft{display:flex; gap:10px; justify-content:flex-end; padding:16px 22px 18px}
 
 .btn.sm{padding:4px 10px; font-size:11.5px}
+
+/* ---- 事業場の条件（はい／いいえ／未回答） ---- */
+.site-na{font-size:12px; color:var(--muted); margin:0 0 12px}
+.site-na.warn{color:var(--warn); font-weight:700}
+.sq{display:flex; flex-direction:column; gap:8px; padding:12px 14px;
+    border:1px solid var(--line); border-radius:8px; background:var(--surface)}
+.sq.na{border-style:dashed; border-color:var(--line-2); background:var(--surface-2)}
+.sq-t{font-size:13px; line-height:1.6}
+.sq-t small{display:block; font-size:11px; color:var(--muted); line-height:1.7; margin-top:2px}
+.tri{display:flex; gap:0; align-self:flex-start; border:1px solid var(--line-2);
+     border-radius:6px; overflow:hidden}
+.tri button{font:inherit; font-size:12px; cursor:pointer; padding:5px 12px; border:0;
+  background:var(--surface); color:var(--muted); border-right:1px solid var(--line-2)}
+.tri button:last-child{border-right:0}
+.tri button:hover{color:var(--accent)}
+.tri button.on{background:var(--accent); color:var(--on-accent); font-weight:700}
+.tri button[data-val="n"].on{background:var(--ink-2)}
+.tri button[data-val=""].on{background:var(--warn); color:var(--on-accent)}
+.tri button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
 .issue-cas{font-size:11px; color:var(--muted); margin-top:1px}
 
 /* ---- 根拠の一覧 ---- */
@@ -542,6 +561,7 @@ table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
 
         <div>
           <p class="sec-label">業種・排水</p>
+          <p class="site-na"></p>
           <div class="grid3" id="siteChecks1"></div>
         </div>
         <div>
@@ -2234,7 +2254,7 @@ function analyze(st){
       // 鉛則の対象は鉛則第1条第5号の鉛業務。鉛を含む製品を使うだけでは該当しない。
       if(m.lead===1 && pct>0){
         hit("lead", src);
-        if(!sf.leadWork) issues.push({type:"鉛業務の有無が未確認", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+        if(sf.leadWork === undefined) issues.push({type:"鉛業務の有無が未確認", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
           msg:"鉛則の対象になりうる物質です。ただし鉛則の義務は物質ではなく業務で決まります。" +
               "鉛則第1条第5号の鉛業務（鉛の溶融・鋳造、鉛ライニング、鉛蓄電池の製造・解体、" +
               "含鉛塗料のかき落とし、鉛はんだ付けなど）を行っているかを" +
@@ -2244,7 +2264,7 @@ function analyze(st){
       // 作業形態を答えてもらうため、粉じんになりうる物質があることだけを伝える。
       if(m.dust===1){
         hit("dust", src);
-        if(!sf.dustWork) issues.push({type:"粉じん作業の有無が未確認", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
+        if(sf.dustWork === undefined) issues.push({type:"粉じん作業の有無が未確認", sub:m.name, cas:m.cas==="-"?"":m.cas, prod:p.name,
           msg:"粉じん則・じん肺法の対象になりうる物質です。ただしこれらの義務は物質ではなく作業で決まります。" +
               "粉じん則別表第1の作業（研磨、切削、粉体の投入や袋詰め、鋳物の型ばらし、アーク溶接など）を" +
               "行っているかを「事業場の条件」タブの「粉じん作業がある」で答えてください。" +
@@ -2372,7 +2392,7 @@ function analyze(st){
           "この状態では安衛則第577条の2第2項の判定ができません。" +
           "chem-master.js（または chem-master.csv）を読み込むか、厚生労働省の濃度基準値一覧で" +
           "取り扱っている物質を確認してください。"});
-  if(flags.sui_sub && !sf.hazardWater) issues.push({type:"施設区分の確認", sub:"水質汚濁防止法の有害物質", prod:"—", msg:"有害物質に該当する成分を使用しています。洗浄・めっき等の施設が有害物質使用特定施設に当たらないか、事業場の条件で確認してください。"});
+  if(flags.sui_sub && sf.hazardWater === undefined) issues.push({type:"施設区分の確認", sub:"水質汚濁防止法の有害物質", prod:"—", msg:"有害物質に該当する成分を使用しています。洗浄・めっき等の施設が有害物質使用特定施設に当たらないか、事業場の条件で確認してください。"});
   if(flags.unknown) hit("unknown", "内容が確定していない成分があります");
 
   return {flags, why, subs, prtrRows, shoboRows:[...shoboRows.values()], bai, issues};
@@ -2432,8 +2452,8 @@ const uid = () => "p"+Math.random().toString(36).slice(2,9);
 function sampleState(){
   return {v:1, sample:true, userSubs:[],
     site:{name:"（例）豊田金属加工 第一工場", addr:"愛知県豊田市", employees:45, area:4200,
-      flags:{prtrIndustry:true, sewer:true, localExhaust:true, waterFacility:true, hazardWater:true,
-             vocFacility:true, freon:true, gas:true, welding:true, waste:true}},
+      flags:{freon:true, gas:true, hazardWater:true, localExhaust:true, prtrIndustry:true, sewer:true, vocFacility:true, waste:true, waterFacility:true, welding:true,
+             boiler:false, demolition:false, dustWork:false, freonLarge:false, leadWork:false, manufacture:false, ordinance:false, pcb:false, plating:false, publicWater:false, shipping:false, wasteLarge:false}},
     products:[
       {id:uid(), name:"ウレタン塗料用シンナー", maker:"（例）A化成", sdsDate:"2023-04-01", use:"塗装ブースでの希釈",
        annualKg:3000, stockQty:150, shobo:"4|第1石油類(非水溶性)",
@@ -2675,9 +2695,22 @@ function renderSite(){
   $("#fEmp").value = state.site.employees||""; $("#fArea").value = state.site.area||"";
   const groups = {g1:"#siteChecks1", g2:"#siteChecks2", g3:"#siteChecks3"};
   Object.entries(groups).forEach(([g,sel]) => {
-    $(sel).innerHTML = SITE_Q.filter(q=>q[0]===g).map(q =>
-      `<label class="check"><input type="checkbox" data-siteflag="${q[1]}"${state.site.flags[q[1]]?" checked":""}>
-       <span>${esc(q[2])}<small>${esc(q[3])}</small></span></label>`).join("");
+    $(sel).innerHTML = SITE_Q.filter(q=>q[0]===g).map(q => {
+      const v = state.site.flags[q[1]];          // true=はい / false=いいえ / undefined=未回答
+      const btn = (val, label) =>
+        `<button type="button" data-siteflag="${q[1]}" data-val="${val}"` +
+        `${(val==="y"&&v===true)||(val==="n"&&v===false)||(val===""&&v===undefined)?' class="on"':""}` +
+        `>${label}</button>`;
+      return `<div class="sq${v===undefined?" na":""}">
+        <div class="sq-t">${esc(q[2])}<small>${esc(q[3])}</small></div>
+        <div class="tri" role="group" aria-label="${esc(q[2])}">
+          ${btn("y","はい")}${btn("n","いいえ")}${btn("","未回答")}</div></div>`;
+    }).join("");
+  });
+  const na = SITE_Q.filter(q => state.site.flags[q[1]] === undefined).length;
+  $$(".site-na").forEach(el => {
+    el.textContent = na ? `未回答 ${na}件。未回答のあいだは、その条件で決まる義務を判定できません。` : "すべて回答済みです。";
+    el.className = "site-na" + (na ? " warn" : "");
   });
 }
 
@@ -4480,6 +4513,16 @@ function bind(){
     copyText(reasonText(false), "表示中の根拠をコピーしました", "#rsnCopyBox"));
   $("#rsnCopyAll").addEventListener("click", () =>
     copyText(reasonText(true), `根拠${RSN.reasons.length}件をコピーしました`, "#rsnCopyBox"));
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button[data-siteflag]");
+    if(!b) return;
+    const k = b.dataset.siteflag, v = b.dataset.val;
+    if(v === "y") state.site.flags[k] = true;
+    else if(v === "n") state.site.flags[k] = false;
+    else delete state.site.flags[k];
+    state.sample = false;
+    refresh(false); renderSite();
+  });
   $("#btnMsWizard").addEventListener("click", () => wizOpen());
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-wiz-cas]");
