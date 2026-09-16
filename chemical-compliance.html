@@ -2129,7 +2129,11 @@ function analyze(st){
   const sf = st.site.flags||{};
 
   // --- 事業場の回答をそのままフラグに ---
-  Object.keys(sf).forEach(k => { if(sf[k]) hit(k, "事業場の条件で「はい」と回答"); });
+  // どの設問に「はい」と答えたから出ているのかが分かるよう、設問文を根拠に入れる
+  const SITE_LABEL = Object.fromEntries(SITE_Q.map(q => [q[1], q[2]]));
+  Object.keys(sf).forEach(k => {
+    if(sf[k]) hit(k, `事業場の条件「${SITE_LABEL[k] || k}」に「はい」と回答`);
+  });
 
   // --- 成分の突き合わせ ---
   const subs = new Map();      // 物質単位の集計
