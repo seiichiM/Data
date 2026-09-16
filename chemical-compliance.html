@@ -343,6 +343,63 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 .dlg-bd p{font-size:13px; color:var(--ink-2); line-height:1.8}
 .dlg-ft{display:flex; gap:10px; justify-content:flex-end; padding:16px 22px 18px}
 
+.btn.sm{padding:4px 10px; font-size:11.5px}
+
+/* ---- 物質の登録ウィザード ---- */
+#wizDlg{max-width:min(660px, calc(100vw - 24px)); width:660px}
+.wiz-hd{display:flex; align-items:flex-start; gap:16px; padding:20px 22px 14px}
+.wiz-hd h3{font-family:var(--serif); font-size:20px; font-weight:400; margin:2px 0 0; line-height:1.35}
+.wiz-eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--muted)}
+.wiz-bar{height:3px; background:var(--surface-3)}
+.wiz-bar-in{height:100%; background:var(--accent); transition:width .18s ease}
+@media (prefers-reduced-motion:reduce){ .wiz-bar-in{transition:none} }
+.wiz-bd{padding:20px 22px 6px; max-height:min(62vh, 560px); overflow-y:auto}
+.wiz-ft{display:flex; gap:10px; align-items:center; padding:14px 22px 18px;
+        border-top:1px solid var(--line); margin-top:14px}
+.wiz-note{font-size:12px; color:var(--crit)}
+.wiz-lead{font-size:13px; color:var(--ink-2); line-height:1.85; margin:0 0 16px}
+.wiz-art{font-family:var(--mono); font-size:11.5px; color:var(--accent-2); margin:0 0 6px}
+.wiz-q{font-size:16px; font-weight:700; line-height:1.6; margin:0 0 14px; text-wrap:balance}
+.wiz-sds{background:var(--surface-2); border-radius:7px; padding:12px 16px; margin:0 0 16px}
+.wiz-sds-t{font-size:11.5px; color:var(--muted); margin:0 0 6px; letter-spacing:.02em}
+.wiz-sds ul{margin:0; padding-left:1.15em}
+.wiz-sds li{font-size:12.5px; line-height:1.75; color:var(--ink-2)}
+.wiz-opts{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
+.wiz-opt{font:inherit; font-size:13px; cursor:pointer; padding:9px 16px; border-radius:7px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2)}
+.wiz-opt:hover{border-color:var(--accent); color:var(--accent)}
+.wiz-opt.on{background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-weight:700}
+.wiz-opt:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.wiz-select{font:inherit; font-size:13px; width:100%; padding:9px 12px; border-radius:7px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink)}
+.wiz-why{font-size:12.5px; color:var(--ink-2); line-height:1.8; margin:0 0 6px;
+  padding-left:12px; border-left:2px solid var(--accent-soft)}
+.wiz-hint-line{font-size:12px; color:var(--muted); line-height:1.75; margin:8px 0 0}
+.wiz-field{display:flex; flex-direction:column; gap:5px; margin:0 0 16px}
+.wiz-field.sm{margin-bottom:10px}
+.wiz-field label{font-size:12px; color:var(--muted)}
+.wiz-field input,.wiz-field textarea{font:inherit; font-size:14px; padding:9px 12px; border-radius:7px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink); width:100%}
+.wiz-field input.mono{font-family:var(--mono)}
+.wiz-field .wiz-hint{font-size:11.5px; color:var(--muted)}
+.wiz-extra{background:var(--surface-2); border-radius:7px; padding:14px 16px 6px; margin:0 0 14px}
+.wiz-found{font-size:12.5px; line-height:1.8; padding:12px 16px; border-radius:7px;
+  background:var(--warn-soft); color:var(--warn); border-left:3px solid var(--warn)}
+.wiz-found.new{background:var(--ok-soft); color:var(--ok); border-left-color:var(--ok)}
+.wiz-unsure{font-size:12.5px; line-height:1.8; padding:12px 16px; border-radius:7px; margin:0 0 16px;
+  background:var(--warn-soft); color:var(--warn); border-left:3px solid var(--warn)}
+table.wiz-review{width:100%; border-collapse:collapse; font-size:12.5px}
+table.wiz-review td{padding:7px 10px; border-bottom:1px solid var(--line)}
+table.wiz-review td .sh{display:block; font-size:11px; color:var(--muted); margin-top:1px}
+table.wiz-review td.v{text-align:right; white-space:nowrap; color:var(--muted); vertical-align:top}
+table.wiz-review td.v.hit{color:var(--crit); font-weight:700}
+table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
+@media (max-width:560px){
+  #wizDlg{width:auto}
+  .wiz-opts{flex-direction:column}
+  .wiz-opt{width:100%; text-align:left}
+}
+
 @media print{
   .tabs,.masthead .mast-meta,.btnrow,.no-print{display:none !important}
   body{background:#fff; font-size:10.5pt}
@@ -624,6 +681,7 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
           </select>
           <button class="btn ghost" id="btnMsExport" type="button">マスタをCSVで書き出し</button>
           <button class="btn ghost" id="btnMsExportJs" type="button">chem-master.js で書き出し</button>
+          <button class="btn" id="btnMsWizard" type="button">物質を1件ずつ登録</button>
           <button class="btn ghost" id="btnMsImport" type="button">Excel・CSVを取り込み</button>
           <input type="file" id="fileMs" accept=".csv,.xlsx,.xlsm,text/csv" hidden>
           <button class="btn danger" id="btnMsReset" type="button" hidden>取り込んだ物質を全て削除</button>
@@ -1415,6 +1473,24 @@ init();
 
 </main>
 
+<dialog id="wizDlg" aria-labelledby="wizTitle">
+  <div class="wiz-hd">
+    <div>
+      <p class="wiz-eyebrow" id="wizStepNo">1 / 1</p>
+      <h3 id="wizTitle">物質の登録</h3>
+    </div>
+    <button class="btn ghost" id="wizClose" type="button">閉じる</button>
+  </div>
+  <div class="wiz-bar"><div class="wiz-bar-in" id="wizBar"></div></div>
+  <div class="wiz-bd" id="wizBody"></div>
+  <div class="wiz-ft">
+    <span class="wiz-note" id="wizNote"></span>
+    <span style="flex:1"></span>
+    <button class="btn ghost" id="wizPrev" type="button">戻る</button>
+    <button class="btn" id="wizNext" type="button">次へ</button>
+  </div>
+</dialog>
+
 <dialog id="confirmDlg" aria-labelledby="confirmTitle">
   <div class="dlg-bd">
     <h3 id="confirmTitle">確認</h3>
@@ -1764,6 +1840,23 @@ const DECL_ITEMS = [
 ];
 const DECL_LABEL = Object.fromEntries(DECL_ITEMS.map(d => [d[0], d[1]]));
 
+/* 物質マスタで「わからない（値2）」を持てる項目。
+   非該当（0）と取り違えると見落としになるため、判定では要確認として扱う。 */
+const UNSURE_KEYS = [
+ ["cancer", "がん原性物質",       "該当すると作業記録が30年保存になります。"],
+ ["noudo",  "濃度基準値設定物質", "該当するとばく露濃度を基準値以下にする義務が生じます。"],
+ ["ankiken","安衛法の危険物",     "該当すると取扱い基準の遵守が必要です。"],
+ ["ban",    "製造等禁止物質",     "該当すると製造・輸入・譲渡・提供・使用のいずれもできません。"],
+ ["perm",   "製造許可物質",       "該当すると特化則の第1類物質としての措置が必要です。"],
+ ["muta",   "強い変異原性が認められた化学物質", "該当すると変異原性指針に基づく措置が求められます。"],
+ ["sp",     "特別管理物質",       "該当すると各種記録が30年保存になります。"],
+ ["lead",   "鉛則の対象",         "該当すると作業主任者・測定・特殊健診が必要です。"],
+ ["dust",   "粉じん則の対象",     "該当すると特別教育・測定・じん肺健診が必要です。"],
+ ["dojo",   "土対法の特定有害物質", "該当すると土地の形質変更時に調査が要る場合があります。"],
+ ["josei",  "女性則の就業制限対象物質", "該当すると妊娠中・授乳中の労働者の就業制限がかかります。"],
+];
+const UNSURE_LABEL = Object.fromEntries(UNSURE_KEYS.map(u => [u[0], u[1]]));
+
 /* ---------- 事業場の条件 ---------- */
 const SITE_Q = [
   ["g1","prtrIndustry","化管法の対象業種である","製造業、燃料小売業、洗濯業など政令で定める24業種"],
@@ -1955,7 +2048,9 @@ function analyze(st){
       const label = (m ? m.name : (c.name || c.cas || "名称未入力"));
       const src = `${label}（${p.name}に${pct}%）`;
       if(!m){
-        issues.push({type:"マスタ未収録", sub:label, prod:p.name, msg:"CAS番号が内蔵マスタにありません。SDS第15項で適用法令を確認し、備考へ記録してください。"});
+        issues.push({type:"マスタ未収録", sub:label, prod:p.name,
+          msg:"この物質が物質マスタにありません。SDS第15項（適用法令）を見ながら登録してください。",
+          fix:{cas:c.cas||"", name:c.name||""}});
         hit("unknown", src);
         return;
       }
@@ -1984,6 +2079,15 @@ function analyze(st){
         msg:`含有率${pct}%。製造許可物質（特化則第1類物質）を重量の1%を超えて含有する製剤は、製造に厚生労働大臣の許可が要ります。裾切り値を確認してください。`});
       // 強い変異原性が認められた化学物質（変異原性指針）
       if(m.muta===1 && pct>=0.1) hit("muta", src);
+      // 「わからない」と登録した項目（値が2）は、非該当にせず要確認として出す。
+      // 登録ウィザードで「わからない」を選んだものがここに上がる。
+      UNSURE_KEYS.forEach(([k, label, note]) => {
+        if(m[k] !== 2) return;
+        hit("unknown", src);
+        issues.push({type:label + "が未確認", sub:m.name, prod:p.name,
+          msg:`この物質が${label}に該当するかが未確認のままです。${note}対象外とは判断できません。`,
+          fix:{cas:m.cas==="-"?"":m.cas, name:m.name}});
+      });
 
       // 特化則（原則1%超。0.1〜1%は物質ごとの裾切り値を要確認）
       if(m.tokka){
@@ -2369,7 +2473,9 @@ function renderLaws(tasks){
   $("#lawUnknownBox").innerHTML = A.issues.length ? `<div class="callout warn">
     <b>${A.issues.length}件の要確認事項があります。</b> 該当なしと判定するにはSDSでの裏取りが必要です。
     <div class="tw" style="margin-top:8px"><table><thead><tr><th>種別</th><th>物質</th><th>化学品</th><th>確認すること</th></tr></thead><tbody>
-    ${A.issues.map(i=>`<tr><td><span class="pill p-warn">${esc(i.type)}</span></td><td>${esc(i.sub)}</td><td>${esc(i.prod)}</td><td>${esc(i.msg)}</td></tr>`).join("")}
+    ${A.issues.map(i=>`<tr><td><span class="pill p-warn">${esc(i.type)}</span></td><td>${esc(i.sub)}</td><td>${esc(i.prod)}</td><td>${esc(i.msg)}${
+      i.fix ? `<div style="margin-top:6px"><button type="button" class="btn ghost sm" data-wiz-cas="${esc(i.fix.cas||"")}" data-wiz-name="${esc(i.fix.name||"")}">この物質を登録する</button></div>` : ""
+    }</td></tr>`).join("")}
     </tbody></table></div></div>` : `<div class="callout"><b>要確認事項はありません。</b> 登録された全成分が内蔵マスタと一致しています。</div>`;
 }
 
@@ -2435,6 +2541,9 @@ function compHit(c){
   if(m.kashin==="1特") add("p-crit","化審法 第一種特定");
   if(m.an===1 && !m.tokka && !m.yuki) add("p-info","安衛法 対象物");
   if(m.an===2) add("p-mute","安衛法 要確認");
+  if(m.skin===2) add("p-mute","皮膚等障害 要確認");
+  if(m.sui===2) add("p-mute","水濁法 要確認");
+  UNSURE_KEYS.forEach(([k,label]) => { if(m[k]===2) add("p-mute", label+" 要確認"); });
   if(m.note) b.push(`<span>${esc(m.note)}</span>`);
   const typed = (c.name||"").trim();
   if(typed && typed !== m.name)
@@ -2550,28 +2659,28 @@ const MS_COLS = [
   ["物質名",        m => m.name],
   ["安衛法",        m => m.an===1?"対象物":(m.an===2?"要確認":"非該当")],
   ["皮膚等障害",    m => m.skin===1?"該当":(m.skin===2?"要確認":"")],
-  ["がん原性",      m => m.cancer===1?"該当":""],
-  ["濃度基準値",    m => m.noudo===1?"該当":""],
+  ["がん原性",      m => m.cancer===1?"該当":(m.cancer===2?"要確認":"")],
+  ["濃度基準値",    m => m.noudo===1?"該当":(m.noudo===2?"要確認":"")],
   ["八時間濃度基準値", m => m.n8||""],
   ["短時間濃度基準値", m => m.ns||""],
   ["濃度基準値適用日", m => m.nd||""],
-  ["安衛法危険物",  m => m.ankiken===1?"該当":""],
-  ["製造禁止",      m => m.ban===1?"該当":""],
-  ["製造許可",      m => m.perm===1?"該当":""],
-  ["強い変異原性",  m => m.muta===1?"該当":""],
+  ["安衛法危険物",  m => m.ankiken===1?"該当":(m.ankiken===2?"要確認":"")],
+  ["製造禁止",      m => m.ban===1?"該当":(m.ban===2?"要確認":"")],
+  ["製造許可",      m => m.perm===1?"該当":(m.perm===2?"要確認":"")],
+  ["強い変異原性",  m => m.muta===1?"該当":(m.muta===2?"要確認":"")],
   ["特化則",        m => m.tokka ? (m.tokka==="?" ? "該当（区分未確定）" : "第"+m.tokka+"類") : ""],
-  ["特別管理物質",  m => m.sp===1?"該当":""],
+  ["特別管理物質",  m => m.sp===1?"該当":(m.sp===2?"要確認":"")],
   ["有機則",        m => m.yuki ? (m.yuki==="?" ? "該当（種別未確定）" : "第"+m.yuki+"種") : ""],
-  ["鉛則",          m => m.lead===1?"該当":""],
-  ["粉じん則",      m => m.dust===1?"該当":""],
+  ["鉛則",          m => m.lead===1?"該当":(m.lead===2?"要確認":"")],
+  ["粉じん則",      m => m.dust===1?"該当":(m.dust===2?"要確認":"")],
   ["化管法",        m => KAKAN_LABEL[m.kakan]||""],
   ["毒劇法",        m => m.doku?(m.doku+"物"):""],
   ["消防法品名",    m => (m.shi && SHOBO_BY_KEY[m.shi]) ? SHOBO_BY_KEY[m.shi].label : ""],
   ["化審法",        m => m.kashin==="1特"?"第一種特定":""],
   ["大防法",        m => m.taiki||""],
   ["水濁法有害物質",m => m.sui===1?"該当":(m.sui===2?"要確認":"")],
-  ["土対法",        m => m.dojo===1?"該当":""],
-  ["女性則",        m => m.josei===1?"該当":""],
+  ["土対法",        m => m.dojo===1?"該当":(m.dojo===2?"要確認":"")],
+  ["女性則",        m => m.josei===1?"該当":(m.josei===2?"要確認":"")],
   ["備考",          m => m.note||""],
   ["出所",          m => m.src||""]
 ];
@@ -2631,28 +2740,28 @@ function importMasterCsv(text, opt){
     const put = (key, col, conv) => { const i = at(col); if(i >= 0) sub[key] = conv(g(c,i)); };
     put("an",     "安衛法",   vYN);
     put("skin",   "皮膚",     vYN);
-    put("cancer", "がん原性", v => vYN(v) ? 1 : 0);
-    put("noudo",  "濃度基準値", v => vYN(v) ? 1 : 0);
+    put("cancer", "がん原性", vYN);
+    put("noudo", "濃度基準値", vYN);
     put("n8",     "八時間濃度基準値", v => String(v||"").trim());
     put("ns",     "短時間濃度基準値", v => String(v||"").trim());
     put("nd",     "濃度基準値適用日", v => String(v||"").trim());
-    put("ankiken","安衛法危険物", v => vYN(v) ? 1 : 0);
-    put("ban",    "製造禁止", v => vYN(v) ? 1 : 0);
-    put("perm",   "製造許可", v => vYN(v) ? 1 : 0);
-    put("muta",   "強い変異原性", v => vYN(v) ? 1 : 0);
+    put("ankiken", "安衛法危険物", vYN);
+    put("ban", "製造禁止", vYN);
+    put("perm", "製造許可", vYN);
+    put("muta", "強い変異原性", vYN);
     put("tokka",  "特化則",   vRank);
-    put("sp",     "特別管理", v => vYN(v) ? 1 : 0);
+    put("sp", "特別管理", vYN);
     put("yuki",   "有機則",   vRank);
-    put("lead",   "鉛則",     v => vYN(v) ? 1 : 0);
-    put("dust",   "粉じん",   v => vYN(v) ? 1 : 0);
+    put("lead", "鉛則", vYN);
+    put("dust", "粉じん", vYN);
     put("kakan",  "化管法",   vKakan);
     put("doku",   "毒劇",     vDoku);
     put("shi",    "消防法",   vShi);
     put("kashin", "化審法",   v => /第[1一]種特定|1特/.test(v) ? "1特" : "");
     put("taiki",  "大防法",   v => String(v||"").trim());
     put("sui",    "水濁法",   vYN);
-    put("dojo",   "土対法",   v => vYN(v) ? 1 : 0);
-    put("josei",  "女性則",   v => vYN(v) ? 1 : 0);
+    put("dojo", "土対法", vYN);
+    put("josei", "女性則", vYN);
     put("note",   "備考",     v => String(v||"").trim());
     // 安衛法の列を持たない表で新規に増える物質は、見落としを避けて対象物として扱う
     if(at("安衛法") < 0 && !byKey.has(subKey(sub))) sub.an = 1;
@@ -3041,7 +3150,8 @@ function renderMaster(){
       m.noudo===1?("濃度基準値" + (m.n8?"（8h "+m.n8+"）":"")):"", m.muta===1?"強い変異原性":"",
       m.ankiken===1?"安衛法危険物":"",
       m.lead===1?"鉛則":"", m.dust===1?"粉じん則":"", m.sui===1?"水濁法":"",
-      m.kashin==="1特"?"化審法第一種特定":"", m.taiki||""
+      m.kashin==="1特"?"化審法第一種特定":"", m.taiki||"",
+      UNSURE_KEYS.filter(u=>m[u[0]]===2).map(u=>u[1]+"：要確認").join("・")
     ].filter(Boolean).join("・");
     return `<tr>
       <td class="mono">${esc(m.cas==="-"?"—":m.cas)}</td>
@@ -3052,7 +3162,9 @@ function renderMaster(){
       <td>${m.doku?`<span class="pill p-crit">${esc(m.doku)}物</span>`:""}</td>
       <td style="font-size:11.5px">${esc(m.shi&&SHOBO_BY_KEY[m.shi]?SHOBO_BY_KEY[m.shi].label:"")}</td>
       <td style="font-size:11px;color:var(--muted)">${esc(other)}</td>
-      <td><span class="pill ${m.src==="追加"?"p-ok":"p-mute"}">${esc(m.src||"内蔵")}</span></td>
+      <td><span class="pill ${m.src==="追加"?"p-ok":"p-mute"}">${esc(m.src||"内蔵")}</span>
+        <div style="margin-top:4px"><button type="button" class="btn ghost sm"
+          data-wiz-cas="${esc(m.cas==="-"?"":m.cas)}" data-wiz-name="${esc(m.name)}">確認・編集</button></div></td>
     </tr>`;
   }).join("") : `<tr><td colspan="9" class="empty">条件に合う物質がありません。</td></tr>`;
   $("#msCount").textContent = `全${MASTER.length}物質中 ${list.length}件が該当` +
@@ -3069,6 +3181,326 @@ function refresh(withProducts){
   if(withProducts) renderProducts();
   if(!$("#panel-master").hidden) renderMaster();
   save();
+}
+
+
+/* ---------- 物質の登録ウィザード ----------
+   法令をひとつずつ見ていき、SDS第15項に何と書かれていたらその法令に該当するのかを
+   示しながら答えてもらう。「わからない」は非該当ではなく要確認として記録する。
+   区分のあるもの（特化則の類、有機則の種別、化管法の種）は区分まで選べる。 */
+const WIZ_STEPS = [
+ {key:"an", law:"労働安全衛生法", art:"法第57条・第57条の2・第57条の3", short:"表示・通知対象物",
+  q:"ラベル表示・SDS交付・リスクアセスメントの対象物ですか",
+  sds:["名称等を表示すべき危険物及び有害物（法第57条、令第18条）",
+       "名称等を通知すべき危険物及び有害物（法第57条の2、令第18条の2）",
+       "リスクアセスメント対象物", "SDS交付義務対象物質", "通知対象物"],
+  why:"該当すると、化学物質管理者の選任、ラベルの点検、SDSの掲示、リスクアセスメントの実施が必要になります。",
+  type:"yn"},
+ {key:"skin", law:"労働安全衛生法", art:"安衛則第594条の2", short:"皮膚等障害",
+  q:"皮膚等障害化学物質等ですか",
+  sds:["皮膚等障害化学物質等（安衛則第594条の2）", "皮膚吸収性有害物質"],
+  why:"該当すると、不浸透性の保護手袋・保護衣・保護眼鏡の使用が義務になります。",
+  type:"yn"},
+ {key:"cancer", law:"労働安全衛生法", art:"安衛則第577条の2第11項", short:"がん原性物質",
+  q:"がん原性物質ですか",
+  sds:["がん原性物質（安衛則第577条の2第11項）", "作業記録の30年保存対象物質"],
+  why:"該当すると、1か月以内ごとに作業記録を作り、30年間保存します。",
+  type:"yn"},
+ {key:"noudo", law:"労働安全衛生法", art:"安衛則第577条の2第2項", short:"濃度基準値",
+  q:"濃度基準値が定められた物質ですか",
+  sds:["濃度基準値設定物質（安衛則第577条の2第2項）", "厚生労働大臣が定める濃度の基準"],
+  why:"該当すると、ばく露濃度を基準値以下にすることが義務になります。",
+  type:"yn", extra:[["n8","八時間濃度基準値","例：2ppm"],["ns","短時間濃度基準値","例：10ppm"],
+                    ["nd","適用日","例：令和8年10月1日"]]},
+ {key:"ankiken", law:"労働安全衛生法", art:"令別表第1・安衛則第256条〜", short:"危険物",
+  q:"安衛法の危険物（爆発性・発火性・引火性の物）ですか",
+  sds:["危険物（令別表第1）", "爆発性の物／発火性の物／引火性の物", "可燃性のガス"],
+  why:"該当すると、火気の使用制限、通風・換気、静電気の除去などの取扱い基準がかかります。",
+  hint:"消防法の危険物とは対象範囲が異なります。消防法は後の設問で別に聞きます。",
+  type:"yn"},
+ {key:"ban", law:"労働安全衛生法", art:"法第55条・令第16条", short:"製造等禁止",
+  q:"製造等が禁止される有害物等ですか",
+  sds:["製造等禁止物質（法第55条、令第16条）", "製造、輸入、譲渡、提供又は使用が禁止されている物"],
+  why:"該当すると、製造・輸入・譲渡・提供・使用のいずれもできません。直ちに使用の可否と代替の検討が必要です。",
+  hint:"ベンゼンは「ベンゼンを含有するゴムのり（重量の5%超）」、黄りんは「黄りんマッチ」が禁止の対象で、物質そのものの全面禁止ではありません。",
+  type:"yn"},
+ {key:"perm", law:"労働安全衛生法", art:"法第56条・令第17条", short:"製造許可",
+  q:"製造の許可を受けるべき有害物ですか",
+  sds:["製造許可物質（法第56条、令第17条）", "特定化学物質 第1類物質"],
+  why:"該当すると、製造には厚生労働大臣の許可が必要です。購入して取り扱うだけなら許可は不要ですが、特化則の第1類物質としての措置は必要です。",
+  hint:"「該当」を選ぶと、次の特化則の設問は自動で第1類になります。",
+  type:"yn"},
+ {key:"muta", law:"変異原性指針", art:"平5基発第312号の2", short:"強い変異原性",
+  q:"強い変異原性が認められた化学物質ですか",
+  sds:["変異原性が認められた化学物質（指針対象物質）", "強い変異原性が認められた化学物質"],
+  why:"該当すると、指針に基づきばく露低減・作業環境測定・労働衛生教育・作業記録の30年保存が求められます。",
+  hint:"これは法令上の義務ではなく、行政指導としての指針です。",
+  type:"yn"},
+ {key:"tokka", law:"特定化学物質障害予防規則", art:"特化則別表第1・第3", short:"特定化学物質",
+  q:"特定化学物質ですか。該当する場合は類を選んでください",
+  sds:["特定化学物質 第1類物質／第2類物質／第3類物質",
+       "特定第2類物質／管理第2類物質／特別有機溶剤等"],
+  why:"該当すると、作業主任者の選任、発散抑制措置、作業環境測定、特殊健康診断が必要になります。",
+  type:"rank",
+  opts:[["1","第1類物質"],["2","第2類物質"],["3","第3類物質"],["?","該当するが類がわからない"]]},
+ {key:"sp", law:"特定化学物質障害予防規則", art:"特化則第38条の3", short:"特別管理物質",
+  q:"特別管理物質ですか",
+  sds:["特別管理物質（特化則第38条の3）"],
+  why:"該当すると、作業記録・作業環境測定記録・健康診断個人票が30年保存になります。",
+  type:"yn", when:m => !!m.tokka},
+ {key:"yuki", law:"有機溶剤中毒予防規則", art:"有機則別表第1〜第3", short:"有機溶剤等",
+  q:"有機溶剤等ですか。該当する場合は種別を選んでください",
+  sds:["第1種有機溶剤等／第2種有機溶剤等／第3種有機溶剤等", "有機溶剤等"],
+  why:"該当すると、作業主任者の選任、区分の色分け表示、掲示、換気装置が必要になります。第1種・第2種はさらに作業環境測定と特殊健康診断が必要です。",
+  type:"rank",
+  opts:[["1","第1種有機溶剤等"],["2","第2種有機溶剤等"],["3","第3種有機溶剤等"],["?","該当するが種別がわからない"]]},
+ {key:"lead", law:"鉛中毒予防規則", art:"鉛則第1条", short:"鉛等",
+  q:"鉛またはその化合物ですか",
+  sds:["鉛中毒予防規則", "鉛等"],
+  why:"該当すると、鉛作業主任者の選任、発散源対策、作業環境測定、特殊健康診断が必要になります。",
+  type:"yn"},
+ {key:"dust", law:"粉じん障害防止規則・じん肺法", art:"粉じん則別表第1", short:"粉じん則の対象",
+  q:"粉じん則の対象物ですか",
+  sds:["粉じん障害防止規則", "特定粉じん発生源", "じん肺法"],
+  why:"該当すると、特別教育、発散源対策、粉じん濃度の測定、じん肺健康診断が必要になります。",
+  hint:"結晶質シリカ（石英）を含む鉱物性の粉体などが該当します。",
+  type:"yn"},
+ {key:"kakan", law:"化管法（PRTR・SDS）", art:"化管法施行令別表第1", short:"指定化学物質",
+  q:"化管法の指定化学物質ですか。該当する場合は種を選んでください",
+  sds:["特定化学物質の環境への排出量の把握等及び管理の改善の促進に関する法律",
+       "化管法／PRTR法 第一種指定化学物質（政令番号○○）", "特定第一種指定化学物質", "第二種指定化学物質"],
+  why:"第一種に該当し、対象業種・従業員21人以上・年間取扱量1t（特定第一種は0.5t）以上の3要件を満たすと、PRTR届出が必要になります。",
+  type:"kakan",
+  opts:[["1T","特定第一種指定化学物質"],["1","第一種指定化学物質"],["2","第二種指定化学物質"],
+        ["?","該当するが種がわからない"]]},
+ {key:"doku", law:"毒物及び劇物取締法", art:"毒劇法別表", short:"毒物・劇物",
+  q:"毒物または劇物ですか",
+  sds:["毒物及び劇物取締法 毒物／劇物", "医薬用外毒物／医薬用外劇物"],
+  why:"該当すると、表示、かぎのかかる場所での保管、盗難・紛失の防止、譲渡手続（譲受書の5年保存）が必要になります。",
+  type:"pick", opts:[["毒","毒物"],["劇","劇物"]]},
+ {key:"shi", law:"消防法", art:"消防法別表第1", short:"危険物の品名",
+  q:"消防法の危険物ですか。該当する場合は品名を選んでください",
+  sds:["消防法 第4類第1石油類（非水溶性液体）などの品名", "危険等級・指定数量の記載"],
+  why:"該当すると、指定数量の倍数に応じて貯蔵所・取扱所の許可、または少量危険物の届出が必要になります。",
+  type:"shobo"},
+ {key:"kashin", law:"化審法", art:"化審法第2条", short:"第一種特定化学物質",
+  q:"化審法の第一種特定化学物質ですか",
+  sds:["化学物質の審査及び製造等の規制に関する法律 第一種特定化学物質"],
+  why:"該当すると、原則として使用できません。",
+  opts:[["1特","第一種特定化学物質"]],
+  hint:"「一般化学物質」「優先評価化学物質」「監視化学物質」は製造・輸入事業者の届出区分であって、取扱事業場に措置を課すものではありません。ここでは「非該当」を選んでください。",
+  type:"kashin"},
+ {key:"taiki", law:"大気汚染防止法", art:"大防法", short:"対象物質",
+  q:"大気汚染防止法の対象物質ですか",
+  sds:["有害大気汚染物質（優先取組物質）", "揮発性有機化合物（VOC）", "特定物質"],
+  why:"該当すると、排出抑制の自主的取組やVOC排出施設の届出の要否確認が必要になります。",
+  type:"pick", opts:[["有害大気","有害大気汚染物質（優先取組物質）"],["VOC","揮発性有機化合物（VOC）"],
+                     ["VOC/有害大気","両方に該当"]]},
+ {key:"sui", law:"水質汚濁防止法", art:"水濁法施行令第2条", short:"有害物質",
+  q:"水質汚濁防止法の有害物質ですか",
+  sds:["水質汚濁防止法 有害物質", "水質汚濁防止法 指定物質"],
+  why:"該当すると、有害物質使用特定施設の届出、地下浸透防止の構造・設備・使用の基準、排水の測定と記録（3年保存）が必要になります。",
+  type:"yn"},
+ {key:"dojo", law:"土壌汚染対策法", art:"土対法施行令第1条", short:"特定有害物質",
+  q:"土壌汚染対策法の特定有害物質ですか",
+  sds:["土壌汚染対策法 特定有害物質"],
+  why:"該当すると、有害物質使用特定施設の廃止時や一定規模以上の土地の形質変更時に調査が必要になる場合があります。",
+  type:"yn"},
+ {key:"josei", law:"女性労働基準規則", art:"女性則第2条・第3条", short:"就業制限対象物質",
+  q:"女性則の就業制限対象物質ですか",
+  sds:["女性労働基準規則", "女性則の就業制限対象物質"],
+  why:"該当すると、妊娠中および産後1年を経過しない労働者などの就業が制限されます。",
+  type:"yn"},
+];
+
+let WIZ = null;
+const wizYNLabel = {1:"該当", 0:"非該当", 2:"わからない"};
+
+function wizOpen(preset){
+  const cas = normCas((preset && preset.cas) || "");
+  const name = (preset && preset.name) || "";
+  // CAS番号がないものは物質名で引く。名前だけで登録した物質を編集できるようにする
+  const found = (cas ? lookupCas(cas) : null) || (name ? MASTER_BY_NAME[name] : null) || null;
+  WIZ = {
+    i: 0,
+    sub: Object.assign({}, SUB_DEFAULTS, found || {},
+                       {cas: cas || (found && found.cas !== "-" ? found.cas : ""),
+                        name: name || (found ? found.name : "")}),
+    existed: !!found
+  };
+  delete WIZ.sub.src;
+  $("#wizDlg").showModal();
+  wizRender();
+}
+function wizSteps(){ return WIZ_STEPS.filter(st => !st.when || st.when(WIZ.sub)); }
+
+function wizRender(){
+  const steps = wizSteps(), total = steps.length + 2;   // 物質の特定 ＋ 法令 ＋ 確認
+  const i = WIZ.i, m = WIZ.sub;
+  $("#wizBar").style.width = Math.round((i / (total - 1)) * 100) + "%";
+  $("#wizStepNo").textContent = `${i + 1} / ${total}`;
+  $("#wizPrev").disabled = i === 0;
+  $("#wizNext").textContent = i === total - 1 ? "この内容で登録" : "次へ";
+  $("#wizNote").textContent = "";
+
+  if(i === 0){ wizRenderIdent(); return; }
+  if(i === total - 1){ wizRenderReview(steps); return; }
+  wizRenderStep(steps[i - 1]);
+}
+
+function wizRenderIdent(){
+  const m = WIZ.sub;
+  $("#wizTitle").textContent = "物質の特定";
+  $("#wizBody").innerHTML = `
+    <p class="wiz-lead">SDSの第1項（化学品および会社情報）と第3項（組成・成分情報）を見て入力してください。
+      CAS番号を入れると、物質マスタに既にあるかどうかを照合します。</p>
+    <div class="wiz-field">
+      <label for="wizCas">CAS番号</label>
+      <input type="text" id="wizCas" class="mono" placeholder="108-88-3" value="${esc(m.cas||"")}"
+             spellcheck="false" autocomplete="off">
+      <span class="wiz-hint">分からない場合は空欄のままで構いません。物質名で登録します。</span>
+    </div>
+    <div class="wiz-field">
+      <label for="wizName">物質名</label>
+      <input type="text" id="wizName" placeholder="トルエン" value="${esc(m.name||"")}"
+             spellcheck="false" autocomplete="off">
+    </div>
+    <div id="wizFound"></div>`;
+  const upd = () => {
+    const cas = normCas($("#wizCas").value);
+    const hit = cas ? lookupCas(cas) : null;
+    $("#wizFound").innerHTML = hit
+      ? `<div class="wiz-found"><b>${esc(hit.name)}</b> は既に物質マスタにあります（出所 ${esc(hit.src||"")}）。
+           このまま進むと、各法令の答えが現在の登録内容で埋まった状態から始まり、変更した項目だけが上書きされます。</div>`
+      : (cas ? `<div class="wiz-found new">この CAS番号は物質マスタにありません。新しく登録します。</div>` : "");
+    if(hit && !$("#wizName").value.trim()) $("#wizName").value = hit.name;
+  };
+  $("#wizCas").addEventListener("input", upd);
+  upd();
+}
+
+function wizRenderStep(st){
+  const m = WIZ.sub, cur = m[st.key];
+  $("#wizTitle").textContent = st.law;
+  const sds = st.sds.map(x => `<li>${esc(x)}</li>`).join("");
+  let opts = "";
+  const btn = (val, label, on) =>
+    `<button type="button" class="wiz-opt${on ? " on" : ""}" data-val="${esc(String(val))}">${esc(label)}</button>`;
+
+  if(st.type === "yn"){
+    opts = btn(1, "該当する", cur === 1) + btn(0, "非該当", cur === 0) +
+           btn(2, "わからない", cur === 2);
+  } else if(st.type === "rank" || st.type === "kakan"){
+    opts = st.opts.map(([v, l]) => btn(v, l, cur === v)).join("") + btn("", "非該当", !cur);
+  } else if(st.type === "pick"){
+    opts = st.opts.map(([v, l]) => btn(v, l, cur === v)).join("") + btn("", "非該当", !cur);
+  } else if(st.type === "kashin"){
+    opts = btn("1特", "第一種特定化学物質", cur === "1特") + btn("", "非該当", !cur);
+  } else if(st.type === "shobo"){
+    const sel = SHOBO.map(x => `<option value="${esc(x.key)}"${m.shi === x.key ? " selected" : ""}>${esc(x.label)}</option>`).join("");
+    opts = `<select id="wizShobo" class="wiz-select"><option value="">非該当（消防法の危険物ではない）</option>${sel}</select>`;
+  }
+
+  const extra = (st.extra || []).map(([k, label, ph]) =>
+    `<div class="wiz-field sm"><label for="wiz-${k}">${esc(label)}</label>
+       <input type="text" id="wiz-${k}" placeholder="${esc(ph)}" value="${esc(m[k] || "")}" spellcheck="false"></div>`).join("");
+
+  $("#wizBody").innerHTML = `
+    <p class="wiz-art">${esc(st.art)}</p>
+    <p class="wiz-q">${esc(st.q)}</p>
+    <div class="wiz-sds">
+      <p class="wiz-sds-t">SDS第15項にこう書かれていれば該当します</p>
+      <ul>${sds}</ul>
+    </div>
+    <div class="wiz-opts">${opts}</div>
+    ${extra ? `<div class="wiz-extra">${extra}</div>` : ""}
+    <p class="wiz-why">${esc(st.why)}</p>
+    ${st.hint ? `<p class="wiz-hint-line">${esc(st.hint)}</p>` : ""}
+    ${st.type !== "yn" ? `<p class="wiz-hint-line">分からないときは、該当を示す選択肢のうち「わからない」を選んでください。要確認として記録します。</p>` : ""}`;
+
+  $$("#wizBody .wiz-opt").forEach(b => b.addEventListener("click", () => {
+    $$("#wizBody .wiz-opt").forEach(x => x.classList.toggle("on", x === b));
+    wizApply(st, b.dataset.val);
+  }));
+  const sh = $("#wizShobo");
+  if(sh) sh.addEventListener("change", () => { WIZ.sub.shi = sh.value; });
+}
+
+function wizApply(st, raw){
+  const m = WIZ.sub;
+  if(st.type === "yn"){ m[st.key] = Number(raw); return; }
+  m[st.key] = raw;
+}
+
+function wizCollectExtras(st){
+  (st.extra || []).forEach(([k]) => { const el = $("#wiz-" + k); if(el) WIZ.sub[k] = el.value.trim(); });
+}
+
+function wizRenderReview(steps){
+  const m = WIZ.sub;
+  $("#wizTitle").textContent = "確認して登録";
+  const rows = steps.map(st => {
+    const v = m[st.key];
+    let txt, cls = "";
+    if(st.type === "yn"){ txt = wizYNLabel[v] || "未回答"; cls = v === 1 ? "hit" : (v === 2 ? "unsure" : ""); }
+    else if(st.type === "shobo"){ txt = v && SHOBO_BY_KEY[v] ? SHOBO_BY_KEY[v].label : "非該当"; cls = v ? "hit" : ""; }
+    else if(!v){ txt = "非該当"; }
+    else if(v === "?"){ txt = "該当（区分がわからない）"; cls = "unsure"; }
+    else { const o = (st.opts || []).find(x => x[0] === v); txt = o ? o[1] : String(v); cls = "hit"; }
+    return `<tr><td>${esc(st.law)}<span class="sh">${esc(st.short)}</span></td>` +
+           `<td class="v ${cls}">${esc(txt)}</td></tr>`;
+  }).join("");
+  const unsure = steps.filter(st => m[st.key] === 2 || m[st.key] === "?").length;
+  $("#wizBody").innerHTML = `
+    <div class="wiz-field">
+      <label for="wizNameR">物質名</label>
+      <input type="text" id="wizNameR" value="${esc(m.name || "")}" spellcheck="false">
+    </div>
+    <div class="wiz-field">
+      <label for="wizNote2">備考</label>
+      <textarea id="wizNote2" rows="3" spellcheck="false"
+        placeholder="SDSの発行日、供給者へ照会中の項目、判断の根拠などを書いておくと、次に見る人が追えます">${esc(m.note || "")}</textarea>
+    </div>
+    ${unsure ? `<div class="wiz-unsure">「わからない」と答えた項目が <b>${unsure}</b> 件あります。
+        これらは非該当にはせず、<b>要確認</b>として法令該当判定に出し続けます。
+        供給者への照会が済んだら、この物質をもう一度開いて更新してください。</div>` : ""}
+    <div class="tbl-wrap"><table class="wiz-review"><tbody>${rows}</tbody></table></div>`;
+}
+
+function wizSave(){
+  const m = WIZ.sub;
+  m.name = ($("#wizNameR") ? $("#wizNameR").value : m.name).trim();
+  m.note = ($("#wizNote2") ? $("#wizNote2").value : m.note).trim();
+  if(!m.cas && !m.name){ toast("物質名かCAS番号のどちらかが必要です"); return false; }
+  if(!m.name) m.name = m.cas;
+  // 製造許可物質は特化則の第1類物質。類が空か未確定なら第1類に確定させる
+  if(m.perm === 1 && (!m.tokka || m.tokka === "?")) m.tokka = "1";
+  const sub = {};
+  M_KEYS.forEach(k => { sub[k] = m[k]; });
+  sub.cas = m.cas || "-";
+  state.userSubs = state.userSubs || [];
+  const k = subKey(sub);
+  const at = state.userSubs.findIndex(u => subKey(u) === k);
+  if(at >= 0) state.userSubs[at] = sub; else state.userSubs.push(sub);
+  rebuildMaster(state.userSubs, AUTOSUBS);
+  refresh(true); renderMaster(); save();
+  toast(`${sub.name} を物質マスタに${at >= 0 ? "更新" : "登録"}しました`);
+  return true;
+}
+
+function wizNext(){
+  const steps = wizSteps(), total = steps.length + 2;
+  if(WIZ.i === 0){
+    WIZ.sub.cas = normCas($("#wizCas").value);
+    WIZ.sub.name = $("#wizName").value.trim();
+    if(!WIZ.sub.cas && !WIZ.sub.name){ $("#wizNote").textContent = "CAS番号か物質名のどちらかを入れてください"; return; }
+  } else if(WIZ.i < total - 1){
+    wizCollectExtras(steps[WIZ.i - 1]);
+  } else {
+    if(wizSave()) $("#wizDlg").close();
+    return;
+  }
+  WIZ.i++; wizRender();
 }
 
 /* ---------- ⑥ 書き出し ---------- */
@@ -3276,9 +3708,9 @@ function csvDecl(){
 function csvSubs(){
   const rows=[["CAS番号","物質名","化学品","最大含有率%","年間取扱量kg","安衛法","皮膚等障害","がん原性","濃度基準値","八時間濃度基準値","短時間濃度基準値","濃度基準値適用日","安衛法危険物","製造禁止","製造許可","強い変異原性","特化則","有機則","化管法","毒劇法","水濁法有害物質","備考"]];
   A.subs.forEach(s => { const m=s.m; rows.push([m.cas,m.name,s.prods.join(" / "),s.maxPct,Math.round(s.kg*100)/100,
-    m.an===1?"対象物":(m.an===2?"要確認":"—"), m.skin===1?"該当":"—", m.cancer===1?"該当":"—",
-    m.noudo===1?"該当":"—", m.n8||"—", m.ns||"—", m.nd||"—",
-    m.ankiken===1?"該当":"—", m.ban===1?"該当":"—", m.perm===1?"該当":"—", m.muta===1?"該当":"—",
+    m.an===1?"対象物":(m.an===2?"要確認":"—"), m.skin===1?"該当":"—", m.cancer===1?"該当":(m.cancer===2?"要確認":"—"),
+    m.noudo===1?"該当":(m.noudo===2?"要確認":"—"), m.n8||"—", m.ns||"—", m.nd||"—",
+    m.ankiken===1?"該当":(m.ankiken===2?"要確認":"—"), m.ban===1?"該当":(m.ban===2?"要確認":"—"), m.perm===1?"該当":(m.perm===2?"要確認":"—"), m.muta===1?"該当":(m.muta===2?"要確認":"—"),
     m.tokka?((m.tokka==="?"?"該当（区分未確定）":"第"+m.tokka+"類")+(m.sp===1?"／特別管理物質":"")):"—",
     m.yuki?(m.yuki==="?"?"該当（種別未確定）":"第"+m.yuki+"種"):"—",
     m.kakan==="1T"?"特定第一種":(m.kakan==="1"?"第一種":(m.kakan==="2"?"第二種":(m.kakan==="?"?"要確認":"—"))),
@@ -3561,6 +3993,15 @@ function bind(){
   $("#btnMsPasteClear").addEventListener("click", () => { $("#msPaste").value = ""; });
 
   $("#btnMsImport").addEventListener("click", ()=>$("#fileMs").click());
+  $("#btnMsWizard").addEventListener("click", () => wizOpen());
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-wiz-cas]");
+    if(b) wizOpen({cas:b.dataset.wizCas, name:b.dataset.wizName});
+  });
+  $("#wizNext").addEventListener("click", wizNext);
+  $("#wizPrev").addEventListener("click", () => { if(WIZ.i > 0){ WIZ.i--; wizRender(); } });
+  $("#wizClose").addEventListener("click", () => $("#wizDlg").close());
+  $("#wizDlg").addEventListener("cancel", e => { e.preventDefault(); $("#wizDlg").close(); });
   $("#fileMs").addEventListener("change", e => {
     const f = e.target.files[0]; if(f) openImportPanel(f);
     e.target.value = "";
