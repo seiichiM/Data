@@ -346,7 +346,16 @@ dialog::backdrop{background:rgba(10,14,20,.5)}
 .btn.sm{padding:4px 10px; font-size:11.5px}
 
 /* ---- 事業場の条件（はい／いいえ／未回答） ---- */
-.site-na{font-size:12px; color:var(--muted); margin:0 0 12px}
+.site-na{font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.8}
+.site-hint{font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.8}
+.lw{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:9px 14px;
+    border:1px solid var(--line); border-radius:8px; background:var(--surface)}
+.lw.off{background:var(--surface-2); border-style:dashed}
+.lw-t{flex:1; min-width:9em; font-size:13px}
+.lw.off .lw-t{color:var(--muted)}
+.lw input{font:inherit; font-size:12px; width:11em; padding:5px 9px; border-radius:6px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink)}
+.law.dept{opacity:.85; border-style:dashed}
 .site-na.warn{color:var(--warn); font-weight:700}
 .sq{display:flex; flex-direction:column; gap:8px; padding:12px 14px;
     border:1px solid var(--line); border-radius:8px; background:var(--surface)}
@@ -513,6 +522,7 @@ table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
   <!-- 01 ダッシュボード -->
   <section class="panel" id="panel-dash" role="tabpanel">
     <div id="sampleNotice"></div>
+    <div id="scopeNote"></div>
 
     <div class="card">
       <div class="hd">
@@ -572,6 +582,14 @@ table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
           <p class="sec-label">廃棄物・その他</p>
           <div class="grid3" id="siteChecks3"></div>
         </div>
+        <div>
+          <p class="sec-label">この台帳で管理する法令</p>
+          <p class="site-hint">消防法は設備部門、廃棄物処理法は環境部門というように担当が分かれている場合は、
+            この台帳で追わない法令を「他部署」に切り替えてください。
+            該当判定は止まりません。外した法令は「法令該当判定」タブの「他部署が管理」に残り、
+            要対応の件数と年間チェック表からは外れます。</p>
+          <div class="grid2" id="lawScope"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -602,7 +620,9 @@ table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
       <div class="hd"><h2>法令該当判定</h2><span class="note">該当と判定した根拠を物質名まで遡って表示します。</span></div>
       <div class="bd" style="display:flex; flex-direction:column; gap:16px">
         <div id="lawUnknownBox"></div>
-        <div><p class="sec-label">該当あり</p><div class="laws" id="lawsHit"></div></div>
+        <div><p class="sec-label">該当あり（この台帳で管理）</p><div class="laws" id="lawsHit"></div></div>
+        <div id="lawsDeptBox" hidden><p class="sec-label">該当あり（他部署が管理）</p>
+          <div class="laws" id="lawsDept"></div></div>
         <div><p class="sec-label">現在の入力では該当なし</p><div class="laws" id="lawsOff"></div></div>
       </div>
     </div>
@@ -619,6 +639,10 @@ table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
         <div class="btnrow no-print">
           <select id="filterCat" style="width:auto"><option value="">分類：すべて</option></select>
           <select id="filterLaw" style="width:auto"><option value="">法令：すべて</option></select>
+          <select id="filterScope" style="width:auto">
+            <option value="">この台帳で管理する法令のみ</option>
+            <option value="all">他部署が管理する法令も表示</option>
+          </select>
           <select id="filterStat" style="width:auto">
             <option value="">状態：すべて</option>
             <option value="crit">要対応のみ</option>
@@ -2437,10 +2461,18 @@ function dueOf(t, st){
   return {due, status: d<0?"crit":(d<=30?"warn":"ok"), label: iso(due) + (d<0?`（${-d}日超過）`:(d<=30?`（あと${d}日）`:""))};
 }
 
+/* 法令ごとに、この台帳で追うかどうかを切り替える。
+   消防法は設備部門、廃棄物処理法は環境部門というように担当が分かれる事業場向け。
+   該当判定そのものは止めない。外した法令は「他部署が管理」として残す。 */
+function lawScope(law){ return (state && state.laws && state.laws[law]) || {}; }
+function lawOff(law){ return lawScope(law).off === true; }
+function lawDept(law){ return lawScope(law).dept || ""; }
+
 function buildTasks(st, an){
   return TASKS.filter(t => taskApplies(t, an.flags)).map(t => {
     const d = dueOf(t, st);
-    return {...t, ...d, reasons: reasonsFor(t, an.why), rec: st.done[t.id]||{}};
+    return {...t, ...d, off: lawOff(t.law), dept: lawDept(t.law),
+            reasons: reasonsFor(t, an.why), rec: st.done[t.id]||{}};
   }).sort((a,b)=>{
     const rank = {crit:0, warn:1, ok:2, info:3};
     if(rank[a.status]!==rank[b.status]) return rank[a.status]-rank[b.status];
@@ -2558,7 +2590,17 @@ function closeConfirm(v){
 const SEV_PILL = {crit:'<span class="pill p-crit">要対応</span>', warn:'<span class="pill p-warn">期限接近</span>',
                   ok:'<span class="pill p-ok">適合</span>', info:'<span class="pill p-info">随時</span>'};
 
-function renderBand(tasks){
+function renderBand(all){
+  const tasks = all.filter(t => !t.off);
+  const offN = all.length - tasks.length;
+  const offLaws = new Set(all.filter(t=>t.off).map(t=>t.law));
+  const el = $("#scopeNote");
+  if(el) el.innerHTML = offN
+    ? `<div class="callout"><b>他部署が管理する法令が${offLaws.size}件あります。</b>
+        ${esc([...offLaws].join("・"))}。該当する${offN}項目はこの台帳の要対応には含めていません。
+        法令該当判定タブの「他部署が管理」で内容を確認できます。
+        担当の切り分けは「事業場の条件」タブの<b>この台帳で管理する法令</b>で変えられます。</div>`
+    : "";
   const c = tasks.filter(t=>t.status==="crit").length;
   const w = tasks.filter(t=>t.status==="warn").length;
   const u = A.issues.length;
@@ -2599,7 +2641,7 @@ function renderDash(tasks){
     ? `<div class="callout warn"><b>いまはサンプルデータです。</b> 金属加工工場を想定した例が入っています。「化学品台帳」タブの<b>「サンプルを消して空から始める」</b>で自社のデータに切り替えてください。</div>`
     : "";
 
-  const soonAll = tasks.filter(t => t.status==="crit" || (t.due && days(t.due,TODAY)<=90));
+  const soonAll = tasks.filter(t => !t.off && (t.status==="crit" || (t.due && days(t.due,TODAY)<=90)));
   const soon = soonAll.slice(0,10);
   const rest = soonAll.length - soon.length;
   $("#tblSoon tbody").innerHTML = (soon.length ? soon.map(t=>taskRow(t,false)).join("")
@@ -2666,10 +2708,19 @@ function renderLaws(tasks){
         : "事業場の条件により該当"}</div>
       <div class="cnt">義務 ${ts.length}件（${[...new Set(ts.map(t=>t.cat))].join("・")}）</div></div>`;
   };
-  const hitLaws = LAW_LIST.filter(l=>byLaw[l]);
-  const offLaws = LAW_LIST.filter(l=>!byLaw[l]);
+  const hitLaws  = LAW_LIST.filter(l => byLaw[l] && !lawOff(l));
+  const deptLaws = LAW_LIST.filter(l => byLaw[l] &&  lawOff(l));
+  const offLaws  = LAW_LIST.filter(l => !byLaw[l]);
   $("#lawsHit").innerHTML = hitLaws.length ? hitLaws.map(l=>card(l,byLaw[l])).join("")
-    : `<div class="empty">化学品を登録すると判定が始まります。</div>`;
+    : `<div class="empty">この台帳で管理する法令のうち、該当するものはありません。</div>`;
+  $("#lawsDeptBox").hidden = !deptLaws.length;
+  $("#lawsDept").innerHTML = deptLaws.map(l => {
+    const ts = byLaw[l], d = lawDept(l);
+    return `<div class="law dept">
+      <div class="law-hd"><h3>${esc(l)}</h3><span class="pill p-mute">${d?esc(d):"他部署"}</span></div>
+      <div class="why">該当する義務が ${ts.length}件あります。この台帳の要対応には含めていません。</div>
+      <div class="cnt">${esc([...new Set(ts.map(t=>t.cat))].join("・"))}</div></div>`;
+  }).join("");
   $("#lawsOff").innerHTML = offLaws.map(l=>`<div class="law off"><div class="law-hd"><h3>${esc(l)}</h3><span class="pill p-mute">該当なし</span></div>
     <div class="why">現在の台帳と事業場の条件では義務が生じていません。取扱物質や設備が変わったら再判定してください。</div></div>`).join("");
 
@@ -2684,7 +2735,9 @@ function renderLaws(tasks){
     </tbody></table></div></div>` : `<div class="callout"><b>要確認事項はありません。</b> 登録された全成分が内蔵マスタと一致しています。</div>`;
 }
 
-function renderTasks(tasks){
+function renderTasks(all){
+  const showOff = $("#filterScope") && $("#filterScope").value === "all";
+  const tasks = showOff ? all : all.filter(t => !t.off);
   const fc=$("#filterCat").value, fl=$("#filterLaw").value, fs=$("#filterStat").value;
   const cats=[...new Set(TASKS.map(t=>t.cat))], laws=[...new Set(tasks.map(t=>t.law))];
   const fill=(sel,arr,cur,pre)=>{ sel.innerHTML=`<option value="">${pre}</option>`+arr.map(v=>`<option value="${esc(v)}"${v===cur?" selected":""}>${esc(v)}</option>`).join(""); };
@@ -2711,6 +2764,18 @@ function renderSite(){
           ${btn("y","はい")}${btn("n","いいえ")}${btn("","未回答")}</div></div>`;
     }).join("");
   });
+  $("#lawScope").innerHTML = LAW_LIST.map(l => {
+    const off = lawOff(l);
+    return `<div class="lw${off?" off":""}">
+      <div class="lw-t">${esc(l)}</div>
+      <div class="tri" role="group" aria-label="${esc(l)}">
+        <button type="button" data-lawscope="${esc(l)}" data-val="on"${off?"":' class="on"'}>この台帳</button>
+        <button type="button" data-lawscope="${esc(l)}" data-val="off"${off?' class="on"':""}>他部署</button>
+      </div>
+      <input type="text" data-lawdept="${esc(l)}" value="${esc(lawDept(l))}"
+             placeholder="担当部署（任意）"${off?"":" hidden"}>
+    </div>`;
+  }).join("");
   const na = SITE_Q.filter(q => state.site.flags[q[1]] === undefined).length;
   $$(".site-na").forEach(el => {
     el.textContent = na ? `未回答 ${na}件。未回答のあいだは、その条件で決まる義務を判定できません。` : "すべて回答済みです。";
@@ -4189,8 +4254,10 @@ function parseCsv(text){
 }
 
 function csvTasks(){
-  const rows = [["ID","根拠法令","条文","対応事項","分類","周期","次回期限","状態","前回実施日","担当","記録保存年数","該当根拠","留意事項"]];
-  (window.__tasks||[]).forEach(t => rows.push([t.id,t.law,t.art,t.title,t.cat,cycLabel(t.cyc),t.due?iso(t.due):"",
+  const rows = [["ID","根拠法令","管理","条文","対応事項","分類","周期","次回期限","状態","前回実施日","担当","記録保存年数","該当根拠","留意事項"]];
+  (window.__tasks||[]).forEach(t => rows.push([t.id,t.law,
+    t.off ? (t.dept || "他部署") : "この台帳",
+    t.art,t.title,t.cat,cycLabel(t.cyc),t.due?iso(t.due):"",
     {crit:"要対応",warn:"期限接近",ok:"適合",info:"随時"}[t.status], (t.rec||{}).date||"", (t.rec||{}).by||"",
     t.keep?t.keep+"年":"",
     t.reasons.slice(0,10).join(" / ") + (t.reasons.length>10 ? ` ほか${t.reasons.length-10}件（全${t.reasons.length}件）` : ""),
@@ -4241,6 +4308,7 @@ function fold(line){
   return out + cur;
 }
 function icsCal(){
+  // 他部署が管理する法令は自分のカレンダーに入れない
   const RR = {"1m":"FREQ=MONTHLY","3m":"FREQ=MONTHLY;INTERVAL=3","6m":"FREQ=MONTHLY;INTERVAL=6",
               "12m":"FREQ=YEARLY","36m":"FREQ=YEARLY;INTERVAL=3","60m":"FREQ=YEARLY;INTERVAL=5"};
   const stamp = new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
@@ -4248,6 +4316,7 @@ function icsCal(){
   const L = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//chemical-compliance//JP//","CALSCALE:GREGORIAN",
              "X-WR-CALNAME:"+esc2("化学物質法令チェック "+(state.site.name||""))];
   (window.__tasks||[]).forEach(t => {
+    if(t.off) return;                       // 他部署が管理する法令は入れない
     if(t.cyc==="event") return;
     if(t.cyc==="once" && t.status==="ok") return;
     const d = t.due || TODAY, e = new Date(d); e.setDate(e.getDate()+1);
@@ -4431,7 +4500,7 @@ function bind(){
       const id=t.dataset.by; state.done[id] = state.done[id]||{}; state.done[id].by = t.value; save();
     }
   });
-  ["#filterCat","#filterLaw","#filterStat"].forEach(s => $(s).addEventListener("change", () => renderTasks(window.__tasks||[])));
+  ["#filterCat","#filterLaw","#filterStat","#filterScope"].forEach(s => $(s).addEventListener("change", () => renderTasks(window.__tasks||[])));
 
   $("#confirmOk").addEventListener("click", ()=>closeConfirm(true));
   $("#confirmCancel").addEventListener("click", ()=>closeConfirm(false));
@@ -4526,6 +4595,25 @@ function bind(){
     else delete state.site.flags[k];
     state.sample = false;
     refresh(false); renderSite();
+  });
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button[data-lawscope]");
+    if(!b) return;
+    state.laws = state.laws || {};
+    const l = b.dataset.lawscope;
+    const cur = state.laws[l] = state.laws[l] || {};
+    cur.off = b.dataset.val === "off";
+    if(!cur.off) delete cur.dept;
+    state.sample = false;
+    refresh(true); renderSite();
+  });
+  document.addEventListener("input", e => {
+    const t = e.target.closest("input[data-lawdept]");
+    if(!t) return;
+    state.laws = state.laws || {};
+    const l = t.dataset.lawdept;
+    (state.laws[l] = state.laws[l] || {}).dept = t.value;
+    save(); refresh(false);
   });
   $("#btnMsWizard").addEventListener("click", () => wizOpen());
   document.addEventListener("click", e => {
