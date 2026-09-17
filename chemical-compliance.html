@@ -3768,6 +3768,16 @@ function wizAnswerChoices(st){
   return (st.opts || []).map(o => o[1]).concat(["非該当", "わからない"]);
 }
 
+/* ボタンの名前は、そのプロンプトが実際に何を尋ねるかに合わせる。
+   「この法令のプロンプト」では、類や種を聞くものなのか、該当の有無だけを
+   聞くものなのかが押す前に分からない。 */
+function wizAskLabel(st){
+  if(st.type === "rank" || st.type === "kakan") return "種別を調べるプロンプトをコピー";
+  if(st.type === "pick")  return "区分を調べるプロンプトをコピー";
+  if(st.type === "shobo") return "品名を調べるプロンプトをコピー";
+  return "該当の有無を調べるプロンプトをコピー";
+}
+
 function wizPrompt(st){
   const ch = wizAnswerChoices(st);
   return [
@@ -4078,7 +4088,7 @@ function wizRenderStep(st){
       <ul>${sds}</ul>
     </div>
     <div class="wiz-ask">
-      <button type="button" class="btn ghost sm" id="wizAsk">この法令のプロンプトをコピー</button>
+      <button type="button" class="btn ghost sm" id="wizAsk">${esc(wizAskLabel(st))}</button>
       ${st.cut ? `<button type="button" class="btn ghost sm" id="wizAskCut">裾切り値を調べるプロンプトをコピー</button>` : ""}
       <span>SDSに書かれていないときは、コピーした文をAIに貼り付けて聞いてください。</span>
     </div>
