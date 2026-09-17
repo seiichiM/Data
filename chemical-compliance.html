@@ -467,13 +467,50 @@ table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
 }
 
 @media print{
-  .tabs,.masthead .mast-meta,.btnrow,.no-print{display:none !important}
+  .tabs,.masthead .mast-meta,.btnrow,.toast,.no-print{display:none !important}
   body{background:#fff; font-size:10.5pt}
   .card{break-inside:avoid; border-color:#999}
   .panel{gap:12px}
   @page{size:A4; margin:14mm}
 }
+
+/* ---- 化学品台帳の一覧表印刷（A3横） ----
+   画面では折りたたみ式のカードで1件ずつ編集し、紙では1行1成分の表にする。
+   用紙サイズは印刷の直前に #pagecss へ流し込み、印刷後に戻す。 */
+#chemPrint{display:none}
+@media print{
+  html[data-print="chem"] #chemPrint{display:block}
+  html[data-print="chem"] #prodList,
+  html[data-print="chem"] #panel-chem .lead,
+  html[data-print="chem"] #panel-chem > .card > .hd,
+  html[data-print="chem"] .masthead,
+  html[data-print="chem"] .band,
+  html[data-print="chem"] .foot{display:none !important}
+  html[data-print="chem"] .card{break-inside:auto; border:none}
+  html[data-print="chem"] .card > .bd{padding:0}
+  #chemPrint .cp-hd{display:flex; justify-content:space-between; align-items:baseline;
+      border-bottom:1.2pt solid #333; padding-bottom:2mm; margin-bottom:3mm}
+  #chemPrint{color:#111}
+  #chemPrint .cp-hd{border-bottom-color:#333}
+  #chemPrint .cp-hd h3{font-size:13pt; font-weight:700; margin:0}
+  #chemPrint .cp-hd .m{font-size:8.5pt; color:#444}
+  #chemPrint table{width:100%; border-collapse:collapse; font-size:8pt; table-layout:fixed}
+  #chemPrint thead{display:table-header-group}
+  #chemPrint th{background:#eceff4; border:.5pt solid #888; padding:1.6mm 1.6mm;
+      text-align:left; font-size:7.8pt; font-weight:700}
+  #chemPrint td{border:.5pt solid #aaa; padding:1.4mm 1.6mm; vertical-align:top;
+      line-height:1.45; word-break:break-word}
+  #chemPrint td.num{text-align:right; font-variant-numeric:tabular-nums}
+  #chemPrint td.pn{font-weight:700}
+  #chemPrint tbody tr{background:#fff}
+  #chemPrint tbody tr.alt{background:#f4f6f9}
+  #chemPrint tr{break-inside:avoid}
+  #chemPrint .sub{color:#555; font-size:7.4pt; display:block}
+  #chemPrint .cp-ft{margin-top:3mm; font-size:7.6pt; color:#444; line-height:1.6}
+  #chemPrint .cp-empty{font-size:9pt}
+}
 </style>
+<style id="pagecss"></style>
 </head>
 <body>
 <header class="masthead">
@@ -610,6 +647,11 @@ table.wiz-review td.v.unsure{color:var(--warn); font-weight:700}
           <button class="btn danger" id="btnClearSample" type="button" hidden>サンプルを消して空から始める</button>
         </div>
         <div id="prodList"></div>
+        <div class="btnrow" id="chemBottomBar">
+          <button class="btn" id="btnAddProd2" type="button">＋ 化学品を追加</button>
+          <button class="btn ghost" id="btnPrintChem" type="button">一覧表を印刷（A3横）</button>
+        </div>
+        <div id="chemPrint"></div>
       </div>
     </div>
   </section>
@@ -2796,12 +2838,11 @@ const casDatalist = () => {
 };
 
 /* 成分1行ぶんの照合結果。CAS番号を打った瞬間に何の法令に当たるかを返す */
-function compHit(c){
-  if(!(c.cas||"").trim() && !(c.name||"").trim()) return "";
-  const m = resolveComp(c);
-  if(!m) return `<span class="miss">マスタ未収録です。SDS第15項の適用法令を確認し、要確認として扱われます。</span>`;
-  const b = [`<span class="nm">${esc(m.name)}</span>`];
-  const add = (cls,txt) => b.push(`<span class="pill ${cls}">${esc(txt)}</span>`);
+/* 物質1件の該当法令。画面のピルと紙の一覧表で同じ内容になるよう、
+   表示の組み立てはここに集約する。返すのは［色の種類, 表示文字］の配列。 */
+function subTags(m){
+  const b = [];
+  const add = (cls,txt) => b.push([cls, txt]);
   if(m.tokka) add("p-crit", m.tokka==="?" ? "特化則 該当（区分未確定）" : "特化則 第"+m.tokka+"類");
   if(m.sp===1) add("p-crit","特別管理物質");
   if(m.yuki) add("p-warn", m.yuki==="?" ? "有機則 該当（種別未確定）" : "有機則 第"+m.yuki+"種");
@@ -2827,6 +2868,14 @@ function compHit(c){
   if(m.skin===2) add("p-mute","皮膚等障害 要確認");
   if(m.sui===2) add("p-mute","水濁法 要確認");
   UNSURE_KEYS.forEach(([k,label]) => { if(m[k]===2) add("p-mute", label+" 要確認"); });
+  return b;
+}
+function compHit(c){
+  if(!(c.cas||"").trim() && !(c.name||"").trim()) return "";
+  const m = resolveComp(c);
+  if(!m) return `<span class="miss">マスタ未収録です。SDS第15項の適用法令を確認し、要確認として扱われます。</span>`;
+  const b = [`<span class="nm">${esc(m.name)}</span>`]
+    .concat(subTags(m).map(([cls,txt]) => `<span class="pill ${cls}">${esc(txt)}</span>`));
   if(m.note) b.push(`<span>${esc(m.note)}</span>`);
   const typed = (c.name||"").trim();
   if(typed && typed !== m.name)
@@ -2869,6 +2918,7 @@ function prodTags(p){
 function renderProducts(){
   $("#masterCount").textContent = MASTER.length;
   $("#btnClearSample").hidden = !state.sample;
+  renderChemPrint();
   const el = $("#prodList");
   if(!state.products.length){ el.innerHTML = `<div class="empty">化学品がまだありません。「＋ 化学品を追加」から登録してください。</div>`; return; }
   el.innerHTML = casDatalist() + state.products.map(p => `
@@ -2932,6 +2982,81 @@ function renderProducts(){
         </details>
       </div>
     </div>`).join("");
+}
+
+/* ---------- 化学品台帳の一覧表（A3横で印刷する紙の様式） ----------
+   画面のカードは1件ずつ編集するための形で、並べて見比べるには向かない。
+   紙では1行1成分にし、化学品ごとの欄は縦に結合して、
+   「どの化学品のどの成分がどの法令に当たるか」を横並びで追えるようにする。 */
+const CHEM_PRINT_COLS = [
+  ["No.", "3%"], ["化学品名", "12%"], ["供給者", "8%"], ["SDS発行日", "7%"],
+  ["用途・作業", "8%"], ["年間取扱量\nkg", "5%"], ["最大貯蔵量\nL・kg", "5%"],
+  ["消防法の品名", "9%"], ["成分（SDS第3項）", "14%"], ["該当法令・区分", "29%"]
+];
+function chemPrintRows(p){
+  /* 1化学品あたりの行。成分が1件もなければ1行だけ出す。
+     供給者回答は成分と別の行にして、根拠が成分なのか回答なのかを紙の上で分ける。 */
+  const rows = [];
+  (p.comps||[]).forEach(c => {
+    if(!(c.cas||"").trim() && !(c.name||"").trim()) return;
+    const m = resolveComp(c);
+    const pct = Number(c.pct)||0;
+    rows.push({
+      comp: m ? `${esc(m.name)}<span class="sub">${esc(m.cas==="-"?"CAS番号なし":m.cas)}／${pct}%</span>`
+              : `${esc(c.name||c.cas||"名称未入力")}<span class="sub">${esc(normCas(c.cas||"")||"CAS番号なし")}／${pct}%</span>`,
+      law: m ? (subTags(m).map(t=>esc(t[1])).join("・") || "該当なし")
+             : "マスタ未収録（要確認）"
+    });
+  });
+  const hits = DECL_ITEMS.filter(([k]) => ((p.decl||{})[k]||"") === "y");
+  if(hits.length || p.undisclosed){
+    const meta = [p.declBy, p.declDate].filter(Boolean).join("／");
+    rows.push({
+      comp: `<em>供給者への確認結果</em>${meta ? `<span class="sub">${esc(meta)}</span>` : ""}`,
+      law: hits.length
+        ? hits.map(([k, label]) => {
+            const v = (p.declPct||{})[k];
+            return esc(label) + (v ? `（${esc(String(v))}%）` : "");
+          }).join("・")
+        : "未照会（成分非開示）"
+    });
+  }
+  if(!rows.length) rows.push({comp:"<span class=\"sub\">成分未入力</span>", law:"判定できません"});
+  return rows;
+}
+function renderChemPrint(){
+  const box = $("#chemPrint"); if(!box) return;
+  const ps = state.products||[];
+  const head = `<div class="cp-hd"><h3>化学品台帳 一覧表</h3>` +
+    `<span class="m">${esc(state.site.name||"事業場名未入力")}　／　出力日 ${iso(TODAY)}　／　化学品 ${ps.length}件</span></div>`;
+  if(!ps.length){ box.innerHTML = head + `<p class="cp-empty">登録された化学品がありません。</p>`; return; }
+  let n = 0;
+  const body = ps.map(p => {
+    n++;
+    const rows = chemPrintRows(p);
+    const rs = rows.length > 1 ? ` rowspan="${rows.length}"` : "";
+    const shobo = p.shobo && SHOBO_BY_KEY[p.shobo] ? SHOBO_BY_KEY[p.shobo].label : "—";
+    const first = `<td class="num"${rs}>${n}</td>` +
+      `<td class="pn"${rs}>${esc(p.name||"（名称未入力）")}</td>` +
+      `<td${rs}>${esc(p.maker||"—")}</td>` +
+      `<td${rs}>${esc(p.sdsDate||"未登録")}</td>` +
+      `<td${rs}>${esc(p.use||"—")}</td>` +
+      `<td class="num"${rs}>${Number(p.annualKg)||0}</td>` +
+      `<td class="num"${rs}>${Number(p.stockQty)||0}</td>` +
+      `<td${rs}>${esc(shobo)}</td>`;
+    /* 縞は行ではなく化学品ごとに付ける。行単位だと結合セルと縞がずれ、
+       どこまでが1つの化学品なのか紙の上で分からなくなる。 */
+    const alt = n % 2 === 0 ? ' class="alt"' : "";
+    return rows.map((r, i) =>
+      `<tr${alt}>${i===0 ? first : ""}<td>${r.comp}</td><td>${r.law}</td></tr>`).join("");
+  }).join("");
+  box.innerHTML = head +
+    `<table><colgroup>${CHEM_PRINT_COLS.map(c=>`<col style="width:${c[1]}">`).join("")}</colgroup>` +
+    `<thead><tr>${CHEM_PRINT_COLS.map(c=>`<th>${esc(c[0]).replace(/\n/g,"<br>")}</th>`).join("")}</tr></thead>` +
+    `<tbody>${body}</tbody></table>` +
+    `<p class="cp-ft">該当法令欄は、CAS番号（なければ物質名）で物質マスタ（収録 ${MASTER.length}物質）と照合した結果です。` +
+    `裾切り値の判定は含めていないため、この欄の記載がそのまま義務の発生を意味するわけではありません。` +
+    `実際に生じる義務は「法令該当判定」と「年間チェック表」をご覧ください。</p>`;
 }
 
 /* ---------- 物質マスタ：一覧・書き出し・取り込み ---------- */
@@ -4507,11 +4632,13 @@ function bind(){
   $("#confirmDlg").addEventListener("cancel", e => { e.preventDefault(); closeConfirm(false); });
   $("#confirmDlg").addEventListener("click", e => { if(e.target === $("#confirmDlg")) closeConfirm(false); });
 
-  $("#btnAddProd").addEventListener("click", () => {
+  const addProd = () => {
     state.products.push({id:uid(), name:"", maker:"", sdsDate:"", use:"", annualKg:0, stockQty:0, shobo:"", comps:[{cas:"",name:"",pct:0,auto:true}]});
     state.sample=false; refresh(true);
     const list=$("#prodList").lastElementChild; if(list) list.scrollIntoView({block:"center"});
-  });
+  };
+  $("#btnAddProd").addEventListener("click", addProd);
+  $("#btnAddProd2").addEventListener("click", addProd);
   $("#btnClearSample").addEventListener("click", async () => {
     const ok = await askConfirm("サンプルデータを全て消して、空の台帳から始めます。事業場の条件も初期化されます。", "消して始める");
     if(!ok) return;
@@ -4679,10 +4806,37 @@ function bind(){
   }));
   $$("[data-asset]").forEach(b => b.addEventListener("click", () => downloadAsset(b.dataset.asset)));
   $("#btnZip").addEventListener("click", () => downloadZip());
-  const doPrint = () => { $$(".tab").forEach(x=>x.setAttribute("aria-selected", String(x.dataset.tab==="task")));
+  /* ダークテーマのまま印刷すると、紙の余白や注記が黒地のまま出る。
+     印刷のあいだだけ配色を明るい側に固定し、印刷後に元へ戻す。 */
+  let themeBeforePrint = false;   // false は「印刷していない」の目印。null は属性なしを表す
+  const forceLightForPrint = () => {
+    if(themeBeforePrint === false) themeBeforePrint = document.documentElement.getAttribute("data-theme");
+    document.documentElement.setAttribute("data-theme", "light");
+  };
+  const doPrint = () => { forceLightForPrint();
+    $$(".tab").forEach(x=>x.setAttribute("aria-selected", String(x.dataset.tab==="task")));
     $$(".panel").forEach(p=>p.hidden = p.id!=="panel-task"); setTimeout(()=>window.print(), 60); };
   $("#btnPrint").addEventListener("click", doPrint);
   $("#btnPrint2").addEventListener("click", doPrint);
+  /* 一覧表はA3横。用紙の指定は印刷の直前だけ入れ、終わったら外す。
+     入れっぱなしにすると、年間チェック表のA4印刷までA3になってしまう。 */
+  $("#btnPrintChem").addEventListener("click", () => {
+    renderChemPrint(); forceLightForPrint();
+    document.documentElement.setAttribute("data-print", "chem");
+    $("#pagecss").textContent = "@page{size:A3 landscape; margin:10mm}";
+    $$(".tab").forEach(x=>x.setAttribute("aria-selected", String(x.dataset.tab==="chem")));
+    $$(".panel").forEach(p=>p.hidden = p.id!=="panel-chem");
+    setTimeout(()=>window.print(), 60);
+  });
+  window.addEventListener("afterprint", () => {
+    document.documentElement.removeAttribute("data-print");
+    $("#pagecss").textContent = "";
+    if(themeBeforePrint !== false){
+      if(themeBeforePrint === null) document.documentElement.removeAttribute("data-theme");
+      else document.documentElement.setAttribute("data-theme", themeBeforePrint);
+      themeBeforePrint = false;
+    }
+  });
 }
 
 /* ---------- ⑧ 起動 ---------- */
